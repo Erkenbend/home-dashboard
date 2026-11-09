@@ -34,7 +34,20 @@ class StopConfig(_Strict):
     lines: list[str] | None = None
 
 
+class DisplayConfig(_Strict):
+    clock_refresh_seconds: int = Field(default=15, ge=1)
+    page_reload_hours: float = Field(
+        default=6, ge=0, description="full page reload as safety net for kiosk browsers, 0 = off"
+    )
+
+
 class DeparturesConfig(_Strict):
+    refresh_seconds: int = Field(
+        default=30, ge=5, description="how often the tablet updates the widget (countdowns)"
+    )
+    fetch_seconds: int = Field(
+        default=60, ge=15, description="how often the Pi asks the transit API at most"
+    )
     max_per_stop: int = Field(default=5, ge=1)
     products: list[Literal["tram", "bus", "suburban", "regional"]] = ["tram"]
     stops: list[StopConfig] = []
@@ -60,12 +73,17 @@ class EveryoneConfig(_Strict):
 class CalendarConfig(_Strict):
     ical_url: str | None = None
     days: int = Field(default=7, ge=1)
+    refresh_seconds: int = Field(default=300, ge=5, description="how often the tablet updates")
+    fetch_seconds: int = Field(
+        default=600, ge=60, description="how often the Pi downloads the iCal feed at most"
+    )
     people: list[PersonConfig] = []
     everyone: EveryoneConfig = EveryoneConfig()
 
 
 class AppConfig(_Strict):
     timezone: str = "Europe/Berlin"
+    display: DisplayConfig = DisplayConfig()
     home: HomeConfig = HomeConfig()
     departures: DeparturesConfig = DeparturesConfig()
     calendar: CalendarConfig = CalendarConfig()

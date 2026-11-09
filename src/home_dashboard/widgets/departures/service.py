@@ -6,14 +6,13 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from home_dashboard.cache import TtlCache
+from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import DeparturesConfig, StopConfig
 from home_dashboard.widgets.departures.provider import Departure, DepartureProvider
 
 log = logging.getLogger(__name__)
 
-CACHE_TTL = timedelta(seconds=45)
 LOOKAHEAD_MINUTES = 60
 DUPLICATE_WINDOW = timedelta(minutes=5)
 CITY_PREFIX_SEPARATOR = ", "
@@ -88,7 +87,7 @@ class DeparturesService:
         try:
             cached = self._cache.get(
                 ("departures", stop.id, stop.via, tuple(self._config.products)),
-                CACHE_TTL,
+                fetch_interval(self._config.fetch_seconds),
                 lambda: self._provider.departures(
                     stop.id,
                     self._clock.now(),

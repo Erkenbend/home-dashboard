@@ -13,6 +13,15 @@ from home_dashboard.clock import Clock
 log = logging.getLogger(__name__)
 
 
+def fetch_interval(seconds: int) -> timedelta:
+    """TTL for 'fetch at most every N seconds' with polls every N seconds.
+
+    A small tolerance (10 %, at most 5 s) keeps polls arriving slightly early (network jitter)
+    from skipping a whole refresh cycle.
+    """
+    return timedelta(seconds=seconds - min(5.0, seconds * 0.1))
+
+
 @dataclass(frozen=True)
 class Cached[T]:
     value: T

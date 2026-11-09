@@ -80,6 +80,14 @@ def _check_config(path: str) -> int:
         f"  Personen: {people or '-'}; {config.calendar.everyone.label}: "
         f"{', '.join(config.calendar.everyone.match) or 'nur ohne erkannte Person'}"
     )
+    display, departures, calendar = config.display, config.departures, config.calendar
+    reload = f"{display.page_reload_hours:g} h" if display.page_reload_hours else "aus"
+    print(
+        f"  Aktualisierung: Uhr {display.clock_refresh_seconds} s, "
+        f"Abfahrten {departures.refresh_seconds} s (Abruf {departures.fetch_seconds} s), "
+        f"Kalender {calendar.refresh_seconds} s (Abruf {calendar.fetch_seconds} s), "
+        f"Seiten-Reload {reload}"
+    )
     return 0
 
 

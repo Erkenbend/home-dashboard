@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block body %}
 <header class="header">
-  <div id="clock" hx-get="/widgets/clock" hx-trigger="every 15s">
+  <div id="clock" hx-get="/widgets/clock" hx-trigger="every {{ config.display.clock_refresh_seconds }}s">
     {% include "widgets/clock.html" %}
   </div>
 </header>
 <main class="widgets">
   {% if show_departures %}
-  <section class="widget" id="departures" hx-get="/widgets/departures" hx-trigger="every 30s">
+  <section class="widget" id="departures" hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
     {% include "widgets/departures.html" %}
   </section>
   {% endif %}
   {% if calendar %}
-  <section class="widget widget-calendar" id="calendar" hx-get="/widgets/calendar" hx-trigger="every 300s">
+  <section class="widget widget-calendar" id="calendar" hx-get="/widgets/calendar" hx-trigger="every {{ config.calendar.refresh_seconds }}s">
     {% include "widgets/calendar.html" %}
   </section>
   {% endif %}

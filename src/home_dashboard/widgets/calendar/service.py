@@ -8,15 +8,13 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
-from home_dashboard.cache import TtlCache
+from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import CalendarConfig
 from home_dashboard.formatting import format_short_date, format_time
 from home_dashboard.widgets.calendar.source import CalendarSource, Event
 
 log = logging.getLogger(__name__)
-
-CACHE_TTL = timedelta(minutes=10)
 
 
 @dataclass(frozen=True)
@@ -110,7 +108,7 @@ class CalendarService:
         try:
             cached = self._cache.get(
                 ("calendar", today),
-                CACHE_TTL,
+                fetch_interval(self._config.fetch_seconds),
                 lambda: self._source.events(window_start, window_end),
             )
         except Exception:

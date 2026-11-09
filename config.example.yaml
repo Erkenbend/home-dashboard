@@ -2,12 +2,18 @@
 
 timezone: Europe/Berlin
 
+display:
+  clock_refresh_seconds: 15
+  page_reload_hours: 6      # full page reload as safety net for the kiosk browser, 0 = off
+
 home:
   address: "Musterstraße 1, 06108 Halle (Saale)"
   lat: 51.482
   lon: 11.969
 
 departures:
+  refresh_seconds: 30       # how often the tablet updates the widget (countdowns)
+  fetch_seconds: 60         # how often the Pi asks HAFAS at most (min. 15)
   max_per_stop: 5
   products: [tram]          # tram, bus, suburban, regional
   stops:
@@ -27,6 +33,8 @@ calendar:
   # Google Calendar > Settings > "Privatadresse im iCal-Format" (keep secret!)
   ical_url: null
   days: 7
+  refresh_seconds: 300      # how often the tablet updates the widget
+  fetch_seconds: 600        # how often the Pi downloads the iCal feed at most (min. 60)
   people:                   # keywords are matched case-insensitively as whole words
     - name: "Person A"
       color: "#e07a5f"

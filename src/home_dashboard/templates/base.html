@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {# Full reload every 6 h as a safety net for long-running kiosk browsers #}
-  <meta http-equiv="refresh" content="21600">
+  {# Full reload as a safety net for long-running kiosk browsers #}
+  {% if config.display.page_reload_hours > 0 %}
+  <meta http-equiv="refresh" content="{{ (config.display.page_reload_hours * 3600) | round | int }}">
+  {% endif %}
   <title>Dashboard</title>
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/htmx.min.js"></script>

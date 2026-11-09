@@ -57,10 +57,17 @@ External systems are only reached through the source interface, so a source can 
 
 ## Caching and refresh
 
-| Source | Server cache TTL | Browser refresh |
+All intervals are configurable (defaults shown):
+
+| What | Tablet polls the Pi (`refresh_seconds`) | Pi fetches upstream at most (`fetch_seconds`) |
 |---|---|---|
-| Departures (per stop) | 45 s | 30 s |
-| Calendar | ~10 min | 5 min |
+| Clock (`display.clock_refresh_seconds`) | 15 s | – |
+| Departures (per stop) | 30 s | 60 s (min. 15) |
+| Calendar | 5 min | 10 min (min. 60 s) |
+| Full page reload (`display.page_reload_hours`, 0 = off) | 6 h | – |
+
+The cache treats an entry as expired slightly early (10 %, max. 5 s) so that a poll arriving a bit early
+does not skip a whole fetch cycle.
 
 On upstream errors the cache serves the last good value; the fragment shows "Stand: HH:MM".
 Failed loads are also retried at most once per TTL, so a broken upstream (10 s HTTP timeout) does not

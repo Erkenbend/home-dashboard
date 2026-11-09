@@ -59,6 +59,7 @@ def create_app(
     templates = Jinja2Templates(directory=PACKAGE_DIR / "templates")
     templates.env.filters["time"] = formatting.format_time
     templates.env.filters["long_date"] = formatting.format_long_date
+    templates.env.globals["config"] = config
 
     def departures_context() -> dict:
         return {"boards": departures.boards(), "show_departures": bool(config.departures.stops)}
