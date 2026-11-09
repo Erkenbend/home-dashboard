@@ -10,6 +10,7 @@
 ## Coding
 
 * Solo development: commit directly on main unless instructed otherwise
+* Commit after each meaningful step (e.g. initial plan and decisions documented, spike finished, widget implemented), don't batch unrelated steps into one commit
 * Report choices made autonomously, assume the user is a developer
 * Focus on producing a well-testable architecture
 * Test at behaviour level: prefer a slightly slower but stable integration test to a fast but brittle unit test
