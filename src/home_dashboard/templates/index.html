@@ -6,6 +6,10 @@
   </div>
 </header>
 <main class="widgets">
-  {# Widgets (Abfahrten, Kalender) are added here #}
+  {% if show_departures %}
+  <section class="widget" id="departures" hx-get="/widgets/departures" hx-trigger="every 30s">
+    {% include "widgets/departures.html" %}
+  </section>
+  {% endif %}
 </main>
 {% endblock %}

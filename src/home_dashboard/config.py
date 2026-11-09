@@ -26,10 +26,10 @@ class HomeConfig(_Strict):
 
 class StopConfig(_Strict):
     name: str
-    id: str = Field(description="HAFAS location id (lid), look up with `home-dashboard find-stop`")
+    id: str = Field(description="stop id, look up with `home-dashboard find-stop`")
     walk_minutes: int = Field(ge=0)
     via: str | None = Field(
-        default=None, description="lid of a stop the trip must pass later (direction filter)"
+        default=None, description="id of a stop the trip must pass later (direction filter)"
     )
     lines: list[str] | None = None
 

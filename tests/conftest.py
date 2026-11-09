@@ -20,7 +20,7 @@ REPO_ROOT = Path(__file__).parent.parent
 @pytest.fixture
 def clock() -> FixedClock:
     # Time at which the INSA HAFAS fixtures were recorded
-    return FixedClock(datetime(2026, 11, 9, 21, 34, 56, tzinfo=BERLIN))
+    return FixedClock(datetime(2026, 11, 9, 21, 36, tzinfo=BERLIN))
 
 
 @pytest.fixture

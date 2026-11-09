@@ -31,6 +31,7 @@ cp config.example.yaml config.yaml        # local config, gitignored
 uv run pytest                             # behaviour tests (live tests: uv run pytest -m live)
 uv run ruff check && uv run ruff format --check
 uv run home-dashboard serve --reload      # http://localhost:3274/
+uv run home-dashboard find-stop "Franckeplatz Halle"   # stop ids for config.yaml
 ```
 
 ## Deployment (Raspberry Pi)

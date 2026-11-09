@@ -1,0 +1,35 @@
+<h2 class="widget-title">Abfahrten</h2>
+{% for board in boards %}
+<div class="stop" data-stop="{{ board.name }}">
+  <h3 class="stop-name">
+    {{ board.name }}
+    <span class="stop-walk">{{ board.walk_minutes }} min Fußweg</span>
+  </h3>
+  {% if board.unavailable %}
+  <p class="notice">Keine Daten verfügbar</p>
+  {% else %}
+  <table class="departures">
+    {% for row in board.rows %}
+    <tr class="departure{% if row.cancelled %} cancelled{% endif %}" data-line="{{ row.line }}" data-minutes="{{ row.minutes }}">
+      <td class="line"><span class="line-badge">{{ row.line }}</span></td>
+      <td class="direction">{{ row.direction }}</td>
+      <td class="time">
+        {{ row.when | time }}{% if row.delay > 0 %} <span class="delay">+{{ row.delay }}</span>{% endif %}
+      </td>
+      {% if row.cancelled %}
+      <td class="status" colspan="2">fällt aus</td>
+      {% else %}
+      <td class="minutes">in {{ row.minutes }} min</td>
+      <td class="leave">{% if row.leave_in <= 0 %}jetzt los!{% else %}los in {{ row.leave_in }} min{% endif %}</td>
+      {% endif %}
+    </tr>
+    {% else %}
+    <tr><td class="notice">Keine erreichbaren Abfahrten</td></tr>
+    {% endfor %}
+  </table>
+  {% if board.stale %}
+  <p class="notice stale">Stand: {{ board.fetched_at | time }}</p>
+  {% endif %}
+  {% endif %}
+</div>
+{% endfor %}

@@ -12,7 +12,7 @@ def test_dashboard_shows_current_time_and_german_date(client: TestClient) -> Non
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "21:34" in response.text
+    assert "21:36" in response.text
     assert "Montag, 9. November 2026" in response.text
 
 

@@ -7,7 +7,7 @@ Each step ends with a commit on `main`. See [requirements](requirements.md) and 
 | 0 | Documentation | Requirements, architecture, ADRs 0001–0003, README | done |
 | 1 | Transit API spike | Throwaway script (outside `src/`) evaluating the candidates of ADR 0003 for a Halle stop; record real responses as test fixtures; finalize ADR 0003 | done: INSA HAFAS chosen |
 | 2 | Skeleton | `pyproject.toml` (uv), FastAPI app with base layout + clock + `/healthz`, config loading, `config.example.yaml`, Dockerfile (python:3.12-slim, arm64), `compose.yaml`, `scripts/deploy.sh`; deploy once to the Pi to validate the pipeline early | done (deployed to Pi) |
-| 3 | Departures widget | Provider from the spike, reachability/filter service, fragment template, behaviour tests, `find-stop` CLI | open |
+| 3 | Departures widget | Provider from the spike, reachability/filter service, fragment template, behaviour tests, `find-stop` CLI | done |
 | 4 | Calendar widget | iCal source, day grouping, person colours, fragment template, behaviour tests | open |
 | 5 | Tablet setup + polish | README section on kiosk browser setup (start URL, screen always on, reload on connection loss), layout tuning on the real device, visible error states | open |
 

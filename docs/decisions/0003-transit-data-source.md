@@ -29,8 +29,9 @@ Implementation notes from the spike:
 - **Requests**: `LocMatch` (stop search, used by the `find-stop` helper) and `StationBoard` (`type: DEP`).
   Request envelope: `auth {type: AID, aid: nasa-apps}`, `client {type: IPH, id: NASA, v: 4000200, name: nasaPROD}`,
   `ver: 1.44`, `lang: de`.
-- **Stop IDs**: the `lid` string from `LocMatch` identifies the stop (also usable in config);
-  `extId` is the short numeric ID (Rannischer Platz `5258`, Franckeplatz `5125`, matching DELFI `de:15002:5258`).
+- **Stop IDs**: `LocMatch` returns a long `lid` and the short numeric `extId` (Rannischer Platz `5258`,
+  Franckeplatz `5125`, matching DELFI `de:15002:5258`). A minimal `lid` `A=1@L=<extId>@` is accepted for
+  `stbLoc` and `dirLoc`, so the config only contains numeric IDs.
 - **Direction filter**: `StationBoard` accepts `dirLoc` (a stop the trip must pass later). This is the reliable
   way to express "towards the city centre": e.g. Rannischer Platz via Marktplatz → only lines 1 and 95 northbound;
   Franckeplatz via Hauptbahnhof → buses 312/320/380, trams 7/94. The config therefore uses an optional **`via`

@@ -54,3 +54,93 @@ body {
 .widget:last-child {
   margin-right: 0;
 }
+
+.widget-title {
+  font-size: 22px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #a0a8b0;
+  margin: 0 0 12px 0;
+}
+
+.notice {
+  color: #a0a8b0;
+  font-size: 20px;
+}
+
+.stale {
+  color: #e0a040;
+}
+
+/* Departures */
+
+.stop {
+  margin-bottom: 20px;
+}
+
+.stop-name {
+  font-size: 26px;
+  margin: 0 0 6px 0;
+}
+
+.stop-walk {
+  font-size: 18px;
+  font-weight: normal;
+  color: #a0a8b0;
+  margin-left: 8px;
+}
+
+.departures {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 26px;
+}
+
+.departures td {
+  padding: 5px 8px 5px 0;
+  white-space: nowrap;
+}
+
+.departures .direction {
+  width: 100%;
+  white-space: normal;
+}
+
+.line-badge {
+  display: inline-block;
+  min-width: 44px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #cc0000; /* HAVAG tram red */
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+}
+
+.departures .minutes {
+  font-weight: bold;
+  text-align: right;
+}
+
+.departures .leave {
+  color: #8fd18f;
+  font-size: 20px;
+  text-align: right;
+}
+
+.delay {
+  color: #ff7a6b;
+  font-size: 20px;
+}
+
+.departure.cancelled .direction,
+.departure.cancelled .time {
+  text-decoration: line-through;
+  color: #707880;
+}
+
+.departure.cancelled .status {
+  color: #ff7a6b;
+  text-align: right;
+}

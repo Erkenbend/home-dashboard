@@ -59,10 +59,12 @@ External systems are only reached through the source interface, so a source can 
 
 | Source | Server cache TTL | Browser refresh |
 |---|---|---|
-| Departures (per stop) | ~30–60 s | 30 s |
+| Departures (per stop) | 45 s | 30 s |
 | Calendar | ~10 min | 5 min |
 
 On upstream errors the cache serves the last good value; the fragment shows "Stand: HH:MM".
+Failed loads are also retried at most once per TTL, so a broken upstream (10 s HTTP timeout) does not
+slow down every refresh. Reachability is recomputed on every request from the cached departures.
 
 ## Configuration
 
@@ -78,14 +80,14 @@ departures:
   products: [tram]   # HAFAS product filter, default: trams only
   stops:
     - name: "Rannischer Platz"
-      id: "…"              # HAFAS lid, look up with `find-stop`
+      id: "5258"           # numeric stop id, look up with `home-dashboard find-stop`
       walk_minutes: 5
-      via: "…"             # optional: lid of a stop the trip must pass (direction), e.g. Marktplatz
+      via: "5232"          # optional: stop the tram must pass later (direction), here Marktplatz
       lines: ["1", "95"]   # optional
     - name: "Franckeplatz"
-      id: "…"
-      walk_minutes: 12
-      via: "…"             # e.g. Hauptbahnhof
+      id: "5125"
+      walk_minutes: 10
+      via: "8010159"       # Hauptbahnhof
 calendar:
   ical_url: "https://calendar.google.com/calendar/ical/…/basic.ics"
   days: 7

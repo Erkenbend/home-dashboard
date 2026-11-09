@@ -11,15 +11,16 @@ departures:
   max_per_stop: 5
   products: [tram]          # tram, bus, suburban, regional
   stops:
-    # ids: HAFAS lid strings, look them up with `home-dashboard find-stop "<name>"`
+    # ids: numeric stop ids, look them up with `home-dashboard find-stop "<name> Halle"`
+    # via: optional stop the tram must pass later = direction
     - name: "Rannischer Platz"
-      id: "A=1@O=Halle (Saale), Rannischer Platz@X=11969595@Y=51474274@U=80@L=5258@"
+      id: "5258"
       walk_minutes: 5
-      via: "A=1@O=Halle (Saale), Marktplatz@L=5232@"   # towards the city centre
+      via: "5232"           # Marktplatz -> towards the city centre
     - name: "Franckeplatz"
-      id: "A=1@O=Halle (Saale), Franckeplatz@X=11969595@Y=51478544@U=80@L=5125@"
+      id: "5125"
       walk_minutes: 10
-      via: "A=1@O=Halle (Saale) Hbf@L=8010159@"        # towards the main station
+      via: "8010159"        # Hauptbahnhof -> towards the main station
       # lines: ["7", "94"]   # optional line filter
 
 calendar:
