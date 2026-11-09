@@ -65,7 +65,7 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 | Browser compatibility | Conservative: server-side rendering, minimal JavaScript, no frontend build step |
 | Server hardware | Raspberry Pi 3b (1 GB RAM, arm64, headless, no desktop environment) |
 | Network / security | Home network only, no authentication, no exposure to the internet |
-| Secrets | The secret iCal URL lives only in the local config on the Pi, never in git |
+| Secrets | The secret iCal URL lives only in the gitignored `config.yaml` (WSL and Pi), never in git |
 | Robustness | Survives reboots (auto start), API outages and Wi-Fi interruptions without manual intervention |
 | API usage | External APIs are cached server-side; multiple displays must not multiply external requests |
 | Development | Only in WSL on the developer machine (tests, builds). The Pi only runs the deployed container |

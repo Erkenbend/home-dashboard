@@ -32,6 +32,7 @@ uv run pytest                             # behaviour tests (live tests: uv run 
 uv run ruff check && uv run ruff format --check
 uv run home-dashboard serve --reload      # http://localhost:3274/
 uv run home-dashboard find-stop "Franckeplatz Halle"   # stop ids for config.yaml
+uv run home-dashboard check-config        # validate config.yaml
 ```
 
 ## Deployment (Raspberry Pi)
@@ -41,7 +42,10 @@ One-time setup on the Pi (`pi@192.168.0.10`):
 1. Install Docker and the compose plugin, add the user to the `docker` group
    (Debian trixie: `sudo apt install docker.io docker-compose && sudo usermod -aG docker $USER`, re-login).
 2. SSH key login from WSL: `ssh-copy-id pi@192.168.0.10`.
-3. `mkdir ~/home-dashboard` and put the real `config.yaml` there (contains the secret iCal URL, never commit it).
+
+Configuration: keep the real `config.yaml` (contains the secret iCal URL, gitignored, never commit it) in the
+repo root in WSL. `scripts/deploy.sh` validates it (`uv run home-dashboard check-config`) and uploads it to
+`~/home-dashboard/config.yaml` on the Pi. Without a local `config.yaml` the one on the Pi is kept.
 
 Deploy (from WSL, Docker running):
 
@@ -49,5 +53,6 @@ Deploy (from WSL, Docker running):
 scripts/deploy.sh                         # or: scripts/deploy.sh user@host
 ```
 
-The script cross-builds the arm64 image, ships it via SSH, restarts the container with
-`docker compose` and waits for `http://<pi>:3274/healthz`.
+The script validates and uploads the config, cross-builds the arm64 image, ships it via SSH, recreates the
+container with `docker compose` and waits for `http://<pi>:3274/healthz`.
+After config-only changes simply run the script again.

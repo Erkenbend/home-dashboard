@@ -6,8 +6,11 @@
 # Prerequisites:
 #   - local: Docker with buildx and arm64 emulation
 #       (once: docker run --privileged --rm tonistiigi/binfmt --install arm64)
-#   - Pi: Docker + compose plugin, SSH key login, user in group "docker",
-#         ~/home-dashboard/config.yaml present (copy from config.example.yaml)
+#   - Pi: Docker + compose plugin, SSH key login, user in group "docker"
+#
+# Configuration: if a local config.yaml exists (gitignored), it is validated and uploaded to
+# ~/home-dashboard/config.yaml on the Pi, overwriting the remote one. Without a local config.yaml the
+# remote one is kept and must exist.
 set -euo pipefail
 
 HOST="${1:-${DEPLOY_HOST:-pi@192.168.0.10}}"
@@ -23,8 +26,19 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 IMAGE="home-dashboard:${TAG}"
 
+if [[ -f config.yaml ]]; then
+  echo "==> Validating local config.yaml"
+  uv run --quiet home-dashboard check-config config.yaml
+  UPLOAD_CONFIG=1
+  REMOTE_CHECK="true"
+else
+  echo "==> No local config.yaml, keeping the one on the Pi"
+  UPLOAD_CONFIG=0
+  REMOTE_CHECK="test -f ${REMOTE_DIR}/config.yaml"
+fi
+
 echo "==> Checking remote prerequisites on ${HOST}"
-ssh "$HOST" "docker compose version >/dev/null && mkdir -p ${REMOTE_DIR} && test -f ${REMOTE_DIR}/config.yaml" || {
+ssh "$HOST" "docker compose version >/dev/null && mkdir -p ${REMOTE_DIR} && ${REMOTE_CHECK}" || {
   echo "error: remote needs docker compose and ~/${REMOTE_DIR}/config.yaml (see config.example.yaml)" >&2
   exit 1
 }
@@ -35,9 +49,16 @@ docker buildx build --platform linux/arm64 --tag "$IMAGE" --tag home-dashboard:l
 echo "==> Transferring image"
 docker save "$IMAGE" home-dashboard:latest | gzip -1 | ssh "$HOST" "gunzip | docker load"
 
+if [[ "$UPLOAD_CONFIG" == 1 ]]; then
+  echo "==> Uploading config.yaml"
+  scp -q config.yaml "${HOST}:${REMOTE_DIR}/config.yaml.new"
+  ssh "$HOST" "chmod 600 ${REMOTE_DIR}/config.yaml.new && mv ${REMOTE_DIR}/config.yaml.new ${REMOTE_DIR}/config.yaml"
+fi
+
 echo "==> Starting container"
 scp -q compose.yaml "${HOST}:${REMOTE_DIR}/compose.yaml"
-ssh "$HOST" "cd ${REMOTE_DIR} && TAG=${TAG} docker compose up -d --remove-orphans && docker image prune -f >/dev/null"
+# --force-recreate: the config is only read at startup, so always start a fresh container
+ssh "$HOST" "cd ${REMOTE_DIR} && TAG=${TAG} docker compose up -d --force-recreate --remove-orphans && docker image prune -f >/dev/null"
 
 echo "==> Waiting for health check"
 REMOTE_ADDR="${HOST#*@}"

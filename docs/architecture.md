@@ -68,7 +68,8 @@ slow down every refresh. Reachability is recomputed on every request from the ca
 
 ## Configuration
 
-`config.yaml` (gitignored; documented template in `config.example.yaml`), mounted read-only into the container:
+`config.yaml` (gitignored; documented template in `config.example.yaml`), maintained in WSL, uploaded by the
+deploy script and mounted read-only into the container:
 
 ```yaml
 home:
@@ -116,11 +117,13 @@ Development and builds happen in WSL; the Pi only runs the container.
 
 `scripts/deploy.sh [user@host]` (default `pi@192.168.0.10`):
 
-1. Check the Pi: `docker compose` available, `~/home-dashboard/config.yaml` present
+1. If a local `config.yaml` exists: validate it (`home-dashboard check-config`); otherwise require
+   `~/home-dashboard/config.yaml` on the Pi. Check `docker compose` on the Pi
 2. `docker buildx build --platform linux/arm64 -t home-dashboard:<git-sha> --load .`
    (Docker Desktop emulates arm64 out of the box; plain Docker needs `tonistiigi/binfmt` once)
 3. `docker save … | gzip | ssh <host> 'gunzip | docker load'` (no registry; the Pi never builds)
-4. Copy `compose.yaml` to `~/home-dashboard/`, `docker compose up -d` with `TAG=<git-sha>`,
+4. Upload the local `config.yaml` (mode 600) if present, copy `compose.yaml` to `~/home-dashboard/`,
+   `docker compose up -d --force-recreate` with `TAG=<git-sha>`,
    then poll `http://<host>:3274/healthz`
 
 Container: `restart: unless-stopped`, `TZ=Europe/Berlin`, port `3274:3274`, Docker `HEALTHCHECK` on `/healthz`.
