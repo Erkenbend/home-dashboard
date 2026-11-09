@@ -18,6 +18,8 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
   `departure_time (realtime if available) - now >= walking_time`.
 - Each departure shows line, direction, minutes until departure and minutes until one has to leave home
   ("los in X min").
+- Only **trams** are shown (buses are ignored). The transport modes are configurable
+  (`departures.products`, default `[tram]`) in case this changes.
 - Optional per-stop filters for lines and direction. The direction is expressed as a `via` stop the trip must
   pass (e.g. Rannischer Platz via Marktplatz = towards the city centre; Franckeplatz via Hauptbahnhof = towards
   the main station).

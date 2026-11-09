@@ -74,6 +74,7 @@ home:
   lon: 11.97
 departures:
   max_per_stop: 5
+  products: [tram]   # HAFAS product filter, default: trams only
   stops:
     - name: "Rannischer Platz"
       id: "…"              # HAFAS lid, look up with `find-stop`
