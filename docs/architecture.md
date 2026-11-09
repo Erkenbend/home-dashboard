@@ -28,7 +28,7 @@ src/home_dashboard/
   widgets/
     departures/
       provider.py   DepartureProvider protocol + Departure model
-      <impl>.py     concrete provider (chosen in ADR 0003)
+      insa_hafas.py concrete provider (INSA HAFAS, see ADR 0003)
       service.py    reachability + filter logic
       templates/
     calendar/
@@ -75,11 +75,15 @@ home:
 departures:
   max_per_stop: 5
   stops:
-    - name: "Steintor"
-      id: "…"            # look up with `find-stop`
+    - name: "Rannischer Platz"
+      id: "…"              # HAFAS lid, look up with `find-stop`
       walk_minutes: 5
-      lines: ["3", "7"]  # optional
-      directions: ["…"]  # optional, substring match
+      via: "…"             # optional: lid of a stop the trip must pass (direction), e.g. Marktplatz
+      lines: ["1", "95"]   # optional
+    - name: "Franckeplatz"
+      id: "…"
+      walk_minutes: 12
+      via: "…"             # e.g. Hauptbahnhof
 calendar:
   ical_url: "https://calendar.google.com/calendar/ical/…/basic.ics"
   days: 7

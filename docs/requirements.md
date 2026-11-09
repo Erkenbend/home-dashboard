@@ -18,7 +18,9 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
   `departure_time (realtime if available) - now >= walking_time`.
 - Each departure shows line, direction, minutes until departure and minutes until one has to leave home
   ("los in X min").
-- Optional per-stop filters for lines and directions (e.g. only lines 3 and 7 towards the city centre).
+- Optional per-stop filters for lines and direction. The direction is expressed as a `via` stop the trip must
+  pass (e.g. Rannischer Platz via Marktplatz = towards the city centre; Franckeplatz via Hauptbahnhof = towards
+  the main station).
 - Cancelled trips are visibly marked.
 - Data source: live public transport data covering HAVAG (Hallesche Verkehrs-AG) trams and buses
   within the MDV network. See [ADR 0003](decisions/0003-transit-data-source.md).

@@ -1,0 +1,1165 @@
+{
+ "ver": "1.44",
+ "lang": "deu",
+ "id": "8di8hq8kiwevg64s",
+ "err": "OK",
+ "cInfo": {
+  "code": "VH",
+  "msg": "Momentan werden die Ticketingfunktionen überarbeitet. Mit dem nächsten Update stehen Ihnen die Funktionen wieder zur Verfügung."
+ },
+ "graph": {
+  "id": "standard",
+  "index": 0
+ },
+ "subGraph": {
+  "id": "global",
+  "index": 0
+ },
+ "view": {
+  "id": "standard",
+  "index": 0,
+  "type": "WGS84"
+ },
+ "svcResL": [
+  {
+   "meth": "StationBoard",
+   "err": "OK",
+   "res": {
+    "common": {
+     "locL": [
+      {
+       "lid": "A=1@O=Halle (Saale), Rannischer Platz@X=11970054@Y=51474535@U=80@L=300525801@i=A×de:15002:5258::01,b×HAL_101803@",
+       "type": "S",
+       "name": "Halle (Saale), Rannischer Platz",
+       "icoX": 0,
+       "extId": "300525801",
+       "state": "F",
+       "crd": {
+        "x": 11970054,
+        "y": 51474535,
+        "floor": 1
+       },
+       "pCls": 96,
+       "pRefL": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+       ],
+       "entry": true,
+       "mMastLocX": 1,
+       "gidL": [
+        "A×de:15002:5258::01",
+        "b×HAL_101803"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Rannischer Platz@X=11969595@Y=51474274@U=80@L=5258@i=A×de:15002:5258,b×MASTER_5258@",
+       "type": "S",
+       "name": "Halle (Saale), Rannischer Platz",
+       "icoX": 0,
+       "extId": "5258",
+       "state": "F",
+       "crd": {
+        "x": 11969595,
+        "y": 51474274,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 96,
+       "isMainMast": true,
+       "gidL": [
+        "A×de:15002:5258",
+        "b×MASTER_5258"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Gertraudenfriedhof@X=11989192@Y=51504505@U=80@L=300395501@i=A×de:15002:3955::01,b×HAL_305491@",
+       "type": "S",
+       "name": "Halle (Saale), Gertraudenfriedhof",
+       "icoX": 0,
+       "extId": "300395501",
+       "state": "F",
+       "crd": {
+        "x": 11989192,
+        "y": 51504505,
+        "floor": 1
+       },
+       "pCls": 224,
+       "entry": true,
+       "mMastLocX": 3,
+       "gidL": [
+        "A×de:15002:3955::01",
+        "b×HAL_305491"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Gertraudenfriedhof@X=11989237@Y=51504514@U=80@L=3955@i=A×de:15002:3955,b×MASTER_3955@",
+       "type": "S",
+       "name": "Halle (Saale), Gertraudenfriedhof",
+       "icoX": 0,
+       "extId": "3955",
+       "state": "F",
+       "crd": {
+        "x": 11989237,
+        "y": 51504514,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 224,
+       "isMainMast": true,
+       "gidL": [
+        "A×de:15002:3955",
+        "b×MASTER_3955"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Südstadt@X=11959779@Y=51448933@U=80@L=300521101@i=A×de:15002:5211::01,b×HAL_711421@",
+       "type": "S",
+       "name": "Halle (Saale), Südstadt",
+       "icoX": 0,
+       "extId": "300521101",
+       "state": "F",
+       "crd": {
+        "x": 11959779,
+        "y": 51448933,
+        "floor": 1
+       },
+       "pCls": 224,
+       "entry": true,
+       "mMastLocX": 5,
+       "gidL": [
+        "A×de:15002:5211::01",
+        "b×HAL_711421"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Südstadt@X=11960750@Y=51449527@U=80@L=5211@i=A×de:15002:5211,b×MASTER_5211@",
+       "type": "S",
+       "name": "Halle (Saale), Südstadt",
+       "icoX": 0,
+       "extId": "5211",
+       "state": "F",
+       "crd": {
+        "x": 11960750,
+        "y": 51449527,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 224,
+       "isMainMast": true,
+       "gidL": [
+        "A×de:15002:5211",
+        "b×MASTER_5211"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Trotha@X=11957945@Y=51519157@U=80@L=300513201@i=A×de:15002:5132::01,b×HAL_307001@",
+       "type": "S",
+       "name": "Halle (Saale), Trotha",
+       "icoX": 0,
+       "extId": "300513201",
+       "state": "F",
+       "crd": {
+        "x": 11957945,
+        "y": 51519157,
+        "floor": 1
+       },
+       "pCls": 224,
+       "entry": true,
+       "mMastLocX": 7,
+       "gidL": [
+        "A×de:15002:5132::01",
+        "b×HAL_307001"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Trotha@X=11957856@Y=51519148@U=80@L=5132@i=A×de:15002:5132,b×MASTER_5132@",
+       "type": "S",
+       "name": "Halle (Saale), Trotha",
+       "icoX": 0,
+       "extId": "5132",
+       "state": "F",
+       "crd": {
+        "x": 11957856,
+        "y": 51519148,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 224,
+       "isMainMast": true,
+       "gidL": [
+        "A×de:15002:5132",
+        "b×MASTER_5132"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Ammendorf@X=11986630@Y=51424555@U=80@L=300521703@i=A×de:15002:5217::03,b×HAL_503621@",
+       "type": "S",
+       "name": "Halle (Saale), Ammendorf",
+       "icoX": 0,
+       "extId": "300521703",
+       "state": "F",
+       "crd": {
+        "x": 11986630,
+        "y": 51424555,
+        "floor": 1
+       },
+       "pCls": 224,
+       "entry": true,
+       "mMastLocX": 9,
+       "gidL": [
+        "A×de:15002:5217::03",
+        "b×HAL_503621"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Ammendorf@X=11986603@Y=51424653@U=80@L=5217@i=A×de:15002:5217,b×MASTER_5217@",
+       "type": "S",
+       "name": "Halle (Saale), Ammendorf",
+       "icoX": 6,
+       "extId": "5217",
+       "state": "F",
+       "crd": {
+        "x": 11986603,
+        "y": 51424653,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 248,
+       "isMainMast": true,
+       "gidL": [
+        "A×de:15002:5217",
+        "b×MASTER_5217"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Florian-Geyer-Platz@X=11984931@Y=51426262@U=80@L=300512701@i=A×de:15002:5127::01,b×HAL_503801@",
+       "type": "S",
+       "name": "Halle (Saale), Florian-Geyer-Platz",
+       "icoX": 0,
+       "extId": "300512701",
+       "state": "F",
+       "crd": {
+        "x": 11984931,
+        "y": 51426262,
+        "floor": 1
+       },
+       "pCls": 224,
+       "entry": true,
+       "mMastLocX": 11,
+       "gidL": [
+        "A×de:15002:5127::01",
+        "b×HAL_503801"
+       ],
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Florian-Geyer-Platz@X=11985336@Y=51425912@U=80@L=5127@i=A×de:15002:5127,b×MASTER_5127@",
+       "type": "S",
+       "name": "Halle (Saale), Florian-Geyer-Platz",
+       "icoX": 0,
+       "extId": "5127",
+       "state": "F",
+       "crd": {
+        "x": 11985336,
+        "y": 51425912,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 224,
+       "isMainMast": true,
+       "gidL": [
+        "A×de:15002:5127",
+        "b×MASTER_5127"
+       ],
+       "chgTime": "000300"
+      }
+     ],
+     "prodL": [
+      {
+       "pid": "L::5::Str::B1042506638::de:nasa:15002|Strab|1:HAVAG::*",
+       "name": "Str 1",
+       "nameS": "1",
+       "number": "1",
+       "icoX": 0,
+       "cls": 32,
+       "oprX": 0,
+       "prodCtx": {
+        "name": "Str    1",
+        "num": "5885",
+        "line": "1",
+        "lineId": "de:nasa:15002|Strab|1:HAVAG",
+        "matchId": "1",
+        "catOut": "Str     ",
+        "catOutS": "StN",
+        "catOutL": "Str     ",
+        "catIn": "StN",
+        "catCode": "5",
+        "admin": "HAT___"
+       },
+       "himIdL": [
+        "HIM_FREETEXT_789494"
+       ]
+      },
+      {
+       "name": "Str 1",
+       "nameS": "1",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 1",
+        "line": "1",
+        "lineId": "de:nasa:15002|Strab|1:HAVAG",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 1",
+       "nameS": "1",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 1",
+        "line": "1",
+        "lineId": "de:nasa:15002|Strab|1:HAVAG",
+        "catOut": "Str     ",
+        "catOutS": "StN",
+        "catOutL": "Str     ",
+        "catIn": "StN",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 1E",
+       "nameS": "1E",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 1E",
+        "line": "1E",
+        "lineId": "de:nasa:15002|Strab|1:HAVAG/E/101",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 3",
+       "nameS": "3",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 3",
+        "line": "3",
+        "lineId": "de:nasa:15002|Strab|3:HAVAG",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 3",
+       "nameS": "3",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 3",
+        "line": "3",
+        "lineId": "de:nasa:15002|Strab|3:HAVAG",
+        "catOut": "Str     ",
+        "catOutS": "StN",
+        "catOutL": "Str     ",
+        "catIn": "StN",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 8",
+       "nameS": "8",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 8",
+        "line": "8",
+        "lineId": "de:nasa:15002|Strab|8:HAVAG",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 8E",
+       "nameS": "8E",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 8E",
+        "line": "8E",
+        "lineId": "de:nasa:15002|Strab|8:HAVAG/E/108",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 16",
+       "nameS": "16",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 16",
+        "line": "16",
+        "lineId": "de:nasa:15002|Strab|16:HAVAG",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 16",
+       "nameS": "16",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 16",
+        "line": "16",
+        "lineId": "de:nasa:15002|Strab|16:HAVAG",
+        "catOut": "Str     ",
+        "catOutS": "StN",
+        "catOutL": "Str     ",
+        "catIn": "StN",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str 95",
+       "nameS": "95",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str 95",
+        "line": "95",
+        "lineId": "de:nasa:15002|Strab|95:HAVAG",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str E",
+       "nameS": "E",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str E",
+        "line": "E",
+        "lineId": "de:nasa:15002|Strab|E:HAVAG/901",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Str E",
+       "nameS": "E",
+       "icoX": 0,
+       "cls": 32,
+       "prodCtx": {
+        "name": "Str E",
+        "line": "E",
+        "lineId": "de:nasa:15002|Strab|E:HAVAG/901",
+        "catOut": "Str     ",
+        "catOutS": "StN",
+        "catOutL": "Str     ",
+        "catIn": "StN",
+        "catCode": "5"
+       }
+      },
+      {
+       "name": "Bus 30",
+       "nameS": "30",
+       "icoX": 2,
+       "cls": 64,
+       "prodCtx": {
+        "name": "Bus 30",
+        "line": "30",
+        "lineId": "de:nasa:15002|Bus|30:HAVAG",
+        "catOut": "Bus     ",
+        "catOutS": "Bus",
+        "catOutL": "Bus     ",
+        "catIn": "Bus",
+        "catCode": "6"
+       }
+      },
+      {
+       "name": "Bus 97",
+       "nameS": "97",
+       "icoX": 2,
+       "cls": 64,
+       "prodCtx": {
+        "name": "Bus 97",
+        "line": "97",
+        "lineId": "de:nasa:15002|Bus|97:HAVAG",
+        "catOut": "Bus     ",
+        "catOutS": "Bus",
+        "catOutL": "Bus     ",
+        "catIn": "Bus",
+        "catCode": "6"
+       }
+      },
+      {
+       "pid": "L::5::Strb::B1042506638::de:nasa:15002|Strab|95:HAVAG::*",
+       "name": "Str 95",
+       "nameS": "95",
+       "number": "95",
+       "icoX": 0,
+       "cls": 32,
+       "oprX": 0,
+       "prodCtx": {
+        "name": "Str   95",
+        "num": "7959",
+        "line": "95",
+        "lineId": "de:nasa:15002|Strab|95:HAVAG",
+        "matchId": "95",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5",
+        "admin": "HAT___"
+       },
+       "himIdL": [
+        "HIM_FREETEXT_789506"
+       ]
+      },
+      {
+       "pid": "L::5::Strb::B1042506638::de:nasa:15002|Strab|1:HAVAG::*",
+       "name": "Str 1",
+       "nameS": "1",
+       "number": "1",
+       "icoX": 0,
+       "cls": 32,
+       "oprX": 0,
+       "prodCtx": {
+        "name": "Str    1",
+        "num": "5959",
+        "line": "1",
+        "lineId": "de:nasa:15002|Strab|1:HAVAG",
+        "matchId": "1",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5",
+        "admin": "HAT___"
+       },
+       "himIdL": [
+        "HIM_FREETEXT_789494"
+       ]
+      },
+      {
+       "pid": "L::5::Strb::B1042506638::de:nasa:15002|Strab|95:HAVAG::*",
+       "name": "Str 95",
+       "nameS": "95",
+       "number": "95",
+       "icoX": 0,
+       "cls": 32,
+       "oprX": 0,
+       "prodCtx": {
+        "name": "Str   95",
+        "num": "7958",
+        "line": "95",
+        "lineId": "de:nasa:15002|Strab|95:HAVAG",
+        "matchId": "95",
+        "catOut": "Strb    ",
+        "catOutS": "Str",
+        "catOutL": "Strb    ",
+        "catIn": "Str",
+        "catCode": "5",
+        "admin": "HAT___"
+       },
+       "himIdL": [
+        "HIM_FREETEXT_789506"
+       ]
+      }
+     ],
+     "opL": [
+      {
+       "name": "Hallesche Verkehrs-AG",
+       "icoX": 1,
+       "id": "71"
+      }
+     ],
+     "remL": [
+      {
+       "type": "A",
+       "code": "OPERATOR",
+       "icoX": 4,
+       "txtS": "HAL",
+       "txtN": "HAL",
+       "txtL": "Hallesche Verkehrs-AG"
+      },
+      {
+       "type": "A",
+       "code": "bf",
+       "prio": 350,
+       "icoX": 4,
+       "txtN": "Fahrzeug mit niederflurigem Einstieg geplant"
+      }
+     ],
+     "himL": [
+      {
+       "hid": "789494",
+       "act": true,
+       "head": "+++ UPDATE 08.10.26 +++ STADTBAHN-Programm Dessauer Straße/Frohe Zukunft",
+       "text": "+++ UPDATE 08.10.26 +++ STADTBAHN-Programm Dessauer Straße/Frohe Zukunft. Ab dem 08.10.2026 wird die Haltestelle Gertraudenfriedhof der Linien SEV 1 und 25E in die Dessauer Straße (Ecke Landrain) verlegt. Gleichzeitig verkehrt die SEV 1 zwischen Gertraudenfriedhof und Frohe Zukunft als Ringverkehr. Die bisherigen Ersatzhaltestellen Frohe Zukunft und Kornblumenweg im Krokusweg entfallen. In Frohe Zukunft werden wieder die regulären Haltestellen Steig C und D bedient.<br><br> ",
+       "icoX": 5,
+       "prio": 50,
+       "fLocX": 4,
+       "tLocX": 2,
+       "prod": 224,
+       "src": 99,
+       "lModDate": "20261105",
+       "lModTime": "192801",
+       "sDate": "20261030",
+       "sTime": "162500",
+       "eDate": "20261118",
+       "eTime": "235900",
+       "sDaily": "000000",
+       "eDaily": "235900",
+       "comp": "HAVAG - Hallesche Verkehrs-AG",
+       "catRefL": [
+        0
+       ],
+       "pubChL": [
+        {
+         "name": "TIMETABLE",
+         "fDate": "20261105",
+         "fTime": "192700",
+         "tDate": "20261118",
+         "tTime": "235900"
+        }
+       ]
+      },
+      {
+       "hid": "789506",
+       "act": true,
+       "head": "Brückensperrung Saaleflut-/Saalestrombrücken",
+       "text": "Brückensperrung Saaleflut-/Saalestrombrücken Linien 5/95 aus Halle enden in Ammendorf, SEV bis Am Schloß. Linie 5 aus Bad Dürrenberg endet an Bunawerke, weiter per SEV. Linie 5 fährt zwischen Bad Dürrenberg - Markt - Schkopau - Buna-Werke im Inselbetrieb. SEV: Ammendorf (D) &#60;-&#62; Am Schloß über Korbethaer Str. und Dörstewitzer Str.; Kollenbeyer Weg entfällt.<br><br> ",
+       "icoX": 5,
+       "prio": 50,
+       "fLocX": 8,
+       "tLocX": 6,
+       "prod": 96,
+       "src": 99,
+       "lModDate": "20261105",
+       "lModTime": "193313",
+       "sDate": "20261030",
+       "sTime": "165400",
+       "eDate": "20271231",
+       "eTime": "235900",
+       "sDaily": "000000",
+       "eDaily": "235900",
+       "comp": "HAVAG - Hallesche Verkehrs-AG",
+       "catRefL": [
+        0
+       ],
+       "pubChL": [
+        {
+         "name": "TIMETABLE",
+         "fDate": "20261105",
+         "fTime": "193200",
+         "tDate": "20271231",
+         "tTime": "235900"
+        }
+       ]
+      }
+     ],
+     "icoL": [
+      {
+       "res": "prod_tram",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 204,
+        "g": 0,
+        "b": 0
+       }
+      },
+      {
+       "res": "HAL",
+       "txt": "Hallesche Verkehrs-AG"
+      },
+      {
+       "res": "prod_bus",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 153,
+        "g": 51,
+        "b": 153
+       }
+      },
+      {
+       "res": "rt_cnf"
+      },
+      {
+       "res": "attr_info"
+      },
+      {
+       "res": "HIM4"
+      },
+      {
+       "res": "prod_reg",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 31,
+        "g": 131,
+        "b": 50
+       }
+      }
+     ],
+     "himMsgCatL": [
+      {
+       "id": 4,
+       "name": "Verlegung (Haltestellen)"
+      }
+     ],
+     "lDrawStyleL": [
+      {
+       "sIcoX": 0,
+       "type": "SOLID",
+       "bg": {
+        "r": 204,
+        "g": 0,
+        "b": 0
+       }
+      },
+      {
+       "type": "SOLID",
+       "bg": {
+        "r": 204,
+        "g": 0,
+        "b": 0
+       }
+      }
+     ],
+     "timeStyleL": [
+      {
+       "mode": "ABS"
+      },
+      {
+       "mode": "DLT",
+       "fg": {
+        "r": 22,
+        "g": 121,
+        "b": 85
+       }
+      },
+      {
+       "mode": "CNT",
+       "icoX": 3
+      }
+     ]
+    },
+    "type": "DEP",
+    "jnyL": [
+     {
+      "jid": "2|#VN#1#ST#1793889960#PI#0#ZI#4970#TA#1#DA#91126#1S#300521101#1T#2141#LS#300395501#LT#2210#PU#80#RT#1#CA#StN#ZE#1#ZB#Str    1#PC#5#FR#300521101#FT#2141#TO#300395501#TT#2210#",
+      "date": "20261109",
+      "prodX": 0,
+      "dirTxt": "Halle (Saale), Gertraudenfriedhof",
+      "dirFlg": "2",
+      "status": "P",
+      "isRchbl": true,
+      "stbStop": {
+       "locX": 0,
+       "idx": 9,
+       "dProdX": 0,
+       "dPltfS": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dPltfR": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dTimeS": "215200",
+       "dTimeR": "215200",
+       "dTimeFS": {
+        "styleX": 0
+       },
+       "dTimeFR": {
+        "styleX": 1,
+        "txtA": "pünktlich"
+       },
+       "dTimeFC": {
+        "styleX": 2
+       },
+       "dProgType": "PROGNOSED",
+       "dTZOffset": 60,
+       "type": "N"
+      },
+      "msgL": [
+       {
+        "type": "REM",
+        "remX": 0,
+        "sty": "I",
+        "fLocX": 0,
+        "tLocX": 2,
+        "tagL": [
+         "RES_JNY_DTL"
+        ],
+        "sort": 818413568
+       },
+       {
+        "type": "REM",
+        "remX": 1,
+        "sty": "I",
+        "fLocX": 0,
+        "tLocX": 2,
+        "tagL": [
+         "RES_JNY_DTL"
+        ],
+        "sort": 851181568
+       },
+       {
+        "type": "HIM",
+        "himX": 0,
+        "sty": "M",
+        "fLocX": 0,
+        "tLocX": 2,
+        "tagL": [
+         "RES_JNY_H1"
+        ],
+        "sort": 321388688
+       }
+      ],
+      "subscr": "F",
+      "prodL": [
+       {
+        "prodX": 0,
+        "fLocX": 0,
+        "tLocX": 2,
+        "fIdx": 9,
+        "tIdx": 18
+       }
+      ],
+      "sumLDrawStyleX": 0,
+      "resLDrawStyleX": 1,
+      "trainStartDate": "20261109"
+     },
+     {
+      "jid": "2|#VN#1#ST#1793889960#PI#0#ZI#6157#TA#6#DA#91126#1S#300521703#1T#2134#LS#300513201#LT#2216#PU#80#RT#1#CA#Str#ZE#95#ZB#Str   95#PC#5#FR#300521703#FT#2134#TO#300513201#TT#2216#",
+      "date": "20261109",
+      "prodX": 15,
+      "dirTxt": "Halle (Saale), Trotha",
+      "dirFlg": "2",
+      "status": "P",
+      "isRchbl": true,
+      "stbStop": {
+       "locX": 0,
+       "idx": 13,
+       "dProdX": 15,
+       "dPltfS": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dPltfR": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dTimeS": "215200",
+       "dTimeR": "215200",
+       "dTimeFS": {
+        "styleX": 0
+       },
+       "dTimeFR": {
+        "styleX": 1,
+        "txtA": "pünktlich"
+       },
+       "dTimeFC": {
+        "styleX": 2
+       },
+       "dProgType": "PROGNOSED",
+       "dTZOffset": 60,
+       "type": "N"
+      },
+      "pos": {
+       "x": 11984239,
+       "y": 51428231
+      },
+      "lPassSt": {
+       "locX": 10,
+       "idx": 1,
+       "aOutS": true,
+       "aTimeS": "213600",
+       "aTimeR": "213600",
+       "aTZOffset": 60,
+       "dInS": true,
+       "dTimeS": "213600",
+       "dTimeR": "213600",
+       "dTZOffset": 60,
+       "type": "N"
+      },
+      "lPassStRT": {
+       "locX": 10,
+       "idx": 1,
+       "aOutS": true,
+       "aTimeS": "213600",
+       "aTimeR": "213600",
+       "aTZOffset": 60,
+       "dInS": true,
+       "dTimeS": "213600",
+       "dTimeR": "213600",
+       "dTZOffset": 60,
+       "type": "N"
+      },
+      "msgL": [
+       {
+        "type": "REM",
+        "remX": 0,
+        "sty": "I",
+        "fLocX": 0,
+        "tLocX": 6,
+        "tagL": [
+         "RES_JNY_DTL"
+        ],
+        "sort": 818413568
+       },
+       {
+        "type": "HIM",
+        "himX": 1,
+        "sty": "M",
+        "fLocX": 0,
+        "tLocX": 6,
+        "tagL": [
+         "RES_JNY_H1"
+        ],
+        "sort": 321388683
+       }
+      ],
+      "subscr": "F",
+      "prodL": [
+       {
+        "prodX": 15,
+        "fLocX": 0,
+        "tLocX": 6,
+        "fIdx": 13,
+        "tIdx": 27
+       }
+      ],
+      "sumLDrawStyleX": 0,
+      "resLDrawStyleX": 1,
+      "trainStartDate": "20261109"
+     },
+     {
+      "jid": "2|#VN#1#ST#1793889960#PI#0#ZI#4995#TA#0#DA#91126#1S#300521101#1T#2201#LS#300395501#LT#2231#PU#80#RT#1#CA#Str#ZE#1#ZB#Str    1#PC#5#FR#300521101#FT#2201#TO#300395501#TT#2231#",
+      "date": "20261109",
+      "prodX": 16,
+      "dirTxt": "Halle (Saale), Gertraudenfriedhof",
+      "dirFlg": "2",
+      "status": "P",
+      "isRchbl": true,
+      "stbStop": {
+       "locX": 0,
+       "idx": 9,
+       "dProdX": 16,
+       "dPltfS": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dPltfR": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dTimeS": "221200",
+       "dTimeR": "221200",
+       "dTimeFS": {
+        "styleX": 0
+       },
+       "dTimeFR": {
+        "styleX": 1,
+        "txtA": "pünktlich"
+       },
+       "dTimeFC": {
+        "styleX": 2
+       },
+       "dProgType": "PROGNOSED",
+       "dTZOffset": 60,
+       "type": "N"
+      },
+      "msgL": [
+       {
+        "type": "REM",
+        "remX": 0,
+        "sty": "I",
+        "fLocX": 0,
+        "tLocX": 2,
+        "tagL": [
+         "RES_JNY_DTL"
+        ],
+        "sort": 818413568
+       },
+       {
+        "type": "HIM",
+        "himX": 0,
+        "sty": "M",
+        "fLocX": 0,
+        "tLocX": 2,
+        "tagL": [
+         "RES_JNY_H1"
+        ],
+        "sort": 321388688
+       }
+      ],
+      "subscr": "F",
+      "prodL": [
+       {
+        "prodX": 16,
+        "fLocX": 0,
+        "tLocX": 2,
+        "fIdx": 9,
+        "tIdx": 18
+       }
+      ],
+      "sumLDrawStyleX": 0,
+      "resLDrawStyleX": 1,
+      "trainStartDate": "20261109"
+     },
+     {
+      "jid": "2|#VN#1#ST#1793889960#PI#0#ZI#6157#TA#7#DA#91126#1S#300521703#1T#2154#LS#300513201#LT#2236#PU#80#RT#1#CA#Str#ZE#95#ZB#Str   95#PC#5#FR#300521703#FT#2154#TO#300513201#TT#2236#",
+      "date": "20261109",
+      "prodX": 17,
+      "dirTxt": "Halle (Saale), Trotha",
+      "dirFlg": "2",
+      "status": "P",
+      "isRchbl": true,
+      "stbStop": {
+       "locX": 0,
+       "idx": 13,
+       "dProdX": 17,
+       "dPltfS": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dPltfR": {
+        "type": "ST",
+        "txt": "A"
+       },
+       "dTimeS": "221200",
+       "dTimeR": "221200",
+       "dTimeFS": {
+        "styleX": 0
+       },
+       "dTimeFR": {
+        "styleX": 1,
+        "txtA": "pünktlich"
+       },
+       "dTimeFC": {
+        "styleX": 2
+       },
+       "dProgType": "PROGNOSED",
+       "dTZOffset": 60,
+       "type": "N"
+      },
+      "msgL": [
+       {
+        "type": "REM",
+        "remX": 0,
+        "sty": "I",
+        "fLocX": 0,
+        "tLocX": 6,
+        "tagL": [
+         "RES_JNY_DTL"
+        ],
+        "sort": 818413568
+       },
+       {
+        "type": "HIM",
+        "himX": 1,
+        "sty": "M",
+        "fLocX": 0,
+        "tLocX": 6,
+        "tagL": [
+         "RES_JNY_H1"
+        ],
+        "sort": 321388683
+       }
+      ],
+      "subscr": "F",
+      "prodL": [
+       {
+        "prodX": 17,
+        "fLocX": 0,
+        "tLocX": 6,
+        "fIdx": 13,
+        "tIdx": 27
+       }
+      ],
+      "sumLDrawStyleX": 0,
+      "resLDrawStyleX": 1,
+      "trainStartDate": "20261109"
+     }
+    ],
+    "fpB": "20261029",
+    "fpE": "20271105",
+    "planrtTS": "1794256551",
+    "sD": "20261109",
+    "sT": "213622",
+    "locRefL": [
+     0
+    ]
+   }
+  }
+ ]
+}

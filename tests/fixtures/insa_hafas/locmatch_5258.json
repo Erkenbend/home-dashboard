@@ -1,0 +1,133 @@
+{
+ "ver": "1.44",
+ "lang": "deu",
+ "id": "ckwshq84gwenh4ck",
+ "err": "OK",
+ "cInfo": {
+  "code": "VH",
+  "msg": "Momentan werden die Ticketingfunktionen überarbeitet. Mit dem nächsten Update stehen Ihnen die Funktionen wieder zur Verfügung."
+ },
+ "graph": {
+  "id": "standard",
+  "index": 0
+ },
+ "subGraph": {
+  "id": "global",
+  "index": 0
+ },
+ "view": {
+  "id": "standard",
+  "index": 0,
+  "type": "WGS84"
+ },
+ "svcResL": [
+  {
+   "meth": "LocMatch",
+   "err": "OK",
+   "res": {
+    "common": {
+     "icoL": [
+      {
+       "res": "prod_tram",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 204,
+        "g": 0,
+        "b": 0
+       }
+      },
+      {
+       "res": "prod_bus",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 153,
+        "g": 51,
+        "b": 153
+       }
+      }
+     ]
+    },
+    "match": {
+     "field": "S",
+     "state": "L",
+     "locL": [
+      {
+       "lid": "A=1@O=Halle (Saale), Rannischer Platz@X=11969595@Y=51474274@U=80@L=5258@p=1793889960@i=A×de:15002:5258,b×MASTER_5258@",
+       "type": "S",
+       "name": "Halle (Saale), Rannischer Platz",
+       "icoX": 0,
+       "extId": "5258",
+       "state": "F",
+       "crd": {
+        "x": 11969595,
+        "y": 51474274,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 96,
+       "wt": 1808,
+       "gidL": [
+        "A×de:15002:5258",
+        "b×MASTER_5258"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Heinrich-Lammasch-Platz@X=11923697@Y=51496855@U=80@L=9353@p=1793889960@i=A×de:15002:9353,b×MASTER_9353@",
+       "type": "S",
+       "name": "Halle (Saale), Heinrich-Lammasch-Platz",
+       "icoX": 1,
+       "extId": "9353",
+       "state": "F",
+       "crd": {
+        "x": 11923697,
+        "y": 51496855,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 192,
+       "wt": 64,
+       "gidL": [
+        "A×de:15002:9353",
+        "b×MASTER_9353"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Joliot-Curie-Platz@X=11973155@Y=51484728@U=80@L=5221@p=1793889960@i=A×de:15002:5221,b×MASTER_5221@",
+       "type": "S",
+       "name": "Halle (Saale), Joliot-Curie-Platz",
+       "icoX": 0,
+       "extId": "5221",
+       "state": "F",
+       "crd": {
+        "x": 11973155,
+        "y": 51484728,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 96,
+       "wt": 1747,
+       "gidL": [
+        "A×de:15002:5221",
+        "b×MASTER_5221"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

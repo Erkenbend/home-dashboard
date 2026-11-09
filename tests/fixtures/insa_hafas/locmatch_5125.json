@@ -1,0 +1,133 @@
+{
+ "ver": "1.44",
+ "lang": "deu",
+ "id": "zp2sbqx6gwenw4ck",
+ "err": "OK",
+ "cInfo": {
+  "code": "VH",
+  "msg": "Momentan werden die Ticketingfunktionen überarbeitet. Mit dem nächsten Update stehen Ihnen die Funktionen wieder zur Verfügung."
+ },
+ "graph": {
+  "id": "standard",
+  "index": 0
+ },
+ "subGraph": {
+  "id": "global",
+  "index": 0
+ },
+ "view": {
+  "id": "standard",
+  "index": 0,
+  "type": "WGS84"
+ },
+ "svcResL": [
+  {
+   "meth": "LocMatch",
+   "err": "OK",
+   "res": {
+    "common": {
+     "icoL": [
+      {
+       "res": "prod_tram",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 204,
+        "g": 0,
+        "b": 0
+       }
+      },
+      {
+       "res": "prod_bus",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 153,
+        "g": 51,
+        "b": 153
+       }
+      }
+     ]
+    },
+    "match": {
+     "field": "S",
+     "state": "L",
+     "locL": [
+      {
+       "lid": "A=1@O=Halle (Saale), Franckeplatz@X=11969595@Y=51478544@U=80@L=5125@p=1793889960@i=A×de:15002:5125,b×MASTER_5125@",
+       "type": "S",
+       "name": "Halle (Saale), Franckeplatz",
+       "icoX": 0,
+       "extId": "5125",
+       "state": "F",
+       "crd": {
+        "x": 11969595,
+        "y": 51478544,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 224,
+       "wt": 1808,
+       "gidL": [
+        "A×de:15002:5125",
+        "b×MASTER_5125"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Rannischer Platz@X=11969595@Y=51474274@U=80@L=5258@p=1793889960@i=A×de:15002:5258,b×MASTER_5258@",
+       "type": "S",
+       "name": "Halle (Saale), Rannischer Platz",
+       "icoX": 0,
+       "extId": "5258",
+       "state": "F",
+       "crd": {
+        "x": 11969595,
+        "y": 51474274,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 96,
+       "wt": 1808,
+       "gidL": [
+        "A×de:15002:5258",
+        "b×MASTER_5258"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Lübecker Platz@X=11936246@Y=51442254@U=80@L=5138@p=1793889960@i=A×de:15002:5138,b×MASTER_5138@",
+       "type": "S",
+       "name": "Halle (Saale), Lübecker Platz",
+       "icoX": 1,
+       "extId": "5138",
+       "state": "F",
+       "crd": {
+        "x": 11936246,
+        "y": 51442254,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 192,
+       "wt": 94,
+       "gidL": [
+        "A×de:15002:5138",
+        "b×MASTER_5138"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

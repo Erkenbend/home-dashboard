@@ -1,0 +1,137 @@
+{
+ "ver": "1.44",
+ "lang": "deu",
+ "id": "3kwsjqx4iwevw6cs",
+ "err": "OK",
+ "cInfo": {
+  "code": "VH",
+  "msg": "Momentan werden die Ticketingfunktionen überarbeitet. Mit dem nächsten Update stehen Ihnen die Funktionen wieder zur Verfügung."
+ },
+ "graph": {
+  "id": "standard",
+  "index": 0
+ },
+ "subGraph": {
+  "id": "global",
+  "index": 0
+ },
+ "view": {
+  "id": "standard",
+  "index": 0,
+  "type": "WGS84"
+ },
+ "svcResL": [
+  {
+   "meth": "LocMatch",
+   "err": "OK",
+   "res": {
+    "common": {
+     "icoL": [
+      {
+       "res": "prod_tram",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 204,
+        "g": 0,
+        "b": 0
+       }
+      },
+      {
+       "res": "prod_bus",
+       "fg": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+       },
+       "bg": {
+        "r": 153,
+        "g": 51,
+        "b": 153
+       }
+      }
+     ]
+    },
+    "match": {
+     "field": "S",
+     "state": "L",
+     "locL": [
+      {
+       "lid": "A=1@O=Halle (Saale), Marktplatz@X=11969335@Y=51482769@U=80@L=5232@p=1793889960@i=A×de:15002:5232,b×MASTER_5232@",
+       "type": "S",
+       "name": "Halle (Saale), Marktplatz",
+       "icoX": 0,
+       "extId": "5232",
+       "state": "F",
+       "crd": {
+        "x": 11969335,
+        "y": 51482769,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 96,
+       "wt": 1758,
+       "gidL": [
+        "A×de:15002:5232",
+        "b×MASTER_5232"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Halle (Saale), Riebeckplatz (Maritim)@X=11983223@Y=51476890@U=80@L=825@p=1793889960@i=A×de:15002:825,b×MASTER_825@",
+       "type": "S",
+       "name": "Halle (Saale), Riebeckplatz (Maritim)",
+       "icoX": 1,
+       "extId": "825",
+       "state": "F",
+       "crd": {
+        "x": 11983223,
+        "y": 51476890,
+        "floor": 0
+       },
+       "meta": true,
+       "pCls": 80,
+       "wt": 2,
+       "gidL": [
+        "A×de:15002:825",
+        "b×MASTER_825"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      },
+      {
+       "lid": "A=1@O=Marktplatz, Mallersdorf-Pfaffenberg@X=12251866@Y=48776440@U=80@L=540341@p=1793889960@i=A×de:09278:2979,b×DB_202979,b×DB_540341,b×DB_803520,b×DB_20297900,b×DB_54034100,b×DB_80352000@",
+       "type": "S",
+       "name": "Marktplatz, Mallersdorf-Pfaffenberg",
+       "icoX": 1,
+       "extId": "540341",
+       "state": "F",
+       "crd": {
+        "x": 12251866,
+        "y": 48776440,
+        "floor": 0
+       },
+       "pCls": 8,
+       "wt": 12,
+       "gidL": [
+        "A×de:09278:2979",
+        "b×DB_202979",
+        "b×DB_540341",
+        "b×DB_803520",
+        "b×DB_20297900",
+        "b×DB_54034100",
+        "b×DB_80352000"
+       ],
+       "TZOffset": 60,
+       "chgTime": "000300"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
