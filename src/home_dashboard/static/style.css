@@ -144,3 +144,111 @@ body {
   color: #ff7a6b;
   text-align: right;
 }
+
+/* Calendar */
+
+.widget-calendar {
+  -webkit-flex: 1.3 1 0;
+  flex: 1.3 1 0;
+}
+
+.day {
+  margin-bottom: 14px;
+}
+
+.day-label {
+  font-size: 20px;
+  font-weight: normal;
+  color: #a0a8b0;
+  margin: 0 0 4px 0;
+  border-bottom: 1px solid #2a3038;
+}
+
+.day.today .day-label {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.event {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  font-size: 24px;
+  padding: 3px 0;
+}
+
+.markers {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-right: 10px;
+}
+
+.marker {
+  display: inline-block;
+  width: 8px;
+  height: 26px;
+  border-radius: 3px;
+  margin-right: 3px;
+}
+
+.event-time {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: 150px;
+  color: #c8d0d8;
+  font-size: 20px;
+}
+
+.event-title {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Single events stand out, recurring ones are routine */
+.event.single .event-title {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.event.recurring .event-title {
+  color: #a8b0b8;
+}
+
+.recurring-icon {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-left: 8px;
+  color: #707880;
+}
+
+.event.past {
+  opacity: 0.4;
+}
+
+.legend {
+  font-size: 16px;
+  color: #a0a8b0;
+}
+
+.legend-item {
+  margin-right: 16px;
+  white-space: nowrap;
+}
+
+.legend .marker {
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 6px;
+}

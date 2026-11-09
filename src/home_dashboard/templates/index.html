@@ -11,5 +11,10 @@
     {% include "widgets/departures.html" %}
   </section>
   {% endif %}
+  {% if calendar %}
+  <section class="widget widget-calendar" id="calendar" hx-get="/widgets/calendar" hx-trigger="every 300s">
+    {% include "widgets/calendar.html" %}
+  </section>
+  {% endif %}
 </main>
 {% endblock %}

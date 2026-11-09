@@ -34,7 +34,11 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
   past events of today de-emphasised.
 - Recurring events, exceptions, multi-day and all-day events are handled correctly (timezone Europe/Berlin).
 - The person(s) concerned can be derived from the event title. A configurable mapping
-  (person → colour → title keywords) colours events accordingly. Events matching nobody get a neutral colour.
+  (person → colour → title keywords, case-insensitive whole words) colours events accordingly.
+- Some events concern **everyone**: recognized by configurable keywords (e.g. "Familie") or by the absence
+  of any person keyword. They get their own colour and the label "Alle".
+- **Recurring events** (series, including moved occurrences) are visually distinguished from **single
+  events**: single events stand out, recurring ones are de-emphasised and marked with a repeat icon.
 - Access initially via the calendar's secret iCal address; a switch to the Google Calendar API
   (service account) must remain possible. See [ADR 0002](decisions/0002-calendar-via-ical.md).
 

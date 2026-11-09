@@ -27,10 +27,14 @@ calendar:
   # Google Calendar > Settings > "Privatadresse im iCal-Format" (keep secret!)
   ical_url: null
   days: 7
-  people:
+  people:                   # keywords are matched case-insensitively as whole words
     - name: "Person A"
       color: "#e07a5f"
       match: ["Person A"]
     - name: "Person B"
       color: "#3d85c6"
       match: ["Person B"]
+  everyone:                 # events for everyone: keyword match OR no person recognized
+    label: "Alle"
+    color: "#c9b458"
+    match: ["Alle", "Familie"]

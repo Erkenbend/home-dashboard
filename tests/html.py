@@ -46,3 +46,55 @@ def departures_by_stop(html: str) -> dict[str, list[dict[str, str]]]:
 
 def lines(rows: list[dict[str, str]]) -> list[str]:
     return [row["line"] for row in rows]
+
+
+class _CalendarParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.days: dict[str, list[dict]] = {}
+        self._day: str | None = None
+        self._event: dict | None = None
+        self._field: str | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        classes = (attributes.get("class") or "").split()
+        if "data-day" in attributes:
+            self._day = attributes["data-day"] or ""
+            self.days[self._day] = []
+        elif tag == "li" and "event" in classes and self._day is not None:
+            self._event = {
+                "people": (attributes.get("data-people") or "").split(","),
+                "recurring": "recurring" in classes,
+                "past": "past" in classes,
+                "everyone": "everyone" in classes,
+                "time": "",
+                "title": "",
+            }
+            self.days[self._day].append(self._event)
+        elif tag == "span" and self._event is not None:
+            if "event-time" in classes:
+                self._field = "time"
+            elif "event-title" in classes:
+                self._field = "title"
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "span":
+            self._field = None
+        elif tag == "li":
+            self._event = None
+
+    def handle_data(self, data: str) -> None:
+        if self._event is not None and self._field:
+            self._event[self._field] = " ".join((self._event[self._field] + data).split())
+
+
+def calendar_days(html: str) -> dict[str, list[dict]]:
+    """{day label: [{title, time, people, recurring, past, everyone}, ...]}"""
+    parser = _CalendarParser()
+    parser.feed(html)
+    return parser.days
+
+
+def titles(events: list[dict]) -> list[str]:
+    return [event["title"] for event in events]

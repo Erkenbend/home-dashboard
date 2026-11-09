@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -40,16 +40,28 @@ class DeparturesConfig(_Strict):
     stops: list[StopConfig] = []
 
 
+Color = Annotated[str, Field(pattern=r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+)$")]
+
+
 class PersonConfig(_Strict):
     name: str
-    color: str
-    match: list[str]
+    color: Color
+    match: list[str] = Field(description="keywords in event titles (case-insensitive, whole words)")
+
+
+class EveryoneConfig(_Strict):
+    """Events for everyone: titles with one of these keywords, or without any person keyword."""
+
+    label: str = "Alle"
+    color: Color = "#c9b458"
+    match: list[str] = []
 
 
 class CalendarConfig(_Strict):
     ical_url: str | None = None
     days: int = Field(default=7, ge=1)
     people: list[PersonConfig] = []
+    everyone: EveryoneConfig = EveryoneConfig()
 
 
 class AppConfig(_Strict):

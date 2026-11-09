@@ -94,7 +94,11 @@ calendar:
   people:
     - name: "Anna"
       color: "#e07a5f"
-      match: ["Anna", "A:"]
+      match: ["Anna"]       # case-insensitive whole words ("Ben" does not match "Benefiz")
+  everyone:                 # keyword match OR no person recognized
+    label: "Alle"
+    color: "#c9b458"
+    match: ["Familie", "Alle"]
 ```
 
 ## Testing strategy

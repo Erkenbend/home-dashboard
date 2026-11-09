@@ -14,6 +14,9 @@ from home_dashboard import formatting
 from home_dashboard.cache import TtlCache
 from home_dashboard.clock import Clock, SystemClock
 from home_dashboard.config import AppConfig, config_path_from_env, load_config
+from home_dashboard.widgets.calendar.ical_source import IcalCalendarSource
+from home_dashboard.widgets.calendar.service import CalendarService
+from home_dashboard.widgets.calendar.source import CalendarSource
 from home_dashboard.widgets.departures.insa_hafas import InsaHafasProvider
 from home_dashboard.widgets.departures.provider import DepartureProvider
 from home_dashboard.widgets.departures.service import DeparturesService
@@ -31,6 +34,7 @@ def create_app(
     config: AppConfig,
     clock: Clock | None = None,
     departure_provider: DepartureProvider | None = None,
+    calendar_source: CalendarSource | None = None,
 ) -> FastAPI:
     clock = clock or SystemClock(config.timezone)
     cache = TtlCache(clock)
@@ -40,6 +44,13 @@ def create_app(
         departure_provider or InsaHafasProvider(http),
         clock,
         cache,
+    )
+    if calendar_source is None and config.calendar.ical_url:
+        calendar_source = IcalCalendarSource(http, config.calendar.ical_url, config.timezone)
+    calendar = (
+        CalendarService(config.calendar, calendar_source, clock, cache, config.timezone)
+        if calendar_source is not None
+        else None
     )
 
     app = FastAPI(title="Home Dashboard", docs_url=None, redoc_url=None)
@@ -52,11 +63,13 @@ def create_app(
     def departures_context() -> dict:
         return {"boards": departures.boards(), "show_departures": bool(config.departures.stops)}
 
+    def calendar_context() -> dict:
+        return {"calendar": calendar.view() if calendar else None}
+
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request) -> HTMLResponse:
-        return templates.TemplateResponse(
-            request, "index.html", {"now": clock.now(), **departures_context()}
-        )
+        context = {"now": clock.now(), **departures_context(), **calendar_context()}
+        return templates.TemplateResponse(request, "index.html", context)
 
     @app.get("/widgets/clock", response_class=HTMLResponse)
     def clock_widget(request: Request) -> HTMLResponse:
@@ -65,6 +78,12 @@ def create_app(
     @app.get("/widgets/departures", response_class=HTMLResponse)
     def departures_widget(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(request, "widgets/departures.html", departures_context())
+
+    @app.get("/widgets/calendar", response_class=HTMLResponse)
+    def calendar_widget(request: Request) -> HTMLResponse:
+        if calendar is None:
+            return HTMLResponse("", status_code=404)
+        return templates.TemplateResponse(request, "widgets/calendar.html", calendar_context())
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:

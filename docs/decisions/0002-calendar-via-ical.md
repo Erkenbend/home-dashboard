@@ -14,6 +14,10 @@ Start with the **secret iCal address** ("Privatadresse im iCal-Format" in the ca
 It is stored only in `config.yaml` on the Pi. Parsing uses `icalendar` + `recurring-ical-events`
 (recurrence rules, exceptions, timezones).
 
+`recurring-ical-events` returns every occurrence without `RRULE` and with a `RECURRENCE-ID`, so whether an
+occurrence belongs to a series is derived from the `UID`s of master events having `RRULE`/`RDATE`
+(this also covers moved occurrences). The iCal URL is never logged or shown, also not in error messages.
+
 The calendar is accessed exclusively through the `CalendarSource` interface, so an implementation based on
 the Calendar API (service account) can be added later without changing service logic or templates.
 
