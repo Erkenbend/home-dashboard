@@ -1,0 +1,10 @@
+services:
+  dashboard:
+    image: home-dashboard:${TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "3274:3274"
+    environment:
+      TZ: Europe/Berlin
+    volumes:
+      - ./config.yaml:/config/config.yaml:ro

@@ -21,7 +21,8 @@
 
 ```
 src/home_dashboard/
-  app.py            create_app(config, providers, clock) -> FastAPI   (composition root)
+  app.py            create_app(config, clock, ...) -> FastAPI   (composition root)
+  cli.py            `home-dashboard serve | find-stop`
   config.py         pydantic models, loads and validates config.yaml
   clock.py          Clock protocol (system clock in prod, fixed clock in tests)
   cache.py          TTL cache that keeps the last good value on upstream errors
@@ -36,9 +37,9 @@ src/home_dashboard/
       ical_source.py
       service.py    day grouping, person/colour matching
       templates/
-  templates/base.html
+  formatting.py     German date/time formatting (no system locale needed)
+  templates/base.html, index.html, widgets/clock.html
   static/style.css, htmx.min.js
-  cli.py            helper commands, e.g. `find-stop "Steintor"` to look up stop IDs
 ```
 
 Each widget follows the same pattern: **source interface → service (pure logic) → fragment template**.
@@ -107,11 +108,13 @@ calendar:
 
 Development and builds happen in WSL; the Pi only runs the container.
 
-`scripts/deploy.sh <pi-host>`:
+`scripts/deploy.sh [user@host]` (default `pi@192.168.0.10`):
 
-1. `docker buildx build --platform linux/arm64 -t home-dashboard:<git-sha> --load .` (needs QEMU/binfmt once)
-2. `docker save home-dashboard:<git-sha> | ssh <pi-host> docker load` (no registry; the Pi never builds)
-3. Copy `compose.yaml` to `/opt/home-dashboard/`; verify `config.yaml` exists there
-4. `docker compose up -d` on the Pi, then poll `http://<pi-host>:3274/healthz`
+1. Check the Pi: `docker compose` available, `~/home-dashboard/config.yaml` present
+2. `docker buildx build --platform linux/arm64 -t home-dashboard:<git-sha> --load .`
+   (Docker Desktop emulates arm64 out of the box; plain Docker needs `tonistiigi/binfmt` once)
+3. `docker save … | gzip | ssh <host> 'gunzip | docker load'` (no registry; the Pi never builds)
+4. Copy `compose.yaml` to `~/home-dashboard/`, `docker compose up -d` with `TAG=<git-sha>`,
+   then poll `http://<host>:3274/healthz`
 
-Container: `restart: unless-stopped`, `TZ=Europe/Berlin`, port `3274:3274`.
+Container: `restart: unless-stopped`, `TZ=Europe/Berlin`, port `3274:3274`, Docker `HEALTHCHECK` on `/healthz`.

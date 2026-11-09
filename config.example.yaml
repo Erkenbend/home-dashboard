@@ -1,0 +1,35 @@
+# Copy to config.yaml (gitignored) and adapt. On the Pi it lives in ~/home-dashboard/config.yaml.
+
+timezone: Europe/Berlin
+
+home:
+  address: "Musterstraße 1, 06108 Halle (Saale)"
+  lat: 51.482
+  lon: 11.969
+
+departures:
+  max_per_stop: 5
+  products: [tram]          # tram, bus, suburban, regional
+  stops:
+    # ids: HAFAS lid strings, look them up with `home-dashboard find-stop "<name>"`
+    - name: "Rannischer Platz"
+      id: "A=1@O=Halle (Saale), Rannischer Platz@X=11969595@Y=51474274@U=80@L=5258@"
+      walk_minutes: 5
+      via: "A=1@O=Halle (Saale), Marktplatz@L=5232@"   # towards the city centre
+    - name: "Franckeplatz"
+      id: "A=1@O=Halle (Saale), Franckeplatz@X=11969595@Y=51478544@U=80@L=5125@"
+      walk_minutes: 10
+      via: "A=1@O=Halle (Saale) Hbf@L=8010159@"        # towards the main station
+      # lines: ["7", "94"]   # optional line filter
+
+calendar:
+  # Google Calendar > Settings > "Privatadresse im iCal-Format" (keep secret!)
+  ical_url: null
+  days: 7
+  people:
+    - name: "Person A"
+      color: "#e07a5f"
+      match: ["Person A"]
+    - name: "Person B"
+      color: "#3d85c6"
+      match: ["Person B"]

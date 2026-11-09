@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+<header class="header">
+  <div id="clock" hx-get="/widgets/clock" hx-trigger="every 15s">
+    {% include "widgets/clock.html" %}
+  </div>
+</header>
+<main class="widgets">
+  {# Widgets (Abfahrten, Kalender) are added here #}
+</main>
+{% endblock %}
