@@ -118,8 +118,12 @@ body {
   text-align: center;
 }
 
-.departures .minutes {
+.departures .clock-time {
   font-weight: bold;
+}
+
+.departures .minutes {
+  color: #b8c0c8;
   text-align: right;
 }
 

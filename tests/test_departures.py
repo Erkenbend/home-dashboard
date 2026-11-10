@@ -157,13 +157,13 @@ def test_limits_departures_per_stop(show) -> None:
     assert len(rows) == 2
 
 
-def test_delayed_tram_uses_realtime_and_shows_delay(show, hafas: HafasFake) -> None:
+def test_delayed_tram_shows_actual_time_with_delay_in_brackets(show, hafas: HafasFake) -> None:
     hafas.journey("5258", "1", "215200")["stbStop"]["dTimeR"] = "215500"
 
     rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
 
     tram_1 = rows[1]
-    assert (tram_1["line"], tram_1["time"], tram_1["minutes"]) == ("1", "21:55 +3", "in 19 min")
+    assert (tram_1["line"], tram_1["time"], tram_1["minutes"]) == ("1", "21:55 (+3)", "in 19 min")
 
 
 def test_cancelled_tram_is_marked(show, hafas: HafasFake) -> None:
@@ -186,7 +186,7 @@ def test_departure_after_midnight(show, hafas: HafasFake, clock: FixedClock) -> 
 
     rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
 
-    assert [(row["time"], row["minutes"]) for row in rows] == [("00:07 +1", "in 9 min")]
+    assert [(row["time"], row["minutes"]) for row in rows] == [("00:07 (+1)", "in 9 min")]
 
 
 def test_keeps_last_data_with_timestamp_when_upstream_fails(

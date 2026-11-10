@@ -14,7 +14,8 @@
       <td class="line"><span class="line-badge">{{ row.line }}</span></td>
       <td class="direction">{{ row.direction }}</td>
       <td class="time">
-        {{ row.when | time }}{% if row.delay > 0 %} <span class="delay">+{{ row.delay }}</span>{% endif %}
+        {#- Actual (realtime) departure time; the delay is only a hint -#}
+        <span class="clock-time">{{ row.when | time }}</span>{% if row.delay > 0 %} <span class="delay">(+{{ row.delay }})</span>{% endif %}
       </td>
       {% if row.cancelled %}
       <td class="status" colspan="2">fällt aus</td>
