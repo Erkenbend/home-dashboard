@@ -14,7 +14,7 @@ home:
 departures:
   refresh_seconds: 30       # how often the tablet updates the widget (countdowns)
   fetch_seconds: 60         # how often the Pi asks HAFAS at most (min. 15)
-  max_per_stop: 5
+  max_per_stop: 8           # upper limit, the display shows as many as fit
   products: [tram]          # tram, bus, suburban, regional
   stops:
     # ids: numeric stop ids, look them up with `home-dashboard find-stop "<name> Halle"`
@@ -32,7 +32,7 @@ departures:
 calendar:
   # Google Calendar > Settings > "Privatadresse im iCal-Format" (keep secret!)
   ical_url: null
-  days: 7
+  days: 14                  # upper limit, the display shows as many as fit
   refresh_seconds: 300      # how often the tablet updates the widget
   fetch_seconds: 600        # how often the Pi downloads the iCal feed at most (min. 60)
   people:                   # keywords are matched case-insensitively as whole words

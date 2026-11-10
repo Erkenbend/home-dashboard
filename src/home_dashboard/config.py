@@ -48,7 +48,9 @@ class DeparturesConfig(_Strict):
     fetch_seconds: int = Field(
         default=60, ge=15, description="how often the Pi asks the transit API at most"
     )
-    max_per_stop: int = Field(default=5, ge=1)
+    max_per_stop: int = Field(
+        default=8, ge=1, description="upper limit, the display shows as many as fit"
+    )
     products: list[Literal["tram", "bus", "suburban", "regional"]] = ["tram"]
     stops: list[StopConfig] = []
 
@@ -72,7 +74,7 @@ class EveryoneConfig(_Strict):
 
 class CalendarConfig(_Strict):
     ical_url: str | None = None
-    days: int = Field(default=7, ge=1)
+    days: int = Field(default=14, ge=1, description="upper limit, the display shows as many as fit")
     refresh_seconds: int = Field(default=300, ge=5, description="how often the tablet updates")
     fetch_seconds: int = Field(
         default=600, ge=60, description="how often the Pi downloads the iCal feed at most"

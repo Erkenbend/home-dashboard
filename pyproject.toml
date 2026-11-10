@@ -19,6 +19,7 @@ home-dashboard = "home_dashboard.cli:main"
 
 [dependency-groups]
 dev = [
+    "playwright>=1.65.0",
     "pytest>=8.3",
     "respx>=0.22",
     "ruff>=0.8",

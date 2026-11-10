@@ -45,6 +45,9 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 ### FR-3 General display
 
 - Current time and date.
+- The layout adapts to the display (the exact tablet is not fixed yet): texts never overlap, there are no
+  scrollbars, and each widget shows as many rows as fit. `departures.max_per_stop` and `calendar.days`
+  are upper limits only.
 - Widgets refresh automatically; the page never needs manual interaction.
 - When a data source is unavailable, the last known data is shown with a "Stand: HH:MM" hint instead of
   an empty widget.
@@ -70,7 +73,7 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 | API usage | External APIs are cached server-side; multiple displays must not multiply external requests |
 | Development | Only in WSL on the developer machine (tests, builds). The Pi only runs the deployed container |
 | Deployment | One deploy script updates the Pi |
-| Testability | Behaviour-level integration tests with recorded API responses and an injectable clock |
+| Testability | Behaviour-level integration tests with recorded API responses and an injectable clock; layout tests in headless Chromium (Playwright) |
 | Server port | 3274 (T9 for "DASH") |
 
 ## Hardware available

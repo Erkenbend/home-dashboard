@@ -2,13 +2,18 @@
 {% if calendar.unavailable %}
 <p class="notice">Kalender nicht verfügbar</p>
 {% else %}
+{#- When space is short, past events of today go first (earliest first), then events from the end of the window.
+    The first upcoming event always stays. #}
+{% set fit = namespace(upcoming=0) %}
 {% for day in calendar.days %}
-<div class="day{% if day.is_today %} today{% endif %}" data-day="{{ day.label }}">
+<div class="day{% if day.is_today %} today{% endif %}" data-day="{{ day.label }}" data-fit-group>
   <h3 class="day-label">{{ day.label }}</h3>
   <ul class="events">
     {% for row in day.rows %}
     <li class="event{% if row.recurring %} recurring{% else %} single{% endif %}{% if row.past %} past{% endif %}{% if row.everyone %} everyone{% endif %}"
-        data-people="{{ row.tags | map(attribute='name') | join(',') }}">
+        data-people="{{ row.tags | map(attribute='name') | join(',') }}"
+        {%- if row.past %} data-fit-priority="{{ 2000 - loop.index0 }}"
+        {%- else %}{% if fit.upcoming > 0 %} data-fit-priority="{{ fit.upcoming }}"{% endif %}{% set fit.upcoming = fit.upcoming + 1 %}{% endif %}>
       <span class="markers">{% for tag in row.tags %}<span class="marker" style="background-color: {{ tag.color }}"></span>{% endfor %}</span>
       <span class="event-time">{{ row.time_label }}</span>
       <span class="event-title">{{ row.title }}</span>
@@ -17,7 +22,7 @@
       {% endif %}
     </li>
     {% else %}
-    <li class="notice">Keine Termine</li>
+    <li class="notice"{% if fit.upcoming > 0 %} data-fit-priority="{{ fit.upcoming }}"{% endif %}>Keine Termine</li>{% set fit.upcoming = fit.upcoming + 1 %}
     {% endfor %}
   </ul>
 </div>

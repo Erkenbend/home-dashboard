@@ -16,6 +16,14 @@
 - **HTMX** (1.9.x, vendored into `static/`) re-fetches each widget's HTML fragment periodically
   (`hx-get` + `hx-trigger="every 30s"`). No custom ES6+ JavaScript, no frontend build.
 - **CSS**: plain CSS, Flexbox (no Grid) for compatibility with old Android WebViews. Dark theme, large type.
+  All sizes are in `rem`; media queries set the root font size per display size (width or height,
+  whichever is tighter), and switch to stacked widgets in portrait.
+- **Fit to the display** (`static/fit.js`, plain ES5): widgets never scroll. The server renders up to the
+  configured limits (`max_per_stop`, `days`), the script hides the least important rows until each
+  widget fits, on load, resize and after every HTMX swap. Templates declare what may go via
+  `data-fit-priority` (higher goes first, rows without it always stay) and `data-fit-group` (hidden when
+  empty). Departures: the next one per stop stays, later ones go round-robin. Calendar: past events of
+  today first, then from the end of the window.
 
 ## Components
 
@@ -39,7 +47,7 @@ src/home_dashboard/
       templates/
   formatting.py     German date/time formatting (no system locale needed)
   templates/base.html, index.html, widgets/clock.html
-  static/style.css, htmx.min.js
+  static/style.css, fit.js, htmx.min.js
 ```
 
 Each widget follows the same pattern: **source interface → service (pure logic) → fragment template**.

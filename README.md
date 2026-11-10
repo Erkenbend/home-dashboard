@@ -27,6 +27,7 @@ Initial widgets:
 
 ```sh
 uv sync                                   # install dependencies (Python 3.12 is fetched by uv)
+uv run playwright install chromium-headless-shell   # browser for the layout tests
 cp config.example.yaml config.yaml        # local config, gitignored
 uv run pytest                             # behaviour tests (live tests: uv run pytest -m live)
 uv run ruff check && uv run ruff format --check

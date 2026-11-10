@@ -25,7 +25,13 @@ EVERYONE = EveryoneConfig(label="Alle", color="#c9b458", match=["Familie"])
 
 
 def calendar_config(**overrides) -> AppConfig:
-    settings = {"ical_url": ICAL_URL, "people": [ANNA, BEN], "everyone": EVERYONE, **overrides}
+    settings = {
+        "ical_url": ICAL_URL,
+        "days": 7,
+        "people": [ANNA, BEN],
+        "everyone": EVERYONE,
+        **overrides,
+    }
     return AppConfig(calendar=CalendarConfig(**settings))
 
 

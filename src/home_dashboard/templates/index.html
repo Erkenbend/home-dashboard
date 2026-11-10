@@ -7,12 +7,12 @@
 </header>
 <main class="widgets">
   {% if show_departures %}
-  <section class="widget" id="departures" hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
+  <section class="widget widget-departures" id="departures" data-fit hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
     {% include "widgets/departures.html" %}
   </section>
   {% endif %}
   {% if calendar %}
-  <section class="widget widget-calendar" id="calendar" hx-get="/widgets/calendar" hx-trigger="every {{ config.calendar.refresh_seconds }}s">
+  <section class="widget widget-calendar" id="calendar" data-fit hx-get="/widgets/calendar" hx-trigger="every {{ config.calendar.refresh_seconds }}s">
     {% include "widgets/calendar.html" %}
   </section>
   {% endif %}
