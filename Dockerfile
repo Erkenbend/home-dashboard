@@ -11,10 +11,10 @@ WORKDIR /app
 
 # Dependencies first for better layer caching
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-install-project
+RUN uv sync --locked --no-dev --no-install-project
 
 COPY src ./src
-RUN uv sync --locked
+RUN uv sync --locked --no-dev
 
 ENV PATH="/app/.venv/bin:$PATH" \
     HOME_DASHBOARD_CONFIG=/config/config.yaml
