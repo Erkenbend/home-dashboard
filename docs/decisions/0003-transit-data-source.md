@@ -36,6 +36,13 @@ Implementation notes from the spike:
   way to express "towards the city centre": e.g. Rannischer Platz via Marktplatz → only lines 1 and 95 northbound;
   Franckeplatz via Hauptbahnhof → buses 312/320/380, trams 7/94. The config therefore uses an optional **`via`
   stop** per configured stop instead of matching destination names.
+  **Correction (2026-11-10):** `dirLoc` matches trips passing the via stop *anywhere* later in the vehicle run,
+  also after a line change at a terminus. Such trips leave in the opposite direction (observed: line 1 towards
+  Südstadt continues as line 2 to the Hauptbahnhof, line 94 towards Kröllwitz returns as line 7, so the 94 above
+  was wrong). `StationBoard` offers no pass list (`getPasslist` → parse error), so the provider additionally
+  loads the **arrival board** (`type: ARR`) of the via stop and keeps a departure only if the trip's next
+  arrival there (same `jid`, later planned time, ≤ 30 min ride) still has the same line. One extra request per
+  stop and fetch, the arrival board is filtered by product as well.
 - **Times**: `dTimeS` (scheduled) / `dTimeR` (realtime, missing if no prognosis) as `HHMMSS` relative to the
   journey's `date`; HAFAS prefixes a day offset for times after midnight (`ddHHMMSS`), the parser must handle it.
   `dTZOffset` gives the UTC offset in minutes.

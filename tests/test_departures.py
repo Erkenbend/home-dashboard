@@ -61,25 +61,36 @@ def test_shows_reachable_trams_with_minutes_until_departure_and_leaving(show) ->
 
 
 def test_hides_trams_that_cannot_be_reached_on_foot(show, clock: FixedClock) -> None:
-    # Franckeplatz, 10 min walk at 21:34: tram 7 at 21:42 is too early, tram 94 at 21:44 just works
-    clock.instant = datetime(2026, 11, 9, 21, 34, tzinfo=BERLIN)
-    rows = show(FRANCKEPLATZ)["Franckeplatz"]
+    # Rannischer Platz, 5 min walk: trams 1 and 95 at 21:52 just work at 21:47
+    clock.instant = datetime(2026, 11, 9, 21, 47, tzinfo=BERLIN)
 
-    assert [(row["line"], row["time"]) for row in rows][:2] == [("94", "21:44"), ("7", "22:02")]
+    rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
+
+    assert [(row["line"], row["time"]) for row in rows] == [
+        ("1", "21:52"),
+        ("95", "21:52"),
+        ("1", "22:12"),
+        ("95", "22:12"),
+    ]
     assert rows[0]["leave"] == "jetzt los!"
+
+    clock.instant = datetime(2026, 11, 9, 21, 48, tzinfo=BERLIN)
+    rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
+
+    assert [row["time"] for row in rows] == ["22:12", "22:12"]
 
 
 def test_reachability_follows_the_clock_between_upstream_refreshes(
     show, clock: FixedClock, hafas: HafasFake
 ) -> None:
-    clock.instant = datetime(2026, 11, 9, 21, 34, tzinfo=BERLIN)
-    show(FRANCKEPLATZ)
+    clock.instant = datetime(2026, 11, 9, 21, 46, 45, tzinfo=BERLIN)
+    show(RANNISCHER_PLATZ)
     clock.instant += timedelta(seconds=30)  # still cached
 
-    rows = show(FRANCKEPLATZ)["Franckeplatz"]
+    rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
 
-    assert rows[0]["time"] == "22:02"
-    assert hafas.route.call_count == 1
+    assert rows[0]["time"] == "22:12"
+    assert hafas.departure_fetches == 1
 
 
 def test_shows_only_trams(show) -> None:
@@ -97,19 +108,39 @@ def test_asks_upstream_for_trams_passing_the_via_stop(show, hafas: HafasFake) ->
     assert request["jnyFltrL"] == [{"type": "PROD", "mode": "INC", "value": "32"}]
 
 
-def test_same_trip_at_two_platforms_is_shown_once_but_a_later_return_is_kept(
-    show, clock: FixedClock
-) -> None:
-    clock.instant = datetime(2026, 11, 9, 21, 34, tzinfo=BERLIN)
-    # Tram 94 at 21:44 (platform B) and 21:45 (platform D) is one trip; it returns as 7 at 22:22
+def test_hides_trams_reaching_the_via_stop_only_after_changing_their_line(show) -> None:
+    # Tram 94 leaves Franckeplatz towards Kröllwitz, i.e. away from the main station. HAFAS still
+    # lists it "via Hauptbahnhof", because the vehicle returns as line 7 and passes it 40 min later.
     rows = show(FRANCKEPLATZ, max_per_stop=10)["Franckeplatz"]
 
-    assert [(row["line"], row["time"]) for row in rows] == [
-        ("94", "21:44"),
-        ("7", "22:02"),
-        ("94", "22:04"),
-        ("7", "22:22"),
+    assert [(row["line"], row["direction"], row["time"]) for row in rows] == [
+        ("7", "Büschdorf", "22:02"),
+        ("7", "Büschdorf", "22:22"),
     ]
+
+
+def test_hides_trams_that_passed_the_via_stop_before(show, hafas: HafasFake) -> None:
+    # Like a line returning from its terminus: it passed Marktplatz before, but not afterwards
+    tram_1 = hafas.journey("5258", "1", "215200")
+    hafas.arrival("5232", tram_1["jid"])["stbStop"]["aTimeS"] = "214000"
+
+    rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
+
+    assert [(row["line"], row["time"]) for row in rows] == [
+        ("95", "21:52"),
+        ("1", "22:12"),
+        ("95", "22:12"),
+    ]
+
+
+def test_same_trip_at_two_platforms_is_shown_once(show, hafas: HafasFake) -> None:
+    # A station board spans several stop points, so the same trip may show up twice in a row
+    tram_7 = hafas.journey("5125", "7", "220200")
+    hafas.journeys("5125").append({**tram_7, "stbStop": {**tram_7["stbStop"], "dTimeS": "220300"}})
+
+    rows = show(FRANCKEPLATZ, max_per_stop=10)["Franckeplatz"]
+
+    assert [(row["line"], row["time"]) for row in rows] == [("7", "22:02"), ("7", "22:22")]
 
 
 def test_line_filter(show) -> None:
@@ -149,7 +180,9 @@ def test_departure_after_midnight(show, hafas: HafasFake, clock: FixedClock) -> 
     clock.instant = datetime(2026, 11, 9, 23, 58, tzinfo=BERLIN)
     template = hafas.journey("5258", "1", "215200")
     hafas.journeys("5258").clear()
-    hafas.add_journey("5258", template, dTimeS="01000600", dTimeR="01000700")
+    hafas.add_journey(
+        "5258", template, via=("5232", "01001000"), dTimeS="01000600", dTimeR="01000700"
+    )
 
     rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
 
@@ -216,10 +249,10 @@ def test_broken_upstream_is_not_asked_again_on_every_refresh(
     client.get("/widgets/departures")
     clock.instant += timedelta(seconds=30)
     client.get("/widgets/departures")
-    assert hafas.route.call_count == 1
+    assert hafas.departure_fetches == 1
 
     hafas.failing = False
     clock.instant += timedelta(seconds=30)
     rows = departures_by_stop(client.get("/widgets/departures").text)["Rannischer Platz"]
-    assert hafas.route.call_count == 2
+    assert hafas.departure_fetches == 2
     assert lines(rows) == ["1", "95", "1", "95"]

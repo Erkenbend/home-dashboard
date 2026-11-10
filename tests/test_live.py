@@ -24,6 +24,18 @@ def test_insa_hafas_delivers_tram_departures_for_rannischer_platz() -> None:
     assert all(d.planned.tzinfo is not None for d in departures)
 
 
+def test_insa_hafas_via_keeps_only_trams_heading_towards_the_via_stop() -> None:
+    # Franckeplatz -> Hauptbahnhof: trams towards Kröllwitz/Südstadt head the other way, although
+    # their vehicles reach the main station later under another line number
+    with create_http_client() as http:
+        provider = InsaHafasProvider(http)
+        now = datetime.now(ZoneInfo("Europe/Berlin"))
+        departures = provider.departures("5125", now, 120, via_id="8010159", products=["tram"])
+
+    assert departures, "no departures within 2 hours (night?)"
+    assert not [d for d in departures if d.direction.endswith(("Kröllwitz", "Südstadt"))]
+
+
 def test_insa_hafas_stop_search() -> None:
     with create_http_client() as http:
         matches = InsaHafasProvider(http).search_stops("Franckeplatz Halle")

@@ -51,7 +51,11 @@ class DepartureProvider(Protocol):
         via_id: str | None = None,
         products: list[Product] | None = None,
     ) -> list[Departure]:
-        """Departures at `stop_id` from `start` on, optionally only trips passing `via_id` later."""
+        """Departures at `stop_id` from `start` on.
+
+        With `via_id`, only trips that reach `via_id` next without changing their line, i.e. that
+        leave in the direction of `via_id`.
+        """
         ...
 
     def search_stops(self, query: str) -> list[StopMatch]: ...

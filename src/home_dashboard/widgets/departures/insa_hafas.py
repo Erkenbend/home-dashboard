@@ -28,6 +28,10 @@ PRODUCT_BITMASKS: dict[Product, int] = {
     "bus": 64 | 128,
 }
 MAX_JOURNEYS = 40
+# The arrival board at the via stop contains all lines passing there, not only ours
+MAX_ARRIVALS = 300
+# Longest plausible ride from the stop to its via stop; later arrivals are not checked
+MAX_RIDE_TO_VIA_MINUTES = 30
 
 
 def _lid(stop_id: str) -> str:
@@ -40,6 +44,10 @@ def _product_from_class(cls: int) -> Product:
         if cls & bitmask:
             return product
     return "other"
+
+
+def _line_name(product: dict[str, Any]) -> str:
+    return product.get("nameS") or product.get("number") or product.get("name", "?")
 
 
 def _parse_time(date: str, time: str | None, tz_offset_minutes: int | None) -> datetime | None:
@@ -83,25 +91,79 @@ class InsaHafasProvider:
         via_id: str | None = None,
         products: list[Product] | None = None,
     ) -> list[Departure]:
+        request = self._board_request("DEP", stop_id, start, duration_minutes, products)
+        request["maxJny"] = MAX_JOURNEYS
+        if via_id:
+            request["dirLoc"] = {"type": "S", "lid": _lid(via_id)}
+        result = self._call("StationBoard", request)
+        try:
+            departures = [
+                self._parse_journey(journey, result) for journey in result.get("jnyL", [])
+            ]
+        except (KeyError, IndexError, ValueError) as error:
+            raise ProviderError(f"unexpected HAFAS StationBoard format: {error!r}") from error
+        if via_id:
+            departures = self._passing_via(departures, via_id, start, duration_minutes, products)
+        return departures
+
+    @staticmethod
+    def _board_request(
+        board_type: str,
+        stop_id: str,
+        start: datetime,
+        duration_minutes: int,
+        products: list[Product] | None,
+    ) -> dict[str, Any]:
         request: dict[str, Any] = {
-            "type": "DEP",
+            "type": board_type,
             "date": start.strftime("%Y%m%d"),
             "time": start.strftime("%H%M%S"),
             "stbLoc": {"type": "S", "lid": _lid(stop_id)},
             "dur": duration_minutes,
-            "maxJny": MAX_JOURNEYS,
         }
-        if via_id:
-            request["dirLoc"] = {"type": "S", "lid": _lid(via_id)}
         if products:
             bitmask = sum(PRODUCT_BITMASKS.get(product, 0) for product in set(products))
             request["jnyFltrL"] = [{"type": "PROD", "mode": "INC", "value": str(bitmask)}]
+        return request
 
+    def _passing_via(
+        self,
+        departures: list[Departure],
+        via_id: str,
+        start: datetime,
+        duration_minutes: int,
+        products: list[Product] | None,
+    ) -> list[Departure]:
+        """Keep departures whose trip reaches the via stop next *under the same line*.
+
+        HAFAS `dirLoc` accepts any trip passing the via stop at some point later, also after the
+        vehicle changed its line number at a terminus and turned around (observed: line 1 towards
+        Südstadt continues as line 2 to the main station, line 94 towards Kröllwitz returns as 7).
+        Such trips leave in the opposite direction, so the arrival board of the via stop is used
+        to check where the trip actually goes first.
+        """
+        request = self._board_request(
+            "ARR", via_id, start, duration_minutes + MAX_RIDE_TO_VIA_MINUTES, products
+        )
+        request["maxJny"] = MAX_ARRIVALS
         result = self._call("StationBoard", request)
+        arrivals: dict[str, list[tuple[datetime, str]]] = {}
         try:
-            return [self._parse_journey(journey, result) for journey in result.get("jnyL", [])]
+            for journey in result.get("jnyL", []):
+                stop = journey["stbStop"]
+                planned = _parse_time(journey["date"], stop["aTimeS"], stop.get("aTZOffset"))
+                product = result["common"]["prodL"][stop.get("aProdX", journey["prodX"])]
+                arrivals.setdefault(journey["jid"], []).append((planned, _line_name(product)))
         except (KeyError, IndexError, ValueError) as error:
-            raise ProviderError(f"unexpected HAFAS StationBoard format: {error!r}") from error
+            raise ProviderError(f"unexpected HAFAS arrival board format: {error!r}") from error
+
+        def reaches_via_next(departure: Departure) -> bool:
+            later = sorted(
+                a for a in arrivals.get(departure.trip_id, []) if a[0] > departure.planned
+            )
+            return bool(later) and later[0][1] == departure.line
+
+        return [departure for departure in departures if reaches_via_next(departure)]
 
     @staticmethod
     def _parse_journey(journey: dict[str, Any], result: dict[str, Any]) -> Departure:
@@ -112,7 +174,7 @@ class InsaHafasProvider:
         platform = stop.get("dPltfR") or stop.get("dPltfS") or {}
         return Departure(
             trip_id=journey["jid"],
-            line=product.get("nameS") or product.get("number") or product.get("name", "?"),
+            line=_line_name(product),
             product=_product_from_class(product.get("cls", 0)),
             direction=journey.get("dirTxt", ""),
             planned=_parse_time(journey["date"], stop["dTimeS"], tz_offset),

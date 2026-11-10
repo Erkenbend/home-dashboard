@@ -64,10 +64,10 @@ def test_departures_are_fetched_at_most_every_fetch_seconds(
     for _ in range(4):  # polls at 0, 30, 60, 90 s
         client.get("/widgets/departures")
         clock.instant += timedelta(seconds=30)
-    assert hafas.route.call_count == 1
+    assert hafas.departure_fetches == 1
 
     client.get("/widgets/departures")  # 120 s
-    assert hafas.route.call_count == 2
+    assert hafas.departure_fetches == 2
 
 
 def test_slightly_early_poll_does_not_skip_a_fetch_cycle(
@@ -79,7 +79,7 @@ def test_slightly_early_poll_does_not_skip_a_fetch_cycle(
     clock.instant += timedelta(seconds=58)  # default fetch_seconds 60, poll arrives 2 s early
     client.get("/widgets/departures")
 
-    assert hafas.route.call_count == 2
+    assert hafas.departure_fetches == 2
 
 
 def test_too_frequent_fetching_is_rejected() -> None:
