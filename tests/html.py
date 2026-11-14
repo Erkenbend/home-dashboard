@@ -54,7 +54,7 @@ class _CalendarParser(HTMLParser):
         self.days: dict[str, list[dict]] = {}
         self._day: str | None = None
         self._event: dict | None = None
-        self._field: str | None = None
+        self._fields: list[str | None] = []  # one per open span, text goes to all of them
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -69,30 +69,40 @@ class _CalendarParser(HTMLParser):
                 "past": "past" in classes,
                 "everyone": "everyone" in classes,
                 "time": "",
+                "start": "",
                 "title": "",
+                "names": "",
             }
             self.days[self._day].append(self._event)
         elif tag == "span" and self._event is not None:
-            if "event-time" in classes:
-                self._field = "time"
-            elif "event-title" in classes:
-                self._field = "title"
+            fields = {
+                "event-time": "time",
+                "event-start": "start",
+                "event-title": "title",
+                "event-names": "names",
+            }
+            self._fields.append(next((fields[c] for c in classes if c in fields), None))
 
     def handle_endtag(self, tag: str) -> None:
-        if tag == "span":
-            self._field = None
+        if tag == "span" and self._fields:
+            self._fields.pop()
         elif tag == "li":
             self._event = None
 
     def handle_data(self, data: str) -> None:
-        if self._event is not None and self._field:
-            self._event[self._field] = " ".join((self._event[self._field] + data).split())
+        if self._event is None:
+            return
+        for field in filter(None, self._fields):
+            self._event[field] += data  # whitespace is normalized at the end
 
 
 def calendar_days(html: str) -> dict[str, list[dict]]:
-    """{day label: [{title, time, people, recurring, past, everyone}, ...]}"""
+    """{day label: [{title, names, time, start, people, recurring, past, everyone}, ...]}"""
     parser = _CalendarParser()
     parser.feed(html)
+    for event in (event for events in parser.days.values() for event in events):
+        for field in ("time", "start", "title", "names"):
+            event[field] = " ".join(event[field].split())
     return parser.days
 
 

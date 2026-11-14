@@ -318,21 +318,33 @@ body {
 .event-time {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
-  width: 8.5rem;
+  width: 9.75rem;
   margin-right: 0.5rem;
   color: #c8d0d8;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.event-title {
+/* The start time is what one looks for first */
+.event-start {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.event-text {
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: break-word;
   word-wrap: break-word;
+}
+
+.event-names {
+  font-weight: normal;
+  color: #707880;
 }
 
 /* Single events stand out, recurring ones are routine */

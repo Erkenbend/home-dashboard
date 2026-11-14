@@ -37,6 +37,10 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
   (person → colour → title keywords, case-insensitive whole words) colours events accordingly.
 - Some events concern **everyone**: recognized by configurable keywords (e.g. "Familie") or by the absence
   of any person keyword. They get their own colour and the label "Alle".
+- Keywords at the start of a title are prefixes ("A - Zahnarzt", "Anna & Ben: Kino") and are not shown;
+  instead the names of the people concerned follow the title in parentheses, de-emphasised
+  ("Zahnarzt (Anna)"). Events for everyone get no names.
+- The start time stands out (larger) from the end time.
 - **Recurring events** (series, including moved occurrences) are visually distinguished from **single
   events**: single events stand out, recurring ones are de-emphasised and marked with a repeat icon.
 - Access initially via the calendar's secret iCal address; a switch to the Google Calendar API

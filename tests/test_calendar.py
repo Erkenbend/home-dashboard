@@ -68,16 +68,26 @@ def test_shows_the_coming_seven_days_grouped_with_german_labels(days) -> None:
 def test_events_of_a_day_with_times_all_day_first(days) -> None:
     assert [(e["time"], e["title"]) for e in days["Morgen"]] == [
         ("ganztägig", "Müllabfuhr"),
-        ("20:00–21:00", "Anna Yoga (später)"),
+        ("20:00–21:00", "Yoga (später)"),
     ]
+
+
+def test_start_time_is_emphasized(days) -> None:
+    def start_of(day: str, title: str) -> str:
+        return next(e["start"] for e in days[day] if e["title"] == title)
+
+    assert start_of("Morgen", "Yoga (später)") == "20:00"
+    assert start_of("Fr, 13.11.", "Übernachtung bei Max") == "18:00"  # "ab 18:00"
+    assert start_of("Sa, 14.11.", "Übernachtung bei Max") == ""  # "bis 10:00"
+    assert start_of("Morgen", "Müllabfuhr") == ""
 
 
 def test_past_events_of_today_are_marked(days) -> None:
     today = {event["title"]: event["past"] for event in days["Heute"]}
 
     assert today == {
-        "Anna: Zahnarzt": True,
-        "Ben Fußballturnier": False,
+        "Zahnarzt": True,
+        "Fußballturnier": False,
         "Benefizlauf im Park": False,
     }
 
@@ -85,15 +95,26 @@ def test_past_events_of_today_are_marked(days) -> None:
 def test_events_are_assigned_to_people_by_title(days) -> None:
     people = {e["title"]: e["people"] for day in days.values() for e in day}
 
-    assert people["Anna: Zahnarzt"] == ["Anna"]
-    assert people["Ben Fußballturnier"] == ["Ben"]  # keywords are case-insensitive
+    assert people["Zahnarzt"] == ["Anna"]
+    assert people["Fußballturnier"] == ["Ben"]  # keywords are case-insensitive
     assert people["Klassenfahrt Anna und Ben"] == ["Anna", "Ben"]
+
+
+def test_leading_keywords_are_replaced_by_the_names_at_the_end(days) -> None:
+    shown = {(e["title"], e["names"]) for day in days.values() for e in day}
+
+    assert ("Zahnarzt", "(Anna)") in shown  # "Anna: Zahnarzt"
+    assert ("Fußballturnier", "(Ben)") in shown  # "Ben Fußballturnier"
+    assert ("Elternabend Ben", "(Ben)") in shown  # not leading: title stays
+    assert ("Klassenfahrt Anna und Ben", "(Anna, Ben)") in shown
+    assert ("Omas Geburtstag", "") in shown  # "Familie: Omas Geburtstag", no names for everyone
+    assert ("Benefizlauf im Park", "") in shown
 
 
 def test_events_for_everyone_by_keyword_or_without_recognized_person(days) -> None:
     events = {e["title"]: e for day in days.values() for e in day}
 
-    for title in ["Familie: Omas Geburtstag", "Müllabfuhr", "Benefizlauf im Park"]:
+    for title in ["Omas Geburtstag", "Müllabfuhr", "Benefizlauf im Park"]:
         assert events[title]["everyone"], title
         assert events[title]["people"] == ["Alle"], title
     assert not events["Klassenfahrt Anna und Ben"]["everyone"]
@@ -103,13 +124,13 @@ def test_recurring_and_single_events_are_distinguished(days) -> None:
     events = {e["title"]: e["recurring"] for day in days.values() for e in day}
 
     assert events["Sonntagsessen"] is True
-    assert events["Anna Yoga (später)"] is True  # moved occurrence of a series
-    assert events["Anna: Zahnarzt"] is False
+    assert events["Yoga (später)"] is True  # moved occurrence of a series
+    assert events["Zahnarzt"] is False
     assert events["Klassenfahrt Anna und Ben"] is False
 
 
 def test_excluded_occurrence_of_a_series_is_not_shown(days) -> None:
-    assert "Anna Yoga" not in titles(days["Do, 12.11."])
+    assert "Yoga" not in titles(days["Do, 12.11."])
 
 
 def test_multi_day_events(days) -> None:
@@ -120,7 +141,7 @@ def test_multi_day_events(days) -> None:
     assert [time_of(d, trip) for d in ["Do, 12.11.", "Fr, 13.11.", "Sa, 14.11."]] == [
         "Tag 1/3", "Tag 2/3", "Tag 3/3"
     ]  # fmt: skip
-    sleepover = "Ben Übernachtung bei Max"
+    sleepover = "Übernachtung bei Max"
     assert time_of("Fr, 13.11.", sleepover) == "ab 18:00"
     assert time_of("Sa, 14.11.", sleepover) == "bis 10:00"
 
@@ -142,6 +163,45 @@ def test_days_without_events_are_skipped_but_today_is_always_shown(
     assert list(days) == ["Heute", "Morgen", "Do, 19.11.", "Fr, 20.11.", "So, 22.11."]
     assert days["Heute"] == []
     assert "Keine Termine" in html
+
+
+@pytest.mark.parametrize(
+    ("summary", "title", "names"),
+    [
+        ("A - Zahnarzt", "Zahnarzt", "(Anna)"),
+        ("A-Zahnarzt", "Zahnarzt", "(Anna)"),
+        ("A-N- Kino", "Kino", "(Anna, Nina)"),
+        ("Alle: Ausflug", "Ausflug", ""),
+        ("A-", "A-", "(Anna)"),  # nothing left: keep the title
+    ],
+)
+def test_prefix_styles(
+    make_client: Callable[..., TestClient],
+    respx_mock: respx.Router,
+    monday_morning,
+    summary: str,
+    title: str,
+    names: str,
+) -> None:
+    respx_mock.get(ICAL_URL).mock(return_value=httpx.Response(200, content=single_event(summary)))
+    people = [
+        PersonConfig(name="Anna", color="#e07a5f", match=["A-", "A -"]),
+        PersonConfig(name="Nina", color="#3d85c6", match=["N-", "N -"]),
+    ]
+    everyone = EveryoneConfig(match=["Alle"])
+    client = make_client(calendar_config(people=people, everyone=everyone))
+
+    [event] = calendar_days(client.get("/widgets/calendar").text)["Heute"]
+
+    assert (event["title"], event["names"]) == (title, names)
+
+
+def single_event(summary: str) -> bytes:
+    return (
+        "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:single@test\r\n"
+        f"SUMMARY:{summary}\r\nDTSTART;VALUE=DATE:20261109\r\nDTEND;VALUE=DATE:20261110\r\n"
+        "DTSTAMP:20261101T120000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
+    ).encode()
 
 
 def test_legend_lists_people_and_everyone(client: TestClient) -> None:
@@ -173,7 +233,7 @@ def test_keeps_last_events_when_download_fails(
 
     html = client.get("/widgets/calendar").text
 
-    assert "Ben Fußballturnier" in html
+    assert "Fußballturnier" in html
     assert "Stand: 10:00" in html
 
 
@@ -198,7 +258,7 @@ def test_dashboard_embeds_calendar_and_refreshes_it(client: TestClient) -> None:
     page = client.get("/").text
 
     assert 'hx-get="/widgets/calendar"' in page
-    assert "Ben Fußballturnier" in page
+    assert "Fußballturnier" in page
 
 
 def test_no_calendar_widget_without_ical_url(make_client: Callable[..., TestClient]) -> None:

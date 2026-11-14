@@ -24,9 +24,24 @@ class Tag:
 
 
 @dataclass(frozen=True)
+class TimeLabel:
+    """Time of an event on a day; the start time (if the event starts that day) is emphasized."""
+
+    before: str = ""
+    start: str = ""
+    after: str = ""
+
+    def __str__(self) -> str:
+        return f"{self.before}{self.start}{self.after}"
+
+
+@dataclass(frozen=True)
 class EventRow:
     title: str
-    time_label: str
+    """Title without the leading person/everyone keywords."""
+    names: str
+    """Names of the people concerned ("Anna, Ben"), empty for events concerning everyone."""
+    time: TimeLabel
     tags: list[Tag]
     everyone: bool
     recurring: bool
@@ -58,6 +73,10 @@ def _keyword_pattern(keyword: str) -> re.Pattern[str]:
     return re.compile(prefix + re.escape(keyword) + suffix, re.IGNORECASE)
 
 
+# Between leading keywords and the actual title, e.g. "Anna & Ben: Kino", "A - Zahnarzt"
+_SEPARATORS = re.compile(r"[\s:,;/&+|\-–—]*")
+
+
 class _PersonMatcher:
     def __init__(self, config: CalendarConfig) -> None:
         self._people = [
@@ -66,6 +85,12 @@ class _PersonMatcher:
         ]
         self._everyone_tag = Tag(config.everyone.label, config.everyone.color)
         self._everyone = [_keyword_pattern(k) for k in config.everyone.match]
+        # Longest first, so "A -" wins over "A"
+        self._prefixes = sorted(
+            [p for _, patterns in self._people for p in patterns] + self._everyone,
+            key=lambda pattern: len(pattern.pattern),
+            reverse=True,
+        )
 
     @property
     def legend(self) -> list[Tag]:
@@ -79,6 +104,16 @@ class _PersonMatcher:
         if not people:
             return [self._everyone_tag], True
         return people, False
+
+    def strip_prefixes(self, title: str) -> str:
+        """The title without leading keywords and separators ("Anna: Zahnarzt" -> "Zahnarzt")."""
+        rest = title
+        while True:
+            matches = (pattern.match(rest) for pattern in self._prefixes)
+            match = next((m for m in matches if m and m.end() > 0), None)
+            if match is None:
+                return rest or title
+            rest = rest[_SEPARATORS.match(rest, match.end()).end() :]
 
 
 class CalendarService:
@@ -154,8 +189,9 @@ class CalendarService:
     def _row(self, event: Event, day: date, now: datetime) -> EventRow:
         tags, everyone = self._matcher.tags(event.title)
         return EventRow(
-            title=event.title,
-            time_label=self._time_label(event, day),
+            title=self._matcher.strip_prefixes(event.title),
+            names="" if everyone else ", ".join(tag.name for tag in tags),
+            time=self._time_label(event, day),
             tags=tags,
             everyone=everyone,
             recurring=event.recurring,
@@ -163,20 +199,20 @@ class CalendarService:
             past=not event.all_day and event.end <= now,
         )
 
-    def _time_label(self, event: Event, day: date) -> str:
+    def _time_label(self, event: Event, day: date) -> TimeLabel:
         if event.all_day:
             total = (event.end - event.start).days
             if total > 1:
-                return f"Tag {(day - event.start).days + 1}/{total}"
-            return "ganztägig"
+                return TimeLabel(f"Tag {(day - event.start).days + 1}/{total}")
+            return TimeLabel("ganztägig")
         starts_today = event.start.date() == day
         ends_today = event.end <= self._midnight(day + timedelta(days=1))
         if starts_today and ends_today:
             if event.start == event.end:
-                return format_time(event.start)
-            return f"{format_time(event.start)}–{format_time(event.end)}"
+                return TimeLabel(start=format_time(event.start))
+            return TimeLabel(start=format_time(event.start), after=f"–{format_time(event.end)}")
         if starts_today:
-            return f"ab {format_time(event.start)}"
+            return TimeLabel("ab ", format_time(event.start))
         if ends_today:
-            return f"bis {format_time(event.end)}"
-        return "ganztägig"
+            return TimeLabel(f"bis {format_time(event.end)}")
+        return TimeLabel("ganztägig")
