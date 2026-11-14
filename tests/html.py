@@ -44,6 +44,38 @@ def departures_by_stop(html: str) -> dict[str, list[dict[str, str]]]:
     return parser.stops
 
 
+class _StopDirectionParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.directions: dict[str, str | None] = {}
+        self._stop: str | None = None
+        self._in_direction = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        if "data-stop" in attributes:
+            self._stop = attributes["data-stop"] or ""
+            self.directions[self._stop] = None
+        elif "stop-direction" in (attributes.get("class") or "").split() and self._stop:
+            self._in_direction = True
+            self.directions[self._stop] = ""
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "span":
+            self._in_direction = False
+
+    def handle_data(self, data: str) -> None:
+        if self._in_direction and self._stop is not None:
+            self.directions[self._stop] = " ".join((self.directions[self._stop] + data).split())
+
+
+def stop_directions(html: str) -> dict[str, str | None]:
+    """{stop name: direction shown next to it, None if there is none}"""
+    parser = _StopDirectionParser()
+    parser.feed(html)
+    return parser.directions
+
+
 def lines(rows: list[dict[str, str]]) -> list[str]:
     return [row["line"] for row in rows]
 

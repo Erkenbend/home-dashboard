@@ -32,6 +32,11 @@ class StopConfig(_Strict):
         default=None, description="id of a stop the trip must pass later (direction filter)"
     )
     lines: list[str] | None = None
+    direction: str | None = Field(
+        default=None,
+        description="direction label shown next to the stop name; replaces the per-departure "
+        "destination, so only the line number is shown",
+    )
 
 
 class DisplayConfig(_Strict):

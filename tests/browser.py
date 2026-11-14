@@ -101,7 +101,11 @@ def open_dashboard(
 ) -> Iterator[Callable]:
     config = AppConfig(
         home=HomeConfig(lat=51.48, lon=11.97),
-        departures=DeparturesConfig(stops=[RANNISCHER_PLATZ, FRANCKEPLATZ], max_per_stop=8),
+        departures=DeparturesConfig(
+            # One stop with a configured direction, one showing the destination of each tram
+            stops=[RANNISCHER_PLATZ.model_copy(update={"direction": "Markt"}), FRANCKEPLATZ],
+            max_per_stop=8,
+        ),
         calendar=CalendarConfig(ical_url=ICAL_URL, people=[ANNA, BEN], everyone=EVERYONE, days=14),
     )
     client = make_client(config)

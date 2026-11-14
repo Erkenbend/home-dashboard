@@ -186,6 +186,10 @@ body {
   text-overflow: ellipsis;
 }
 
+.stop-direction {
+  font-weight: normal;
+}
+
 .stop-walk {
   font-size: 1.125rem;
   font-weight: normal;
@@ -215,6 +219,11 @@ body {
   max-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Without direction column, the time takes the remaining width instead */
+.departures.without-direction .time {
+  width: 100%;
 }
 
 .line-badge {

@@ -23,6 +23,8 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - Optional per-stop filters for lines and direction. The direction is expressed as a `via` stop the trip must
   pass (e.g. Rannischer Platz via Marktplatz = towards the city centre; Franckeplatz via Hauptbahnhof = towards
   the main station).
+- Optional per-stop direction label (e.g. "Markt", "Hauptbahnhof"), shown next to the stop name. Departures
+  of such a stop show only the line number instead of each trip's destination.
 - Cancelled trips are visibly marked.
 - Data source: live public transport data covering HAVAG (Hallesche Verkehrs-AG) trams and buses
   within the MDV network. See [ADR 0003](decisions/0003-transit-data-source.md).

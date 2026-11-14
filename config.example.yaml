@@ -19,14 +19,17 @@ departures:
   stops:
     # ids: numeric stop ids, look them up with `home-dashboard find-stop "<name> Halle"`
     # via: optional stop the tram must pass later = direction
+    # direction: optional label next to the stop name, departures then show only the line number
     - name: "Rannischer Platz"
       id: "5258"
       walk_minutes: 5
       via: "5232"           # Marktplatz -> towards the city centre
+      direction: "Markt"
     - name: "Franckeplatz"
       id: "5125"
       walk_minutes: 10
       via: "8010159"        # Hauptbahnhof -> towards the main station
+      direction: "Hauptbahnhof"
       # lines: ["7", "94"]   # optional line filter
 
 calendar:

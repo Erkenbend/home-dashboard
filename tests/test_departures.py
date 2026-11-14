@@ -13,7 +13,7 @@ from home_dashboard.clock import FixedClock
 from home_dashboard.config import AppConfig, DeparturesConfig, StopConfig
 from tests.conftest import BERLIN
 from tests.hafas_fake import HafasFake
-from tests.html import departures_by_stop, lines
+from tests.html import departures_by_stop, lines, stop_directions
 
 RANNISCHER_PLATZ = StopConfig(name="Rannischer Platz", id="5258", walk_minutes=5, via="5232")
 FRANCKEPLATZ = StopConfig(name="Franckeplatz", id="5125", walk_minutes=10, via="8010159")
@@ -58,6 +58,20 @@ def test_shows_reachable_trams_with_minutes_until_departure_and_leaving(show) ->
         "leave": "los in 11 min",
     }
     assert lines(rows) == ["1", "95", "1", "95"]
+
+
+def test_configured_direction_is_shown_once_instead_of_each_destination(
+    make_client: Callable[..., TestClient], hafas: HafasFake
+) -> None:
+    towards_market = RANNISCHER_PLATZ.model_copy(update={"direction": "Markt"})
+
+    html = make_client(config(towards_market, FRANCKEPLATZ)).get("/widgets/departures").text
+
+    assert stop_directions(html) == {"Rannischer Platz": "→ Markt", "Franckeplatz": None}
+    rows = departures_by_stop(html)
+    assert lines(rows["Rannischer Platz"]) == ["1", "95", "1", "95"]
+    assert all("direction" not in row for row in rows["Rannischer Platz"])
+    assert all(row["direction"] == "Büschdorf" for row in rows["Franckeplatz"])
 
 
 def test_hides_trams_that_cannot_be_reached_on_foot(show, clock: FixedClock) -> None:

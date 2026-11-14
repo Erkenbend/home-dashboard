@@ -3,18 +3,20 @@
 <div class="stop" data-stop="{{ board.name }}">
   <h3 class="stop-name">
     {{ board.name }}
+    {%- if board.direction %} <span class="stop-direction">→ {{ board.direction }}</span>{% endif %}
     <span class="stop-walk">{{ board.walk_minutes }} min Fußweg</span>
   </h3>
   {% if board.unavailable %}
   <p class="notice">Keine Daten verfügbar</p>
   {% else %}
-  <table class="departures">
+  {#- With a configured stop direction, the destination of each departure is redundant #}
+  <table class="departures{% if board.direction %} without-direction{% endif %}">
     {% for row in board.rows %}
     {#- The first departure of each stop always stays, later ones give way round-robin when space is short #}
     <tr class="departure{% if row.cancelled %} cancelled{% endif %}" data-line="{{ row.line }}" data-minutes="{{ row.minutes }}"
         {%- if not loop.first %} data-fit-priority="{{ loop.index0 }}"{% endif %}>
       <td class="line"><span class="line-badge">{{ row.line }}</span></td>
-      <td class="direction">{{ row.direction }}</td>
+      {% if not board.direction %}<td class="direction">{{ row.direction }}</td>{% endif %}
       <td class="time">
         {#- Actual (realtime) departure time; the delay is only a hint -#}
         <span class="departure-time">{{ row.when | time }}</span>{% if row.delay > 0 %} <span class="delay">(+{{ row.delay }})</span>{% endif %}

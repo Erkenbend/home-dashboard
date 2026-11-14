@@ -119,11 +119,13 @@ departures:
       id: "5258"           # numeric stop id, look up with `home-dashboard find-stop`
       walk_minutes: 5
       via: "5232"          # optional: stop the tram must pass later (direction), here Marktplatz
+      direction: "Markt"   # optional: shown next to the stop name instead of each trip's destination
       lines: ["1", "95"]   # optional
     - name: "Franckeplatz"
       id: "5125"
       walk_minutes: 10
       via: "8010159"       # Hauptbahnhof
+      direction: "Hauptbahnhof"
 calendar:
   ical_url: "https://calendar.google.com/calendar/ical/…/basic.ics"
   days: 7

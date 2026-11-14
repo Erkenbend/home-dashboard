@@ -33,6 +33,7 @@ class DepartureRow:
 class StopBoard:
     name: str
     walk_minutes: int
+    direction: str | None = None
     rows: list[DepartureRow] = field(default_factory=list)
     fetched_at: datetime | None = None
     stale: bool = False
@@ -83,7 +84,7 @@ class DeparturesService:
         return [self._board(stop) for stop in self._config.stops]
 
     def _board(self, stop: StopConfig) -> StopBoard:
-        board = StopBoard(name=stop.name, walk_minutes=stop.walk_minutes)
+        board = StopBoard(name=stop.name, walk_minutes=stop.walk_minutes, direction=stop.direction)
         try:
             cached = self._cache.get(
                 ("departures", stop.id, stop.via, tuple(self._config.products)),

@@ -33,6 +33,9 @@ LAYOUT = """() => {
     // narrowest direction column, in characters of its font (about 2 per em)
     directionChars: Math.min(...directions.map((cell) =>
       2 * box(cell).width / parseFloat(getComputedStyle(cell).fontSize))),
+    // configured stop directions must not be cut off by the stop name's ellipsis
+    cutStopDirections: [...document.querySelectorAll('.stop-direction')].filter(visible)
+      .filter((direction) => box(direction).right > box(direction.parentElement).right + 1).length,
     pageScrolls: root.scrollWidth > innerWidth || root.scrollHeight > innerHeight,
   };
 }"""
@@ -63,6 +66,7 @@ def assert_fits(page) -> None:
         assert not widget["overflowY"], widget
         assert widget["cutRows"] == 0, widget
     assert layout["directionChars"] >= 8, "direction must stay readable"
+    assert layout["cutStopDirections"] == 0, "stop direction must stay readable"
     boxes = {widget["id"]: widget["box"] for widget in layout["widgets"]}
     assert list(boxes) == ["departures", "weather", "calendar"]
     for first, second in itertools.combinations(boxes.values(), 2):
