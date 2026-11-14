@@ -90,11 +90,40 @@ body {
   margin-right: 0;
 }
 
-/* Departure rows need more width than calendar entries, which can wrap */
-.widget-departures {
+/* A column of widgets (departures + weather). Departure rows need more width than calendar
+ * entries, which can wrap. */
+.column {
   -webkit-box-flex: 1.2;
   -webkit-flex: 1.2 1 0;
   flex: 1.2 1 0;
+  margin-right: 1.5rem;
+  min-width: 0;
+  min-height: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+.column:last-child {
+  margin-right: 0;
+}
+
+.column .widget {
+  margin-right: 0;
+}
+
+/* The weather keeps its natural height at the bottom, the departures fill (and fit) the rest */
+.widget-weather {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+
+.widget-departures + .widget-weather {
+  margin-top: 1rem;
 }
 
 /* Portrait or very narrow: widgets below each other */
@@ -105,20 +134,23 @@ body {
     flex-direction: column;
   }
 
-  .widget {
+  .widget,
+  .column {
     margin-right: 0;
     margin-bottom: 1rem;
   }
 
-  .widget:last-child {
+  .widget:last-child,
+  .column:last-child,
+  .column .widget {
     margin-bottom: 0;
   }
 
-  /* Departures take the height they need, the calendar the rest */
-  .widget-departures {
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 1 auto;
-    flex: 0 1 auto;
+  /* Departures + weather and the calendar share the height equally */
+  .column {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 0;
+    flex: 1 1 0;
   }
 }
 
@@ -340,6 +372,147 @@ body {
   height: 0.875rem;
   vertical-align: middle;
   margin-right: 0.375rem;
+}
+
+/* Weather */
+
+.weather-summary {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.weather-now {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.weather-icon {
+  display: inline-block;
+  width: 2.25rem;
+  height: 2.25rem;
+  vertical-align: middle;
+}
+
+.weather-now-icon {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: 4rem;
+  height: 4rem;
+  margin-right: 0.5rem;
+}
+
+.weather-temperature {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  font-size: 3.25rem;
+  font-weight: bold;
+  margin-right: 0.75rem;
+}
+
+.weather-details {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.weather-condition {
+  display: block;
+  font-size: 1.5rem;
+}
+
+.weather-apparent {
+  display: block;
+  font-size: 1.125rem;
+  color: #a0a8b0;
+}
+
+.weather-days {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  border-collapse: collapse;
+  font-size: 1.375rem;
+  margin-left: 0.75rem;
+}
+
+.weather-days td {
+  padding: 0 0 0 0.5rem;
+  white-space: nowrap;
+}
+
+.weather-days .weather-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.weather-day-label {
+  color: #a0a8b0;
+  font-size: 1.125rem;
+}
+
+.weather-max {
+  font-weight: bold;
+  text-align: right;
+}
+
+.weather-min {
+  color: #a0a8b0;
+  text-align: right;
+}
+
+/* The coming hours, side by side in equal columns */
+.weather-hours {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.weather-hour {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 0;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.weather-hour > span {
+  display: block;
+}
+
+.hour-label {
+  font-size: 1.125rem;
+  color: #a0a8b0;
+}
+
+.hour-temperature {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.hour-precipitation {
+  font-size: 1.125rem;
+  color: #707880;
+}
+
+.weather-hour.rain-likely .hour-precipitation {
+  color: #6fa8dc;
+  font-weight: bold;
 }
 
 /* Server unreachable (static/connection.js): the notice replaces the date, everything that is

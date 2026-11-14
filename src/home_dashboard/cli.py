@@ -9,7 +9,7 @@ import uvicorn
 import yaml
 from pydantic import ValidationError
 
-from home_dashboard.config import DEFAULT_PORT, load_config
+from home_dashboard.config import DEFAULT_PORT, AppConfig, load_config
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -76,19 +76,30 @@ def _check_config(path: str) -> int:
     print(f"{path}: OK")
     print(f"  Haltestellen: {stops or '-'}")
     print(f"  Kalender: {'iCal-Adresse gesetzt' if config.calendar.ical_url else 'aus'}")
+    print(f"  Wetter: {_weather_summary(config)}")
     print(
         f"  Personen: {people or '-'}; {config.calendar.everyone.label}: "
         f"{', '.join(config.calendar.everyone.match) or 'nur ohne erkannte Person'}"
     )
     display, departures, calendar = config.display, config.departures, config.calendar
+    weather = config.weather
     reload = f"{display.page_reload_hours:g} h" if display.page_reload_hours else "aus"
     print(
         f"  Aktualisierung: Uhr {display.clock_refresh_seconds} s, "
         f"Abfahrten {departures.refresh_seconds} s (Abruf {departures.fetch_seconds} s), "
         f"Kalender {calendar.refresh_seconds} s (Abruf {calendar.fetch_seconds} s), "
+        f"Wetter {weather.refresh_seconds} s (Abruf {weather.fetch_seconds} s), "
         f"Seiten-Reload {reload}"
     )
     return 0
+
+
+def _weather_summary(config: AppConfig) -> str:
+    if not config.weather.enabled:
+        return "aus"
+    if config.weather_location is None:
+        return "aus (home.lat / home.lon fehlen)"
+    return f"an, {config.weather.hours} Stunden"
 
 
 if __name__ == "__main__":

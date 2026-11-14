@@ -16,9 +16,12 @@
 - **Server-side rendering**: FastAPI + Jinja2 render complete HTML. The browser only needs basic HTML/CSS.
 - **HTMX** (1.9.x, vendored into `static/`) re-fetches each widget's HTML fragment periodically
   (`hx-get` + `hx-trigger="every 30s"`). No custom ES6+ JavaScript, no frontend build.
+- **Weather icons**: inline SVG macros (`templates/widgets/weather_icons.html`), one per WMO code group,
+  sun or moon depending on daylight.
 - **CSS**: plain CSS, Flexbox (no Grid) for compatibility with old Android WebViews. Dark theme, large type.
   Layout: departures and weather share the left column (weather at its natural height at the bottom,
-  departures get the rest), calendar on the right; in portrait everything is stacked.
+  departures get the rest), calendar on the right; in portrait everything is stacked and the column
+  and the calendar share the height equally.
   All sizes are in `rem`; media queries set the root font size per display size (width or height,
   whichever is tighter), and switch to stacked widgets in portrait.
 - **Fit to the display** (`static/fit.js`, plain ES5): widgets never scroll. The server renders up to the
@@ -131,7 +134,7 @@ calendar:
     match: ["Familie", "Alle"]
 weather:                    # location: home.lat / home.lon, shown only if both are set
   enabled: true
-  hours: 6                  # upper limit of hourly forecasts after the next full hour
+  hours: 6                  # hourly forecasts, starting with the next full hour
 ```
 
 ## Testing strategy

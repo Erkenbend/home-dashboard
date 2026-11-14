@@ -31,14 +31,14 @@ def test_lost_connection_is_shown_and_clears_when_the_server_is_back(open_dashbo
     online = page.evaluate(STATE)
     assert online["notice"] is None
     assert online["date"]
-    assert online["widgetOpacity"] == ["1", "1"]
+    assert online["widgetOpacity"] == ["1", "1", "1"]
 
     network.down()
     offline = poll(page)
 
     assert offline["notice"] == "Keine Verbindung seit 21:36", "last clock time shown"
     assert not offline["date"], "the notice takes the place of the date"
-    assert offline["widgetOpacity"] == ["0.4", "0.4"], "frozen data is dimmed"
+    assert offline["widgetOpacity"] == ["0.4", "0.4", "0.4"], "frozen data is dimmed"
     assert offline["headerHeight"] == online["headerHeight"], "widgets keep their space"
 
     network.up()

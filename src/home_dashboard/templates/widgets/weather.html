@@ -1,0 +1,39 @@
+{% import "widgets/weather_icons.html" as icons %}
+<h2 class="widget-title">Wetter</h2>
+{% if weather.unavailable %}
+<p class="notice">Wetter nicht verfügbar</p>
+{% else %}
+<div class="weather-summary">
+  <div class="weather-now">
+    {{ icons.icon(weather.now.condition.icon, weather.now.condition.label, "weather-icon weather-now-icon") }}
+    <span class="weather-temperature">{{ weather.now.temperature }}°</span>
+    <span class="weather-details">
+      <span class="weather-condition">{{ weather.now.condition.label }}</span>
+      <span class="weather-apparent">gefühlt {{ weather.now.apparent_temperature }}°</span>
+    </span>
+  </div>
+  <table class="weather-days">
+    {% for day in weather.days %}
+    <tr class="weather-day">
+      <td class="weather-day-label">{{ day.label }}</td>
+      <td class="weather-day-icon">{{ icons.icon(day.condition.icon, day.condition.label) }}</td>
+      <td class="weather-max">{{ day.temperature_max }}°</td>
+      <td class="weather-min">{{ day.temperature_min }}°</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+<ul class="weather-hours">
+  {% for hour in weather.hours %}
+  <li class="weather-hour{% if hour.rain_likely %} rain-likely{% endif %}">
+    <span class="hour-label">{{ hour.label }}</span>
+    {{ icons.icon(hour.condition.icon, hour.condition.label) }}
+    <span class="hour-temperature">{{ hour.temperature }}°</span>
+    <span class="hour-precipitation">{% if hour.precipitation_probability is not none %}{{ hour.precipitation_probability }}&nbsp;%{% else %}&nbsp;{% endif %}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% if weather.stale %}
+<p class="notice stale">Stand: {{ weather.fetched_at | time }}</p>
+{% endif %}
+{% endif %}

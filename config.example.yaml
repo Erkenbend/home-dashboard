@@ -6,7 +6,7 @@ display:
   clock_refresh_seconds: 15
   page_reload_hours: 6      # full page reload as safety net for the kiosk browser, 0 = off
 
-home:
+home:                       # lat / lon: location of the weather widget
   address: "Musterstraße 1, 06108 Halle (Saale)"
   lat: 51.482
   lon: 11.969
@@ -46,3 +46,9 @@ calendar:
     label: "Alle"
     color: "#c9b458"
     match: ["Alle", "Familie"]
+
+weather:                    # Open-Meteo, no API key; location: home.lat / home.lon
+  enabled: true
+  hours: 6                  # hourly forecasts shown after now (1-24)
+  refresh_seconds: 300      # how often the tablet updates the widget
+  fetch_seconds: 900        # how often the Pi asks Open-Meteo at most (min. 300)

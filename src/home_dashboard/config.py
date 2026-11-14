@@ -83,12 +83,31 @@ class CalendarConfig(_Strict):
     everyone: EveryoneConfig = EveryoneConfig()
 
 
+class WeatherConfig(_Strict):
+    """Weather at home.lat / home.lon; the widget is shown only if both are set."""
+
+    enabled: bool = True
+    hours: int = Field(default=6, ge=1, le=24, description="hourly forecasts after now")
+    refresh_seconds: int = Field(default=300, ge=5, description="how often the tablet updates")
+    fetch_seconds: int = Field(
+        default=900, ge=300, description="how often the Pi asks the weather service at most"
+    )
+
+
 class AppConfig(_Strict):
     timezone: str = "Europe/Berlin"
     display: DisplayConfig = DisplayConfig()
     home: HomeConfig = HomeConfig()
     departures: DeparturesConfig = DeparturesConfig()
     calendar: CalendarConfig = CalendarConfig()
+    weather: WeatherConfig = WeatherConfig()
+
+    @property
+    def weather_location(self) -> tuple[float, float] | None:
+        """(lat, lon) of the weather widget, None if it is off."""
+        if not self.weather.enabled or self.home.lat is None or self.home.lon is None:
+            return None
+        return (self.home.lat, self.home.lon)
 
 
 def load_config(path: str | Path) -> AppConfig:

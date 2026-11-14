@@ -20,6 +20,9 @@ from home_dashboard.widgets.calendar.source import CalendarSource
 from home_dashboard.widgets.departures.insa_hafas import InsaHafasProvider
 from home_dashboard.widgets.departures.provider import DepartureProvider
 from home_dashboard.widgets.departures.service import DeparturesService
+from home_dashboard.widgets.weather.open_meteo import OpenMeteoSource
+from home_dashboard.widgets.weather.service import WeatherService
+from home_dashboard.widgets.weather.source import WeatherSource
 
 PACKAGE_DIR = Path(__file__).parent
 HTTP_TIMEOUT = httpx.Timeout(10.0)
@@ -35,6 +38,7 @@ def create_app(
     clock: Clock | None = None,
     departure_provider: DepartureProvider | None = None,
     calendar_source: CalendarSource | None = None,
+    weather_source: WeatherSource | None = None,
 ) -> FastAPI:
     clock = clock or SystemClock(config.timezone)
     cache = TtlCache(clock)
@@ -52,6 +56,15 @@ def create_app(
         if calendar_source is not None
         else None
     )
+    weather = None
+    if location := config.weather_location:
+        weather = WeatherService(
+            config.weather,
+            weather_source or OpenMeteoSource(http, *location, config.timezone),
+            clock,
+            cache,
+            config.timezone,
+        )
 
     app = FastAPI(title="Home Dashboard", docs_url=None, redoc_url=None)
     app.mount("/static", StaticFiles(directory=PACKAGE_DIR / "static"), name="static")
@@ -67,9 +80,17 @@ def create_app(
     def calendar_context() -> dict:
         return {"calendar": calendar.view() if calendar else None}
 
+    def weather_context() -> dict:
+        return {"weather": weather.view() if weather else None}
+
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request) -> HTMLResponse:
-        context = {"now": clock.now(), **departures_context(), **calendar_context()}
+        context = {
+            "now": clock.now(),
+            **departures_context(),
+            **calendar_context(),
+            **weather_context(),
+        }
         return templates.TemplateResponse(request, "index.html", context)
 
     @app.get("/widgets/clock", response_class=HTMLResponse)
@@ -85,6 +106,12 @@ def create_app(
         if calendar is None:
             return HTMLResponse("", status_code=404)
         return templates.TemplateResponse(request, "widgets/calendar.html", calendar_context())
+
+    @app.get("/widgets/weather", response_class=HTMLResponse)
+    def weather_widget(request: Request) -> HTMLResponse:
+        if weather is None:
+            return HTMLResponse("", status_code=404)
+        return templates.TemplateResponse(request, "widgets/weather.html", weather_context())
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:

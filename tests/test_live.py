@@ -9,6 +9,7 @@ import pytest
 
 from home_dashboard.app import create_http_client
 from home_dashboard.widgets.departures.insa_hafas import InsaHafasProvider
+from home_dashboard.widgets.weather.open_meteo import OpenMeteoSource
 
 pytestmark = pytest.mark.live
 
@@ -41,3 +42,15 @@ def test_insa_hafas_stop_search() -> None:
         matches = InsaHafasProvider(http).search_stops("Franckeplatz Halle")
 
     assert matches[0].id == "5125"
+
+
+def test_open_meteo_delivers_a_forecast_for_halle() -> None:
+    with create_http_client() as http:
+        forecast = OpenMeteoSource(http, 51.48, 11.97, "Europe/Berlin").forecast()
+
+    assert -40 < forecast.current.temperature < 45
+    assert len(forecast.hours) == 48
+    assert [day.day for day in forecast.days] == [
+        forecast.hours[0].time.date(),
+        forecast.hours[-1].time.date(),
+    ]

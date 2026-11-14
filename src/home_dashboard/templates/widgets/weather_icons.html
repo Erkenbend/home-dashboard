@@ -1,0 +1,37 @@
+{#- Weather icons as inline SVG (no icon font or emoji: old WebViews render those inconsistently).
+    32x32 grid; icon names come from widgets/weather/service.py (Condition.icon). -#}
+
+{% macro _sun(transform="") -%}
+<g fill="#f2c14e" stroke="#f2c14e" stroke-width="2.2" stroke-linecap="round"{% if transform %} transform="{{ transform }}"{% endif %}>
+  <circle cx="16" cy="16" r="6" stroke="none"/>
+  <path fill="none" d="M16 3v3M16 26v3M3 16h3M26 16h3M6.8 6.8l2.1 2.1M23.1 23.1l2.1 2.1M6.8 25.2l2.1-2.1M23.1 8.9l2.1-2.1"/>
+</g>
+{%- endmacro %}
+
+{% macro _moon(transform="") -%}
+<path fill="#d8dee6" d="M15.33 5A11 11 0 1 0 25.28 19.92A9 9 0 0 1 15.33 5z"{% if transform %} transform="{{ transform }}"{% endif %}/>
+{%- endmacro %}
+
+{% macro _cloud(transform="", color="#c8d0d8") -%}
+<g fill="{{ color }}"{% if transform %} transform="{{ transform }}"{% endif %}>
+  <circle cx="11" cy="20" r="5"/><circle cx="17" cy="15" r="7"/><circle cx="23" cy="20" r="5"/>
+  <rect x="11" y="18" width="12" height="7"/>
+</g>
+{%- endmacro %}
+
+{% macro icon(name, label, class="weather-icon") -%}
+<svg class="{{ class }}" data-icon="{{ name }}" viewBox="0 0 32 32" width="32" height="32"><title>{{ label }}</title>
+{%- if name == "clear-day" %}{{ _sun() }}
+{%- elif name == "clear-night" %}{{ _moon() }}
+{%- elif name == "partly-day" %}{{ _sun("translate(-1 -2) scale(0.75)") }}{{ _cloud("translate(2 4)") }}
+{%- elif name == "partly-night" %}{{ _moon("translate(-1 -2) scale(0.75)") }}{{ _cloud("translate(2 4)") }}
+{%- elif name == "fog" %}<path fill="none" stroke="#a0a8b0" stroke-width="2.5" stroke-linecap="round" d="M5 9h22M8 14h20M5 19h22M9 24h16"/>
+{%- elif name == "drizzle" %}{{ _cloud("translate(0 -5)") }}<g fill="#6fa8dc"><circle cx="11" cy="25" r="1.4"/><circle cx="17" cy="28" r="1.4"/><circle cx="23" cy="25" r="1.4"/></g>
+{%- elif name == "rain" %}{{ _cloud("translate(0 -5)", "#9aa4ae") }}<path fill="none" stroke="#6fa8dc" stroke-width="2.2" stroke-linecap="round" d="M12 23l-2 5M18 23l-2 5M24 23l-2 5"/>
+{%- elif name == "sleet" %}{{ _cloud("translate(0 -5)", "#9aa4ae") }}<path fill="none" stroke="#6fa8dc" stroke-width="2.2" stroke-linecap="round" d="M12 23l-2 5M24 23l-2 5"/><circle fill="#ffffff" cx="16" cy="27" r="1.8"/>
+{%- elif name == "snow" %}{{ _cloud("translate(0 -5)") }}<g fill="#ffffff"><circle cx="10" cy="24" r="1.8"/><circle cx="16" cy="28" r="1.8"/><circle cx="22" cy="24" r="1.8"/></g>
+{%- elif name == "thunder" %}{{ _cloud("translate(0 -6)", "#8a949e") }}<path fill="#f2c14e" d="M17 18l-5 7h4l-2 6 6-8h-4l2-5z"/>
+{%- else %}{{ _cloud() }}
+{%- endif -%}
+</svg>
+{%- endmacro %}

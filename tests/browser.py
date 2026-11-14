@@ -12,8 +12,9 @@ import pytest
 import respx
 from fastapi.testclient import TestClient
 
-from home_dashboard.config import AppConfig, CalendarConfig, DeparturesConfig
+from home_dashboard.config import AppConfig, CalendarConfig, DeparturesConfig, HomeConfig
 from tests.hafas_fake import HafasFake
+from tests.open_meteo_fake import OpenMeteoFake
 from tests.test_calendar import ANNA, BEN, EVERYONE, ICAL_URL, ICS
 from tests.test_departures import FRANCKEPLATZ, RANNISCHER_PLATZ
 
@@ -57,6 +58,16 @@ def busy_hafas(respx_mock: respx.Router) -> HafasFake:
     return hafas
 
 
+@pytest.fixture
+def open_meteo(respx_mock: respx.Router, clock) -> OpenMeteoFake:
+    """The recorded forecast, moved to the day of the HAFAS recording; a rainy evening."""
+    open_meteo = OpenMeteoFake(respx_mock)
+    open_meteo.move_to(clock.now().date())
+    for hour in (22, 23):
+        open_meteo.set_hour(hour, clock.now().date(), weather_code=63, precipitation_probability=80)
+    return open_meteo
+
+
 class Network:
     """Connection between tablet and server, as seen by the browser."""
 
@@ -82,9 +93,14 @@ def network() -> Network:
 
 @pytest.fixture
 def open_dashboard(
-    browser, make_client: Callable[..., TestClient], busy_hafas: HafasFake, network: Network
+    browser,
+    make_client: Callable[..., TestClient],
+    busy_hafas: HafasFake,
+    open_meteo: OpenMeteoFake,
+    network: Network,
 ) -> Iterator[Callable]:
     config = AppConfig(
+        home=HomeConfig(lat=51.48, lon=11.97),
         departures=DeparturesConfig(stops=[RANNISCHER_PLATZ, FRANCKEPLATZ], max_per_stop=8),
         calendar=CalendarConfig(ical_url=ICAL_URL, people=[ANNA, BEN], everyone=EVERYONE, days=14),
     )

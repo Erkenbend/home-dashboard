@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import pytest
 
 # Common landscape tablets (CSS pixels) plus portrait
@@ -61,10 +63,15 @@ def assert_fits(page) -> None:
         assert not widget["overflowY"], widget
         assert widget["cutRows"] == 0, widget
     assert layout["directionChars"] >= 8, "direction must stay readable"
-    first, second = (widget["box"] for widget in layout["widgets"])
-    side_by_side = first["right"] <= second["left"]
-    stacked = first["bottom"] <= second["top"]
-    assert side_by_side or stacked, layout["widgets"]
+    boxes = {widget["id"]: widget["box"] for widget in layout["widgets"]}
+    assert list(boxes) == ["departures", "weather", "calendar"]
+    for first, second in itertools.combinations(boxes.values(), 2):
+        side_by_side = first["right"] <= second["left"]
+        stacked = first["bottom"] <= second["top"]
+        assert side_by_side or stacked, layout["widgets"]
+    departures, weather = boxes["departures"], boxes["weather"]
+    assert weather["top"] >= departures["bottom"], "weather below the departures"
+    assert (weather["left"], weather["right"]) == (departures["left"], departures["right"])
 
 
 @pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
@@ -109,7 +116,7 @@ def test_refreshed_widget_content_is_fitted_again(open_dashboard):
     before = page.evaluate(VISIBLE_ROWS)
 
     # What HTMX polling does every refresh_seconds
-    for widget in ("departures", "calendar"):
+    for widget in ("departures", "weather", "calendar"):
         page.evaluate(
             """(id) => new Promise((resolve) => {
                 const settled = () => setTimeout(resolve);

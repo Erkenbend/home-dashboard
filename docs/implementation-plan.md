@@ -10,7 +10,7 @@ Each step ends with a commit on `main`. See [requirements](requirements.md) and 
 | 3 | Departures widget | Provider from the spike, reachability/filter service, fragment template, behaviour tests, `find-stop` CLI | done |
 | 4 | Calendar widget | iCal source, day grouping, person colours incl. "Alle", single vs. recurring events, fragment template, behaviour tests | done |
 | 5 | Tablet setup + polish | README section on kiosk browser setup (start URL, screen always on, reload on connection loss), layout tuning on the real device, visible error states | in progress: kiosk setup documented (Galaxy Tab A 2016, Fully Kiosk Browser), offline indicator done; open: layout tuning on the real device |
-| 6 | Weather widget | ADR 0004 (Open-Meteo), weather source + service, fragment below the departures, behaviour and layout tests | in progress |
+| 6 | Weather widget | ADR 0004 (Open-Meteo), weather source + service, fragment below the departures, behaviour and layout tests | done |
 
 ## Later
 

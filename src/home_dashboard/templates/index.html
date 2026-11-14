@@ -8,10 +8,20 @@
   <div class="offline-notice" id="offline">Keine Verbindung seit <span data-offline-since></span></div>
 </header>
 <main class="widgets">
-  {% if show_departures %}
-  <section class="widget widget-departures" id="departures" data-fit hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
-    {% include "widgets/departures.html" %}
-  </section>
+  {% if show_departures or weather %}
+  {#- Departures and weather belong together (leaving the house): weather below, departures get the rest #}
+  <div class="column column-outdoors">
+    {% if show_departures %}
+    <section class="widget widget-departures" id="departures" data-fit hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
+      {% include "widgets/departures.html" %}
+    </section>
+    {% endif %}
+    {% if weather %}
+    <section class="widget widget-weather" id="weather" hx-get="/widgets/weather" hx-trigger="every {{ config.weather.refresh_seconds }}s">
+      {% include "widgets/weather.html" %}
+    </section>
+    {% endif %}
+  </div>
   {% endif %}
   {% if calendar %}
   <section class="widget widget-calendar" id="calendar" data-fit hx-get="/widgets/calendar" hx-trigger="every {{ config.calendar.refresh_seconds }}s">
