@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import re
 from datetime import datetime
 
 from fastapi.testclient import TestClient
@@ -19,9 +21,22 @@ def test_dashboard_shows_current_time_and_german_date(client: TestClient) -> Non
 def test_dashboard_loads_vendored_htmx_and_polls_clock(client: TestClient) -> None:
     page = client.get("/").text
 
-    assert '<script src="/static/htmx.min.js">' in page
+    assert re.search(r'<script src="/static/htmx\.min\.js\?v=\w+">', page)
     assert 'hx-get="/widgets/clock"' in page
-    assert client.get("/static/htmx.min.js").status_code == 200
+
+
+def test_static_asset_urls_change_with_their_content(client: TestClient) -> None:
+    """After a deployment the tablet must not combine new HTML with stale cached CSS/JS."""
+    page = client.get("/").text
+    urls = re.findall(r'(?:href|src)="(/static/[^"]+)"', page)
+
+    assert len(urls) == 4, urls
+    for url in urls:
+        path, version = re.fullmatch(r"(/static/[^?]+)\?v=(\w+)", url).groups()
+        response = client.get(url)
+        assert response.status_code == 200, url
+        assert response.content == client.get(path).content
+        assert version == hashlib.sha256(response.content).hexdigest()[: len(version)], url
 
 
 def test_clock_fragment_follows_the_clock(client: TestClient, clock: FixedClock) -> None:

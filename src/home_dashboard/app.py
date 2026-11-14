@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+from collections.abc import Callable
 from pathlib import Path
 
 import httpx
@@ -27,6 +29,25 @@ from home_dashboard.widgets.weather.source import WeatherSource
 PACKAGE_DIR = Path(__file__).parent
 HTTP_TIMEOUT = httpx.Timeout(10.0)
 USER_AGENT = "home-dashboard (private wall display)"
+
+
+def static_url_builder(directory: Path) -> Callable[[str], str]:
+    """URLs for static assets with a content hash, so browsers never keep using a stale copy.
+
+    StaticFiles sends no Cache-Control, so browsers cache heuristically (kiosk WebViews for hours
+    to days) and combine old CSS/JS with new HTML. The hash changes the URL whenever the file
+    changes.
+    """
+    versions = {
+        path.relative_to(directory).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+        for path in directory.rglob("*")
+        if path.is_file()
+    }
+
+    def static_url(name: str) -> str:
+        return f"/static/{name}?v={versions[name]}"
+
+    return static_url
 
 
 def create_http_client() -> httpx.Client:
@@ -73,6 +94,7 @@ def create_app(
     templates.env.filters["time"] = formatting.format_time
     templates.env.filters["long_date"] = formatting.format_long_date
     templates.env.globals["config"] = config
+    templates.env.globals["static_url"] = static_url_builder(PACKAGE_DIR / "static")
 
     def departures_context() -> dict:
         return {"boards": departures.boards(), "show_departures": bool(config.departures.stops)}

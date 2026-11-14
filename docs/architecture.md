@@ -35,6 +35,9 @@
   `body.offline`: the date gives way to "Keine Verbindung seit HH:MM" (last clock time shown) and the
   widgets are dimmed, without changing the layout. Any server response clears it. HTTP error responses
   count as reachable; upstream failures are covered by "Stand: HH:MM".
+- **Static asset URLs** carry a content hash (`static_url('style.css')` → `/static/style.css?v=<hash>`).
+  StaticFiles sends no Cache-Control, so the kiosk WebView caches CSS/JS heuristically and would otherwise
+  combine new HTML with stale assets after a deployment (e.g. the offline notice always visible).
 
 ## Components
 
