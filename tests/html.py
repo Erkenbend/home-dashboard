@@ -143,74 +143,55 @@ def titles(events: list[dict]) -> list[str]:
 
 
 class _WeatherParser(HTMLParser):
-    """Items (now, days, hours) with the text of their fields and their icon."""
-
-    ITEMS = {"weather-now": "now", "weather-day": "days", "weather-hour": "hours"}
-    FIELDS = {
-        "weather-temperature": "temperature",
-        "weather-condition": "condition",
-        "weather-apparent": "apparent",
-        "weather-day-label": "label",
-        "weather-max": "max",
-        "weather-min": "min",
-        "hour-label": "label",
-        "hour-temperature": "temperature",
-        "hour-precipitation": "precipitation",
-    }
+    """Temperature now, the slots (now, in 1 h, in 2 h) with label, icon and its description."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.weather: dict = {"now": None, "days": [], "hours": [], "notices": []}
-        self._item: dict | None = None
-        self._item_tag: str | None = None
-        self._depth = 0
+        self.weather: dict = {"temperature": None, "slots": [], "notices": []}
+        self._slot: dict | None = None
         self._field: str | None = None
-        self._notice: list[str] | None = None
+        self._text: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
         classes = (attributes.get("class") or "").split()
-        if self._item is not None and tag == self._item_tag:
-            self._depth += 1
-        kind = next((self.ITEMS[c] for c in classes if c in self.ITEMS), None)
-        if kind is not None:
-            self._item = {"classes": classes}
-            self._item_tag, self._depth = tag, 1
-            if kind == "now":
-                self.weather["now"] = self._item
-            else:
-                self.weather[kind].append(self._item)
-        elif self._item is not None:
-            if tag == "svg" and "icon" not in self._item:
-                self._item["icon"] = attributes.get("data-icon")
-            field = next((self.FIELDS[c] for c in classes if c in self.FIELDS), None)
-            if field:
-                self._field = field
-                self._item[field] = ""
+        if "weather-slot" in classes:
+            self._slot = {"label": "", "icon": None, "condition": ""}
+            self.weather["slots"].append(self._slot)
+        elif tag == "svg" and self._slot is not None:
+            self._slot["icon"] = attributes.get("data-icon")
+        elif tag == "title" and self._slot is not None:
+            self._start("condition")
+        elif "weather-slot-label" in classes:
+            self._start("label")
+        elif "weather-temperature" in classes:
+            self._start("temperature")
         elif "notice" in classes:
-            self._notice = []
+            self._start("notice")
 
     def handle_endtag(self, tag: str) -> None:
-        if tag in ("span", "td"):
+        if self._field is not None and tag in ("span", "title", "p"):
+            text = " ".join("".join(self._text).split())
+            if self._field == "notice":
+                self.weather["notices"].append(text)
+            elif self._field == "temperature":
+                self.weather["temperature"] = text
+            else:
+                self._slot[self._field] = text
             self._field = None
-        elif tag == "p" and self._notice is not None:
-            self.weather["notices"].append(" ".join("".join(self._notice).split()))
-            self._notice = None
-        if self._item is not None and tag == self._item_tag:
-            self._depth -= 1
-            if self._depth == 0:
-                self._item = None
+        elif tag == "span" and self._slot is not None:
+            self._slot = None
 
     def handle_data(self, data: str) -> None:
-        if self._item is not None and self._field:
-            self._item[self._field] = " ".join((self._item[self._field] + data).split())
-        elif self._notice is not None:
-            self._notice.append(data)
+        if self._field is not None:
+            self._text.append(data)
+
+    def _start(self, field: str) -> None:
+        self._field, self._text = field, []
 
 
 def weather(html: str) -> dict:
-    """{now: {temperature, condition, apparent, icon}, days: [{label, max, min, icon}],
-    hours: [{label, temperature, precipitation, icon, classes}], notices: [text]}"""
+    """{temperature: "9°" or None, slots: [{label, icon, condition}], notices: [text]}"""
     parser = _WeatherParser()
     parser.feed(html)
     return parser.weather

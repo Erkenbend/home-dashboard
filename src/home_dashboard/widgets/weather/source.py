@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 from typing import Protocol
 
 
@@ -12,8 +12,6 @@ class CurrentWeather:
     time: datetime
     temperature: float
     """°C"""
-    apparent_temperature: float
-    """°C, "feels like" (wind chill, humidity)"""
     code: int
     """WMO weather interpretation code (0 clear ... 99 thunderstorm with hail)"""
     is_day: bool
@@ -22,28 +20,15 @@ class CurrentWeather:
 @dataclass(frozen=True)
 class HourForecast:
     time: datetime
-    """Start of the hour, timezone-aware."""
-    temperature: float
+    """Full hour, timezone-aware."""
     code: int
     is_day: bool
-    precipitation_probability: int | None = None
-    """Percent, None if the service has no value."""
-
-
-@dataclass(frozen=True)
-class DayForecast:
-    day: date
-    code: int
-    temperature_min: float
-    temperature_max: float
-    precipitation_probability: int | None = None
 
 
 @dataclass(frozen=True)
 class Forecast:
     current: CurrentWeather
     hours: list[HourForecast] = field(default_factory=list)
-    days: list[DayForecast] = field(default_factory=list)
 
 
 class WeatherError(Exception):
@@ -52,5 +37,5 @@ class WeatherError(Exception):
 
 class WeatherSource(Protocol):
     def forecast(self) -> Forecast:
-        """Current weather plus hourly and daily forecasts for today and tomorrow (at least)."""
+        """Current weather plus hourly forecasts for at least the coming three hours."""
         ...

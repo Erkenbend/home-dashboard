@@ -64,11 +64,9 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 
 - Shown below the departures (same column): the weather matters when leaving the house. The departures
   give up rows for it.
-- Current conditions for the home location (`home.lat` / `home.lon`): icon, temperature, German
-  description ("Leicht bewölkt"), apparent temperature ("gefühlt").
-- Today and tomorrow: icon, highest and lowest temperature.
-- The coming hours (`weather.hours`, default 6, starting with the next full hour): time, icon, temperature
-  and chance of precipitation; a likely rain (from 50 %) stands out.
+- One row, nothing more detailed: the current temperature for the home location (`home.lat` /
+  `home.lon`), then the weather (icon) now, in 1 hour and in 2 hours. "In n hours" is the forecast for the
+  full hour nearest to now + n hours. The German description ("Leicht bewölkt") is the icon's title.
 - Day and night icons (sun / moon) according to daylight at that time.
 - Data source: Open-Meteo, no API key. See [ADR 0004](decisions/0004-weather-via-open-meteo.md).
 - Without coordinates (or with `weather.enabled: false`) the widget is not shown.

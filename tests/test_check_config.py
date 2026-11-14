@@ -29,7 +29,7 @@ def test_valid_config_prints_summary_without_secrets(
     assert "OK" in output
     assert "Rannischer Platz (5 min)" in output
     assert "iCal-Adresse gesetzt" in output
-    assert "Wetter: an, 6 Stunden" in output
+    assert "Wetter: an" in output
     assert "secret42" not in output
 
 

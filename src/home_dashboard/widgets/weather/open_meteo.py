@@ -10,14 +10,13 @@ import httpx
 
 from home_dashboard.widgets.weather.source import (
     CurrentWeather,
-    DayForecast,
     Forecast,
     HourForecast,
     WeatherError,
 )
 
 ENDPOINT = "https://api.open-meteo.com/v1/forecast"
-FORECAST_DAYS = 2  # today and tomorrow; enough for 24 hours ahead
+FORECAST_DAYS = 2  # today and tomorrow: the next hours also late in the evening
 
 
 class OpenMeteoSource:
@@ -30,10 +29,8 @@ class OpenMeteoSource:
             "timezone": timezone,
             "timeformat": "unixtime",  # unambiguous, also around DST changes
             "forecast_days": FORECAST_DAYS,
-            "current": "temperature_2m,apparent_temperature,weather_code,is_day",
-            "hourly": "temperature_2m,weather_code,precipitation_probability,is_day",
-            "daily": "weather_code,temperature_2m_max,temperature_2m_min,"
-            "precipitation_probability_max",
+            "current": "temperature_2m,weather_code,is_day",
+            "hourly": "weather_code,is_day",
         }
 
     def forecast(self) -> Forecast:
@@ -53,51 +50,19 @@ class OpenMeteoSource:
     def _parse(self, data: dict[str, Any]) -> Forecast:
         current = data["current"]
         hourly = data["hourly"]
-        daily = data["daily"]
         hours = [
-            HourForecast(
-                time=self._time(time),
-                temperature=temperature,
-                code=code,
-                is_day=bool(is_day),
-                precipitation_probability=probability,
+            HourForecast(time=self._time(time), code=code, is_day=bool(is_day))
+            for time, code, is_day in zip(
+                hourly["time"], hourly["weather_code"], hourly["is_day"], strict=True
             )
-            for time, temperature, code, is_day, probability in zip(
-                hourly["time"],
-                hourly["temperature_2m"],
-                hourly["weather_code"],
-                hourly["is_day"],
-                hourly["precipitation_probability"],
-                strict=True,
-            )
-            if temperature is not None and code is not None  # end of a model's range
-        ]
-        days = [
-            DayForecast(
-                day=self._time(time).date(),
-                code=code,
-                temperature_min=low,
-                temperature_max=high,
-                precipitation_probability=probability,
-            )
-            for time, code, low, high, probability in zip(
-                daily["time"],
-                daily["weather_code"],
-                daily["temperature_2m_min"],
-                daily["temperature_2m_max"],
-                daily["precipitation_probability_max"],
-                strict=True,
-            )
-            if code is not None and low is not None and high is not None
+            if code is not None  # end of a model's range
         ]
         return Forecast(
             current=CurrentWeather(
                 time=self._time(current["time"]),
                 temperature=float(current["temperature_2m"]),
-                apparent_temperature=float(current["apparent_temperature"]),
                 code=int(current["weather_code"]),
                 is_day=bool(current["is_day"]),
             ),
             hours=hours,
-            days=days,
         )

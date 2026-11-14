@@ -99,7 +99,7 @@ def _weather_summary(config: AppConfig) -> str:
         return "aus"
     if config.weather_location is None:
         return "aus (home.lat / home.lon fehlen)"
-    return f"an, {config.weather.hours} Stunden"
+    return "an"
 
 
 if __name__ == "__main__":

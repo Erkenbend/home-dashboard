@@ -84,7 +84,6 @@ def create_app(
             weather_source or OpenMeteoSource(http, *location, config.timezone),
             clock,
             cache,
-            config.timezone,
         )
 
     app = FastAPI(title="Home Dashboard", docs_url=None, redoc_url=None)

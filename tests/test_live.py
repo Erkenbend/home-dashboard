@@ -50,7 +50,3 @@ def test_open_meteo_delivers_a_forecast_for_halle() -> None:
 
     assert -40 < forecast.current.temperature < 45
     assert len(forecast.hours) == 48
-    assert [day.day for day in forecast.days] == [
-        forecast.hours[0].time.date(),
-        forecast.hours[-1].time.date(),
-    ]

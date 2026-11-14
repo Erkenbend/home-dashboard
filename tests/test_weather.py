@@ -47,61 +47,52 @@ def shown(client: TestClient) -> dict:
     return weather(response.text)
 
 
-def test_shows_current_weather_in_german(client: TestClient) -> None:
-    now = shown(client)["now"]
+def test_shows_temperature_now_and_the_weather_now_in_one_and_in_two_hours(client) -> None:
+    widget = shown(client)
 
-    assert now["temperature"] == "9°"  # 8.8 °C
-    assert now["condition"] == "Teils bewölkt"
-    assert now["apparent"] == "gefühlt 6°"
-    assert now["icon"] == "partly-day"
-
-
-def test_shows_today_and_tomorrow_with_highest_and_lowest_temperature(client) -> None:
-    days = shown(client)["days"]
-
-    assert [(d["label"], d["max"], d["min"], d["icon"]) for d in days] == [
-        ("Heute", "9°", "2°", "partly-day"),
-        ("Morgen", "9°", "1°", "rain"),  # light rain around noon
+    assert widget["temperature"] == "9°"  # 8.8 °C
+    assert [(slot["label"], slot["icon"]) for slot in widget["slots"]] == [
+        ("jetzt", "partly-day"),
+        ("in 1 Std.", "partly-day"),  # 15:40 -> forecast for 16 o'clock
+        ("in 2 Std.", "clear-night"),  # 16:40 -> 17 o'clock, after sunset
     ]
 
 
-def test_coming_hours_start_with_the_next_full_hour(client: TestClient) -> None:
-    hours = shown(client)["hours"]
-
-    assert [(h["label"], h["temperature"]) for h in hours] == [
-        ("15 Uhr", "9°"), ("16 Uhr", "8°"), ("17 Uhr", "7°"),
-        ("18 Uhr", "6°"), ("19 Uhr", "5°"), ("20 Uhr", "4°"),
-    ]  # fmt: skip
-    assert hours[0]["precipitation"] == "0 %"
-
-
-def test_night_hours_show_the_moon(client: TestClient) -> None:
-    icons = [hour["icon"] for hour in shown(client)["hours"]]
-
-    # sunset between 16 and 17 o'clock; codes 0 = clear, 1 = mainly clear
-    assert icons[:4] == ["partly-day", "partly-day", "clear-night", "partly-night"]
-
-
-def test_number_of_hours_is_configurable_and_continues_after_midnight(
-    make_client: Callable[..., TestClient], open_meteo, clock: FixedClock
+@pytest.mark.parametrize(
+    ("time", "hours"),
+    [((14, 29), (15, 16)), ((14, 30), (16, 17)), ((14, 0), (15, 16))],
+    ids=["round-down", "half-past-rounds-up", "full-hour"],
+)
+def test_later_weather_is_the_forecast_for_the_nearest_full_hour(
+    client: TestClient, open_meteo: OpenMeteoFake, afternoon: FixedClock, time, hours
 ) -> None:
-    clock.instant = datetime(2026, 11, 14, 22, 10, tzinfo=BERLIN)
-    client = make_client(weather_config(hours=3))
+    afternoon.instant = afternoon.instant.replace(hour=time[0], minute=time[1])
+    open_meteo.set_hour(hours[0], weather_code=63)  # rain
+    open_meteo.set_hour(hours[1], weather_code=75)  # snow
 
-    assert [hour["label"] for hour in shown(client)["hours"]] == ["23 Uhr", "0 Uhr", "1 Uhr"]
+    later = [slot["icon"] for slot in shown(client)["slots"][1:]]
+
+    assert later == ["rain", "snow"]
 
 
-def test_likely_rain_stands_out(client: TestClient, open_meteo: OpenMeteoFake) -> None:
-    open_meteo.set_hour(15, precipitation_probability=30)
-    open_meteo.set_hour(16, precipitation_probability=50, weather_code=63)
+def test_later_weather_continues_after_midnight(
+    make_client: Callable[..., TestClient], open_meteo: OpenMeteoFake, clock: FixedClock
+) -> None:
+    clock.instant = datetime(2026, 11, 14, 23, 10, tzinfo=BERLIN)
+    open_meteo.set_hour(1, TOMORROW, weather_code=45)
 
-    hours = shown(client)["hours"]
+    slots = shown(make_client(weather_config()))["slots"]
 
-    assert hours[0]["precipitation"] == "30 %"
-    assert "rain-likely" not in hours[0]["classes"]
-    assert hours[1]["precipitation"] == "50 %"
-    assert "rain-likely" in hours[1]["classes"]
-    assert hours[1]["icon"] == "rain"
+    assert slots[2]["condition"] == "Nebel"
+
+
+def test_later_weather_is_left_out_beyond_the_forecast(client, open_meteo: OpenMeteoFake) -> None:
+    hourly = open_meteo.response["hourly"]
+    hourly["weather_code"][open_meteo.hour(17) :] = [None] * len(
+        hourly["weather_code"][open_meteo.hour(17) :]
+    )
+
+    assert [slot["label"] for slot in shown(client)["slots"]] == ["jetzt", "in 1 Std."]
 
 
 @pytest.mark.parametrize(
@@ -124,18 +115,20 @@ def test_weather_codes_are_described_in_german(
 ) -> None:
     open_meteo.response["current"].update(weather_code=code, is_day=is_day)
 
-    now = shown(client)["now"]
+    now = shown(client)["slots"][0]
 
     assert (now["condition"], now["icon"]) == (condition, icon)
 
 
-def test_temperatures_are_rounded_to_whole_degrees(client, open_meteo: OpenMeteoFake) -> None:
-    open_meteo.response["current"].update(temperature_2m=-0.4, apparent_temperature=-2.5)
+def test_temperature_is_rounded_to_whole_degrees(
+    client: TestClient, open_meteo: OpenMeteoFake, afternoon: FixedClock
+) -> None:
+    open_meteo.response["current"].update(temperature_2m=-0.4)
+    assert shown(client)["temperature"] == "0°"  # not "-0°"
 
-    now = shown(client)["now"]
-
-    assert now["temperature"] == "0°"  # not "-0°"
-    assert now["apparent"] == "gefühlt -2°"
+    open_meteo.response["current"].update(temperature_2m=-2.5)
+    afternoon.instant += timedelta(minutes=15)  # next fetch
+    assert shown(client)["temperature"] == "-2°"
 
 
 def test_asks_for_the_home_location_in_local_time(client, open_meteo: OpenMeteoFake) -> None:
@@ -159,11 +152,14 @@ def test_polls_within_the_fetch_interval_share_one_request(
     assert len(open_meteo.requests) == 2
 
 
-def test_hours_move_on_with_the_clock_between_fetches(client, afternoon: FixedClock) -> None:
-    shown(client)
-    afternoon.instant += timedelta(minutes=25)  # 15:05, forecast still cached
+def test_later_weather_moves_on_with_the_clock_between_fetches(client, afternoon) -> None:
+    afternoon.instant = afternoon.instant.replace(minute=20)
+    assert [slot["icon"] for slot in shown(client)["slots"][1:]] == ["partly-day", "partly-day"]
 
-    assert shown(client)["hours"][0]["label"] == "16 Uhr"
+    afternoon.instant += timedelta(minutes=10)  # 14:30, forecast still cached
+
+    # 15:30 -> 16 o'clock, 16:30 -> 17 o'clock, after sunset
+    assert [slot["icon"] for slot in shown(client)["slots"][1:]] == ["partly-day", "clear-night"]
 
 
 def test_last_known_weather_is_shown_when_open_meteo_fails(
@@ -176,7 +172,7 @@ def test_last_known_weather_is_shown_when_open_meteo_fails(
     widget = shown(client)
 
     assert len(open_meteo.requests) == 2
-    assert widget["now"]["temperature"] == "9°"
+    assert widget["temperature"] == "9°"
     assert widget["notices"] == ["Stand: 14:40"]
 
 
@@ -185,7 +181,7 @@ def test_notice_when_there_is_no_weather_yet(client: TestClient, open_meteo) -> 
 
     widget = shown(client)
 
-    assert widget["now"] is None
+    assert widget["temperature"] is None
     assert widget["notices"] == ["Wetter nicht verfügbar"]
 
 

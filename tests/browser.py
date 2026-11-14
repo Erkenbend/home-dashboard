@@ -64,7 +64,7 @@ def open_meteo(respx_mock: respx.Router, clock) -> OpenMeteoFake:
     open_meteo = OpenMeteoFake(respx_mock)
     open_meteo.move_to(clock.now().date())
     for hour in (22, 23):
-        open_meteo.set_hour(hour, clock.now().date(), weather_code=63, precipitation_probability=80)
+        open_meteo.set_hour(hour, clock.now().date(), weather_code=63)
     return open_meteo
 
 

@@ -139,7 +139,6 @@ calendar:
     match: ["Familie", "Alle"]
 weather:                    # location: home.lat / home.lon, shown only if both are set
   enabled: true
-  hours: 6                  # hourly forecasts, starting with the next full hour
 ```
 
 ## Testing strategy

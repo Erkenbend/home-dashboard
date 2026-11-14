@@ -52,6 +52,5 @@ calendar:
 
 weather:                    # Open-Meteo, no API key; location: home.lat / home.lon
   enabled: true
-  hours: 6                  # hourly forecasts shown after now (1-24)
   refresh_seconds: 300      # how often the tablet updates the widget
   fetch_seconds: 900        # how often the Pi asks Open-Meteo at most (min. 300)

@@ -1,4 +1,4 @@
-"""Weather widget logic: now, today/tomorrow and the coming hours, in German."""
+"""Weather widget logic: temperature now, the weather now and in 1 and 2 hours, in German."""
 
 from __future__ import annotations
 
@@ -6,16 +6,15 @@ import logging
 import math
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 
 from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import WeatherConfig
-from home_dashboard.widgets.weather.source import WeatherSource
+from home_dashboard.widgets.weather.source import HourForecast, WeatherSource
 
 log = logging.getLogger(__name__)
 
-RAIN_LIKELY_PERCENT = 50
+LATER_HOURS = (1, 2)
 
 # WMO weather interpretation codes -> (German description, icon of widgets/weather_icons.html)
 _CONDITIONS: dict[int, tuple[str, str]] = {
@@ -75,37 +74,27 @@ def degrees(celsius: float) -> int:
 
 
 @dataclass(frozen=True)
-class NowRow:
-    temperature: int
-    apparent_temperature: int
-    condition: Condition
+class Slot:
+    """The weather at one point in time: now, in 1 hour, in 2 hours."""
 
-
-@dataclass(frozen=True)
-class DayRow:
     label: str
     condition: Condition
-    temperature_min: int
-    temperature_max: int
-
-
-@dataclass(frozen=True)
-class HourRow:
-    label: str
-    temperature: int
-    condition: Condition
-    precipitation_probability: int | None
-    rain_likely: bool
 
 
 @dataclass
 class WeatherView:
-    now: NowRow | None = None
-    days: list[DayRow] = field(default_factory=list)
-    hours: list[HourRow] = field(default_factory=list)
+    temperature: int | None = None
+    """Now, whole °C"""
+    slots: list[Slot] = field(default_factory=list)
     fetched_at: datetime | None = None
     stale: bool = False
     unavailable: bool = False
+
+
+def nearest_hour(hours: list[HourForecast], target: datetime) -> HourForecast | None:
+    """The hourly forecast closest to `target` (half past rounds up), None if there is none."""
+    candidates = [hour for hour in hours if abs(hour.time - target) <= timedelta(minutes=30)]
+    return max(candidates, key=lambda hour: hour.time) if candidates else None
 
 
 class WeatherService:
@@ -115,13 +104,11 @@ class WeatherService:
         source: WeatherSource,
         clock: Clock,
         cache: TtlCache,
-        timezone: str,
     ) -> None:
         self._config = config
         self._source = source
         self._clock = clock
         self._cache = cache
-        self._tz = ZoneInfo(timezone)
 
     def view(self) -> WeatherView:
         view = WeatherView()
@@ -135,35 +122,13 @@ class WeatherService:
             return view
 
         forecast = cached.value
-        now = self._clock.now().astimezone(self._tz)
-        today = now.date()
+        now = self._clock.now()
         view.fetched_at = cached.fetched_at
         view.stale = cached.stale
-        view.now = NowRow(
-            temperature=degrees(forecast.current.temperature),
-            apparent_temperature=degrees(forecast.current.apparent_temperature),
-            condition=condition(forecast.current.code, forecast.current.is_day),
-        )
-        labels = {today: "Heute", today + timedelta(days=1): "Morgen"}
-        view.days = [
-            DayRow(
-                label=labels[day.day],
-                condition=condition(day.code),
-                temperature_min=degrees(day.temperature_min),
-                temperature_max=degrees(day.temperature_max),
-            )
-            for day in forecast.days
-            if day.day in labels
-        ]
-        upcoming = [hour for hour in forecast.hours if hour.time > now]
-        view.hours = [
-            HourRow(
-                label=f"{hour.time.astimezone(self._tz).hour} Uhr",
-                temperature=degrees(hour.temperature),
-                condition=condition(hour.code, hour.is_day),
-                precipitation_probability=hour.precipitation_probability,
-                rain_likely=(hour.precipitation_probability or 0) >= RAIN_LIKELY_PERCENT,
-            )
-            for hour in upcoming[: self._config.hours]
-        ]
+        view.temperature = degrees(forecast.current.temperature)
+        view.slots = [Slot("jetzt", condition(forecast.current.code, forecast.current.is_day))]
+        for hours_ahead in LATER_HOURS:
+            hour = nearest_hour(forecast.hours, now + timedelta(hours=hours_ahead))
+            if hour is not None:
+                view.slots.append(Slot(f"in {hours_ahead} Std.", condition(hour.code, hour.is_day)))
         return view

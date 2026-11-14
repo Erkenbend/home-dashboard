@@ -92,7 +92,6 @@ class WeatherConfig(_Strict):
     """Weather at home.lat / home.lon; the widget is shown only if both are set."""
 
     enabled: bool = True
-    hours: int = Field(default=6, ge=1, le=24, description="hourly forecasts after now")
     refresh_seconds: int = Field(default=300, ge=5, description="how often the tablet updates")
     fetch_seconds: int = Field(
         default=900, ge=300, description="how often the Pi asks the weather service at most"
