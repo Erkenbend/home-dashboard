@@ -78,8 +78,10 @@
   window.addEventListener("load", fitAll);
   window.addEventListener("resize", fitAll);
   window.addEventListener("orientationchange", fitAll);
-  // HTMX replaced a widget's content (polling); the clock does not change the layout height
-  document.addEventListener("htmx:afterSettle", function (event) {
+  // HTMX replaced a widget's content (polling); the clock does not change the layout height.
+  // afterSwap fires in the same task as the swap, so the browser never paints the unfitted
+  // content (afterSettle comes only after htmx's settle delay, a timeout: visible flicker).
+  document.addEventListener("htmx:afterSwap", function (event) {
     var target = event.target;
     if (target && target.hasAttribute && target.hasAttribute("data-fit")) {
       fit(target);

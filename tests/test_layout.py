@@ -156,6 +156,29 @@ def test_refreshed_widget_content_is_fitted_again(open_dashboard):
     assert page.evaluate(VISIBLE_ROWS) == before
 
 
+@pytest.mark.parametrize("widget", ["departures", "calendar"])
+def test_refreshed_widget_is_never_shown_unfitted(open_dashboard, widget):
+    """No flicker: the new content is fitted before the browser can paint it."""
+    page = open_dashboard(SMALL)
+
+    # The state after the task that swapped in the new content: the browser may paint it
+    overflowed = page.evaluate(
+        """(id) => new Promise((resolve) => {
+            const widget = document.getElementById(id);
+            let overflowed = null;
+            new MutationObserver((records, observer) => {
+                observer.disconnect();
+                overflowed = widget.scrollHeight > widget.clientHeight + 1;
+            }).observe(widget, {childList: true});
+            document.addEventListener('htmx:afterSettle', () => resolve(overflowed), {once: true});
+            htmx.ajax('GET', '/widgets/' + id, '#' + id);
+        })""",
+        widget,
+    )
+
+    assert overflowed is False
+
+
 @pytest.mark.parametrize("viewport", [SMALL, (600, 960)], ids=lambda size: f"{size[0]}x{size[1]}")
 def test_wide_temperatures_do_not_push_into_the_weather_icons(open_dashboard, open_meteo, viewport):
     open_meteo.response["current"].update(temperature_2m=-10.2, apparent_temperature=-12.4)
