@@ -100,7 +100,7 @@ Install it from the Play Store, then:
 | Advanced Web Settings → pull to refresh, text selection | off (optional) |
 
 The two reload settings matter most: the dashboard rides out short Wi-Fi drops by itself (HTMX retries on the
-next poll), but if the periodic full reload (`page_reload_hours`) hits
+next poll, and an offline notice shows meanwhile), but if the periodic full reload (`page_reload_hours`) hits
 while the tablet is offline, the browser shows an error page that only Fully's reload brings back.
 
 **Initial scale** (Web Zoom and Scaling) changes how many CSS pixels the tablet reports, so the dashboard picks
@@ -120,4 +120,5 @@ security → Other security settings → **Pin windows**. No auto start after re
 
 - Readable from 2–3 m
 - Reboot the tablet: it comes back to the dashboard on its own
-- Wi-Fi off for a few minutes, then on again: the dashboard recovers by itself
+- Wi-Fi off for a few minutes: "Keine Verbindung seit HH:MM" replaces the date and the widgets dim;
+  Wi-Fi on: the dashboard recovers by itself within one poll

@@ -4,6 +4,8 @@
   <div id="clock" hx-get="/widgets/clock" hx-trigger="every {{ config.display.clock_refresh_seconds }}s">
     {% include "widgets/clock.html" %}
   </div>
+  {# Shown by static/connection.js in place of the date while the server is unreachable #}
+  <div class="offline-notice" id="offline">Keine Verbindung seit <span data-offline-since></span></div>
 </header>
 <main class="widgets">
   {% if show_departures %}

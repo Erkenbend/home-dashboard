@@ -51,6 +51,8 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - Widgets refresh automatically; the page never needs manual interaction.
 - When a data source is unavailable, the last known data is shown with a "Stand: HH:MM" hint instead of
   an empty widget.
+- When the tablet cannot reach the server, a visible "Keine Verbindung seit HH:MM" notice replaces the date
+  and the frozen widgets are dimmed; both clear by themselves once the server answers again.
 
 ### Future widget ideas (not in scope yet)
 

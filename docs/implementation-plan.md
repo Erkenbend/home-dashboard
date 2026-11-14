@@ -9,7 +9,7 @@ Each step ends with a commit on `main`. See [requirements](requirements.md) and 
 | 2 | Skeleton | `pyproject.toml` (uv), FastAPI app with base layout + clock + `/healthz`, config loading, `config.example.yaml`, Dockerfile (python:3.12-slim, arm64), `compose.yaml`, `scripts/deploy.sh`; deploy once to the Pi to validate the pipeline early | done (deployed to Pi) |
 | 3 | Departures widget | Provider from the spike, reachability/filter service, fragment template, behaviour tests, `find-stop` CLI | done |
 | 4 | Calendar widget | iCal source, day grouping, person colours incl. "Alle", single vs. recurring events, fragment template, behaviour tests | done |
-| 5 | Tablet setup + polish | README section on kiosk browser setup (start URL, screen always on, reload on connection loss), layout tuning on the real device, visible error states | open |
+| 5 | Tablet setup + polish | README section on kiosk browser setup (start URL, screen always on, reload on connection loss), layout tuning on the real device, visible error states | in progress: kiosk setup documented (Galaxy Tab A 2016, Fully Kiosk Browser), offline indicator done; open: layout tuning on the real device |
 
 ## Later
 

@@ -42,11 +42,18 @@ body {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
   margin-bottom: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Clock and offline notice share one line (baseline-aligned), so the header height never changes */
+#clock,
+.offline-notice {
+  display: inline-block;
 }
 
 .clock {
   white-space: nowrap;
-  overflow: hidden;
 }
 
 .clock-time {
@@ -333,4 +340,29 @@ body {
   height: 0.875rem;
   vertical-align: middle;
   margin-right: 0.375rem;
+}
+
+/* Server unreachable (static/connection.js): the notice replaces the date, everything that is
+ * frozen is dimmed */
+
+.offline-notice {
+  display: none;
+  font-size: 1.75rem;
+  color: #e0a040;
+}
+
+.offline .offline-notice {
+  display: inline-block;
+}
+
+.offline .clock-date {
+  display: none;
+}
+
+.offline .clock-time {
+  color: #707880;
+}
+
+.offline .widget {
+  opacity: 0.4;
 }

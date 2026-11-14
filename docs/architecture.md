@@ -24,6 +24,11 @@
   `data-fit-priority` (higher goes first, rows without it always stay) and `data-fit-group` (hidden when
   empty). Departures: the next one per stop stays, later ones go round-robin. Calendar: past events of
   today first, then from the end of the window.
+- **Offline indicator** (`static/connection.js`, plain ES5): every HTMX poll reports the connection state.
+  A network error or timeout (`htmx.config.timeout` 30 s, above the slowest widget request) sets
+  `body.offline`: the date gives way to "Keine Verbindung seit HH:MM" (last clock time shown) and the
+  widgets are dimmed, without changing the layout. Any server response clears it. HTTP error responses
+  count as reachable; upstream failures are covered by "Stand: HH:MM".
 
 ## Components
 
@@ -47,7 +52,7 @@ src/home_dashboard/
       templates/
   formatting.py     German date/time formatting (no system locale needed)
   templates/base.html, index.html, widgets/clock.html
-  static/style.css, fit.js, htmx.min.js
+  static/style.css, fit.js, connection.js, htmx.min.js
 ```
 
 Each widget follows the same pattern: **source interface → service (pure logic) → fragment template**.
@@ -123,6 +128,8 @@ calendar:
 - Outbound HTTP is intercepted with `respx` and answered with **recorded real responses** from `tests/fixtures/`.
 - Time is controlled through the injected `Clock`.
 - Assertions are made on the rendered HTML (what the user would see).
+- Browser tests (`tests/browser.py` fixtures) run the page in headless Chromium against the same app:
+  layout per viewport, and the offline indicator with a switchable network and fake timers.
 - Optional live smoke tests (`@pytest.mark.live`, skipped by default) detect upstream format changes.
 - Tests run only in WSL: `uv run pytest`.
 

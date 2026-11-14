@@ -16,6 +16,8 @@ BERLIN = ZoneInfo("Europe/Berlin")
 FIXTURES = Path(__file__).parent / "fixtures"
 REPO_ROOT = Path(__file__).parent.parent
 
+pytest_plugins = ["tests.browser"]
+
 
 @pytest.fixture
 def clock() -> FixedClock:
