@@ -54,9 +54,21 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - When the tablet cannot reach the server, a visible "Keine Verbindung seit HH:MM" notice replaces the date
   and the frozen widgets are dimmed; both clear by themselves once the server answers again.
 
+### FR-4 Weather widget
+
+- Shown below the departures (same column): the weather matters when leaving the house. The departures
+  give up rows for it.
+- Current conditions for the home location (`home.lat` / `home.lon`): icon, temperature, German
+  description ("Leicht bewölkt"), apparent temperature ("gefühlt").
+- Today and tomorrow: icon, highest and lowest temperature.
+- The coming hours (`weather.hours`, default 6, starting with the next full hour): time, icon, temperature
+  and chance of precipitation; a likely rain (from 50 %) stands out.
+- Day and night icons (sun / moon) according to daylight at that time.
+- Data source: Open-Meteo, no API key. See [ADR 0004](decisions/0004-weather-via-open-meteo.md).
+- Without coordinates (or with `weather.enabled: false`) the widget is not shown.
+
 ### Future widget ideas (not in scope yet)
 
-- Current weather / forecast (e.g. Open-Meteo, no API key needed).
 - Photo of the day (e.g. Wikimedia Commons Picture of the Day, or own photos).
 - Further ideas welcome; widgets must be addable without touching existing ones.
 

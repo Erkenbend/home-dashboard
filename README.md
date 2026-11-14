@@ -7,6 +7,7 @@ Initial widgets:
 
 - **Abfahrten**: live departures of nearby trams/buses that are still reachable when leaving now
 - **Kalender**: events of the shared Google Calendar for the coming week, coloured by person
+- **Wetter**: current weather, today/tomorrow and the coming hours from Open-Meteo, below the departures
 
 ## Documentation
 
@@ -15,7 +16,8 @@ Initial widgets:
 - [Implementation plan](docs/implementation-plan.md)
 - Decisions: [0001 Stack and operations](docs/decisions/0001-stack-and-operations.md),
   [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md),
-  [0003 Transit data source](docs/decisions/0003-transit-data-source.md)
+  [0003 Transit data source](docs/decisions/0003-transit-data-source.md),
+  [0004 Weather via Open-Meteo](docs/decisions/0004-weather-via-open-meteo.md)
 
 ## Quick facts
 

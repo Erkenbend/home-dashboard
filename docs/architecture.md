@@ -7,7 +7,8 @@
 │ Android tablet       │ ─────────────▶ │ Raspberry Pi 3b (Docker Compose)      │
 │ kiosk browser        │  HTML pages +  │  FastAPI app                          │
 │ (HTMX polls widgets) │  fragments     │   ├─ departures widget ──▶ transit API│
-└──────────────────────┘                │   └─ calendar widget  ──▶ iCal feed   │
+└──────────────────────┘                │   ├─ calendar widget  ──▶ iCal feed   │
+                                        │   └─ weather widget   ──▶ Open-Meteo  │
                                         │  in-memory TTL cache per source       │
                                         └───────────────────────────────────────┘
 ```
@@ -16,6 +17,8 @@
 - **HTMX** (1.9.x, vendored into `static/`) re-fetches each widget's HTML fragment periodically
   (`hx-get` + `hx-trigger="every 30s"`). No custom ES6+ JavaScript, no frontend build.
 - **CSS**: plain CSS, Flexbox (no Grid) for compatibility with old Android WebViews. Dark theme, large type.
+  Layout: departures and weather share the left column (weather at its natural height at the bottom,
+  departures get the rest), calendar on the right; in portrait everything is stacked.
   All sizes are in `rem`; media queries set the root font size per display size (width or height,
   whichever is tighter), and switch to stacked widgets in portrait.
 - **Fit to the display** (`static/fit.js`, plain ES5): widgets never scroll. The server renders up to the
@@ -50,8 +53,12 @@ src/home_dashboard/
       ical_source.py
       service.py    day grouping, person/colour matching
       templates/
+    weather/
+      source.py     WeatherSource protocol + Forecast model (WMO weather codes)
+      open_meteo.py concrete source (Open-Meteo, see ADR 0004)
+      service.py    upcoming hours, today/tomorrow, WMO code -> German text + icon
   formatting.py     German date/time formatting (no system locale needed)
-  templates/base.html, index.html, widgets/clock.html
+  templates/base.html, index.html, widgets/clock.html, widgets/weather_icons.html
   static/style.css, fit.js, connection.js, htmx.min.js
 ```
 
@@ -66,6 +73,7 @@ External systems are only reached through the source interface, so a source can 
 | `GET /` | Full page: layout, clock, widget containers |
 | `GET /widgets/departures` | Departures fragment |
 | `GET /widgets/calendar` | Calendar fragment |
+| `GET /widgets/weather` | Weather fragment |
 | `GET /healthz` | Health check (used by deploy script) |
 
 ## Caching and refresh
@@ -77,6 +85,7 @@ All intervals are configurable (defaults shown):
 | Clock (`display.clock_refresh_seconds`) | 15 s | – |
 | Departures (per stop) | 30 s | 60 s (min. 15) |
 | Calendar | 5 min | 10 min (min. 60 s) |
+| Weather | 5 min | 15 min (min. 5 min) |
 | Full page reload (`display.page_reload_hours`, 0 = off) | 6 h | – |
 
 The cache treats an entry as expired slightly early (10 %, max. 5 s) so that a poll arriving a bit early
@@ -120,6 +129,9 @@ calendar:
     label: "Alle"
     color: "#c9b458"
     match: ["Familie", "Alle"]
+weather:                    # location: home.lat / home.lon, shown only if both are set
+  enabled: true
+  hours: 6                  # upper limit of hourly forecasts after the next full hour
 ```
 
 ## Testing strategy
