@@ -143,11 +143,11 @@ def titles(events: list[dict]) -> list[str]:
 
 
 class _WeatherParser(HTMLParser):
-    """Temperature now, the slots (now, in 1 h, in 2 h) with label, icon and its description."""
+    """Temperatures now, the slots (now, +1 h, +2 h) with label, icon and its description."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.weather: dict = {"temperature": None, "slots": [], "notices": []}
+        self.weather: dict = {"apparent": None, "actual": None, "slots": [], "notices": []}
         self._slot: dict | None = None
         self._field: str | None = None
         self._text: list[str] = []
@@ -164,8 +164,10 @@ class _WeatherParser(HTMLParser):
             self._start("condition")
         elif "weather-slot-label" in classes:
             self._start("label")
-        elif "weather-temperature" in classes:
-            self._start("temperature")
+        elif "weather-apparent" in classes:
+            self._start("apparent")
+        elif "weather-actual" in classes:
+            self._start("actual")
         elif "notice" in classes:
             self._start("notice")
 
@@ -174,8 +176,8 @@ class _WeatherParser(HTMLParser):
             text = " ".join("".join(self._text).split())
             if self._field == "notice":
                 self.weather["notices"].append(text)
-            elif self._field == "temperature":
-                self.weather["temperature"] = text
+            elif self._field in ("apparent", "actual"):
+                self.weather[self._field] = text
             else:
                 self._slot[self._field] = text
             self._field = None
@@ -191,7 +193,8 @@ class _WeatherParser(HTMLParser):
 
 
 def weather(html: str) -> dict:
-    """{temperature: "9°" or None, slots: [{label, icon, condition}], notices: [text]}"""
+    """{apparent: "6°", actual: "(9°)" (both None if not shown), slots: [{label, icon, condition}],
+    notices: [text]}"""
     parser = _WeatherParser()
     parser.feed(html)
     return parser.weather

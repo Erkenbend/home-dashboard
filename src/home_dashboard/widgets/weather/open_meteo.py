@@ -29,7 +29,7 @@ class OpenMeteoSource:
             "timezone": timezone,
             "timeformat": "unixtime",  # unambiguous, also around DST changes
             "forecast_days": FORECAST_DAYS,
-            "current": "temperature_2m,weather_code,is_day",
+            "current": "temperature_2m,apparent_temperature,weather_code,is_day",
             "hourly": "weather_code,is_day",
         }
 
@@ -61,6 +61,7 @@ class OpenMeteoSource:
             current=CurrentWeather(
                 time=self._time(current["time"]),
                 temperature=float(current["temperature_2m"]),
+                apparent_temperature=float(current["apparent_temperature"]),
                 code=int(current["weather_code"]),
                 is_day=bool(current["is_day"]),
             ),

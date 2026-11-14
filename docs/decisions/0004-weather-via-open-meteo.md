@@ -3,7 +3,7 @@
 - Status: accepted
 - Date: 2026-11-14
 - Amended: 2026-11-14, the widget only shows now, +1 h and +2 h: the request asks for `current` and
-  `hourly` only (no `daily`, apparent temperature or precipitation probability)
+  `hourly` only (no `daily`, no precipitation probability)
 
 ## Context
 

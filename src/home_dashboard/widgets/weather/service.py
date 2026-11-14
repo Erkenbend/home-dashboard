@@ -1,4 +1,4 @@
-"""Weather widget logic: temperature now, the weather now and in 1 and 2 hours, in German."""
+"""Weather widget logic: temperature now (felt and real), the weather now and in 1 and 2 hours."""
 
 from __future__ import annotations
 
@@ -75,7 +75,7 @@ def degrees(celsius: float) -> int:
 
 @dataclass(frozen=True)
 class Slot:
-    """The weather at one point in time: now, in 1 hour, in 2 hours."""
+    """The weather at one point in time: now, in about 1 hour, in about 2 hours."""
 
     label: str
     condition: Condition
@@ -83,8 +83,10 @@ class Slot:
 
 @dataclass
 class WeatherView:
+    apparent_temperature: int | None = None
+    """Now, "feels like", whole °C"""
     temperature: int | None = None
-    """Now, whole °C"""
+    """Now, measured, whole °C"""
     slots: list[Slot] = field(default_factory=list)
     fetched_at: datetime | None = None
     stale: bool = False
@@ -125,10 +127,11 @@ class WeatherService:
         now = self._clock.now()
         view.fetched_at = cached.fetched_at
         view.stale = cached.stale
+        view.apparent_temperature = degrees(forecast.current.apparent_temperature)
         view.temperature = degrees(forecast.current.temperature)
         view.slots = [Slot("jetzt", condition(forecast.current.code, forecast.current.is_day))]
         for hours_ahead in LATER_HOURS:
             hour = nearest_hour(forecast.hours, now + timedelta(hours=hours_ahead))
             if hour is not None:
-                view.slots.append(Slot(f"in {hours_ahead} Std.", condition(hour.code, hour.is_day)))
+                view.slots.append(Slot(f"{hour.time.hour} Uhr", condition(hour.code, hour.is_day)))
         return view

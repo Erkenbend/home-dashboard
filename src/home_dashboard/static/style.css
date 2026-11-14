@@ -395,7 +395,7 @@ body {
   margin-right: 0.375rem;
 }
 
-/* Weather: temperature now, then the weather now, in 1 and in 2 hours in equal columns */
+/* Weather: temperature now, then the weather now and in about 1 and 2 hours */
 
 .weather-row {
   display: -webkit-box;
@@ -406,15 +406,24 @@ body {
   align-items: center;
 }
 
+/* Natural width (e.g. "-12° (-10°)"), the icons share the rest */
 .weather-temperature {
-  -webkit-box-flex: 1;
-  -webkit-flex: 1 1 0;
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
   white-space: nowrap;
+}
+
+/* Felt temperature first and big, the measured one small behind it */
+.weather-apparent {
   font-size: 3.25rem;
   font-weight: bold;
+}
+
+.weather-actual {
+  font-size: 1.5rem;
+  color: #a0a8b0;
 }
 
 .weather-slot {

@@ -49,4 +49,5 @@ def test_open_meteo_delivers_a_forecast_for_halle() -> None:
         forecast = OpenMeteoSource(http, 51.48, 11.97, "Europe/Berlin").forecast()
 
     assert -40 < forecast.current.temperature < 45
+    assert -50 < forecast.current.apparent_temperature < 50
     assert len(forecast.hours) == 48

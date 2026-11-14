@@ -4,7 +4,10 @@
 <p class="notice">Wetter nicht verfügbar</p>
 {% else %}
 <div class="weather-row">
-  <span class="weather-temperature">{{ weather.temperature }}°</span>
+  <span class="weather-temperature">
+    <span class="weather-apparent" title="gefühlt">{{ weather.apparent_temperature }}°</span>
+    <span class="weather-actual" title="gemessen">({{ weather.temperature }}°)</span>
+  </span>
   {% for slot in weather.slots %}
   <span class="weather-slot">
     {{ icons.icon(slot.condition.icon, slot.condition.label) }}

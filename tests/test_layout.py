@@ -132,3 +132,19 @@ def test_refreshed_widget_content_is_fitted_again(open_dashboard):
 
     assert_fits(page)
     assert page.evaluate(VISIBLE_ROWS) == before
+
+
+@pytest.mark.parametrize("viewport", [SMALL, (600, 960)], ids=lambda size: f"{size[0]}x{size[1]}")
+def test_wide_temperatures_do_not_push_into_the_weather_icons(open_dashboard, open_meteo, viewport):
+    open_meteo.response["current"].update(temperature_2m=-10.2, apparent_temperature=-12.4)
+    page = open_dashboard(viewport)
+
+    temperature, slot = page.evaluate(
+        """() => ['.weather-actual', '.weather-slot']
+            .map((selector) => document.querySelector(selector).getBoundingClientRect())
+            .map((box) => ({left: box.left, right: box.right}))"""
+    )
+
+    assert page.text_content(".weather-temperature").split() == ["-12°", "(-10°)"]
+    assert temperature["right"] <= slot["left"]
+    assert_fits(page)

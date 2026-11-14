@@ -12,6 +12,8 @@ class CurrentWeather:
     time: datetime
     temperature: float
     """°C"""
+    apparent_temperature: float
+    """°C, "feels like" (wind chill, humidity)"""
     code: int
     """WMO weather interpretation code (0 clear ... 99 thunderstorm with hail)"""
     is_day: bool
@@ -20,7 +22,7 @@ class CurrentWeather:
 @dataclass(frozen=True)
 class HourForecast:
     time: datetime
-    """Full hour, timezone-aware."""
+    """Full hour, timezone-aware, in the configured timezone."""
     code: int
     is_day: bool
 
