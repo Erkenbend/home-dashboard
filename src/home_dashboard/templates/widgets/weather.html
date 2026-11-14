@@ -6,7 +6,7 @@
 <div class="weather-row">
   <span class="weather-temperature">
     <span class="weather-apparent" title="gefühlt">{{ weather.apparent_temperature }}°</span>
-    <span class="weather-actual" title="gemessen">({{ weather.temperature }}°)</span>
+    <span class="weather-actual">echt: {{ weather.temperature }}°C</span>
   </span>
   {% for slot in weather.slots %}
   <span class="weather-slot">

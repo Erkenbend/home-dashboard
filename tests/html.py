@@ -193,8 +193,8 @@ class _WeatherParser(HTMLParser):
 
 
 def weather(html: str) -> dict:
-    """{apparent: "6°", actual: "(9°)" (both None if not shown), slots: [{label, icon, condition}],
-    notices: [text]}"""
+    """{apparent: "6°", actual: "echt: 9°C" (both None if not shown),
+    slots: [{label, icon, condition}], notices: [text]}"""
     parser = _WeatherParser()
     parser.feed(html)
     return parser.weather

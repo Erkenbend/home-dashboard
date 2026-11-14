@@ -406,23 +406,28 @@ body {
   align-items: center;
 }
 
-/* Natural width (e.g. "-12° (-10°)"), the icons share the rest */
+/* Natural width (e.g. "-12°" / "echt: -10°C"), the icons share the rest */
 .weather-temperature {
   -webkit-box-flex: 0;
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
   margin-right: 0.5rem;
+  text-align: center;
   white-space: nowrap;
 }
 
-/* Felt temperature first and big, the measured one small behind it */
+/* Felt temperature big, as high as the icons so the labels below line up */
 .weather-apparent {
+  display: block;
   font-size: 3.25rem;
+  line-height: 3.5rem;
   font-weight: bold;
 }
 
+/* Measured temperature below, styled like the labels under the icons */
 .weather-actual {
-  font-size: 1.5rem;
+  display: block;
+  font-size: 1.125rem;
   color: #a0a8b0;
 }
 

@@ -145,6 +145,6 @@ def test_wide_temperatures_do_not_push_into_the_weather_icons(open_dashboard, op
             .map((box) => ({left: box.left, right: box.right}))"""
     )
 
-    assert page.text_content(".weather-temperature").split() == ["-12°", "(-10°)"]
+    assert page.text_content(".weather-temperature").split() == ["-12°", "echt:", "-10°C"]
     assert temperature["right"] <= slot["left"]
     assert_fits(page)
