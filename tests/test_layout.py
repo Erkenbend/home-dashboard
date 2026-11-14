@@ -83,6 +83,28 @@ def test_widgets_fit_the_display_without_overlapping_or_scrolling(open_dashboard
     assert_fits(open_dashboard(viewport))
 
 
+@pytest.mark.parametrize(
+    "viewport", [LARGE, (1280, 800), SMALL], ids=lambda size: f"{size[0]}x{size[1]}"
+)
+def test_calendar_takes_the_right_half_and_departures_two_thirds_of_the_left(
+    open_dashboard, viewport
+):
+    boxes = {
+        widget["id"]: widget["box"]
+        for widget in open_dashboard(viewport).evaluate(LAYOUT)["widgets"]
+    }
+    departures, weather, calendar = boxes["departures"], boxes["weather"], boxes["calendar"]
+
+    assert departures["right"] - departures["left"] == pytest.approx(
+        calendar["right"] - calendar["left"], abs=1
+    )
+    # the gap between departures and weather is taken from both
+    column = calendar["bottom"] - departures["top"]
+    third = column / 3
+    assert departures["bottom"] - departures["top"] == pytest.approx(2 * third, abs=0.15 * third)
+    assert weather["bottom"] - weather["top"] == pytest.approx(third, abs=0.15 * third)
+
+
 def test_small_display_shows_fewer_rows_and_keeps_the_most_important(open_dashboard):
     small = open_dashboard(SMALL).evaluate(VISIBLE_ROWS)
     large = open_dashboard(LARGE).evaluate(VISIBLE_ROWS)

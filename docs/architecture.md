@@ -19,9 +19,9 @@
 - **Weather icons**: inline SVG macros (`templates/widgets/weather_icons.html`), one per WMO code group,
   sun or moon depending on daylight.
 - **CSS**: plain CSS, Flexbox (no Grid) for compatibility with old Android WebViews. Dark theme, large type.
-  Layout: departures and weather share the left column (weather at its natural height at the bottom,
-  departures get the rest), calendar on the right; in portrait everything is stacked and the column
-  and the calendar share the height equally.
+  Layout: departures and weather share the left half (departures two thirds of the height, weather
+  one third with its content at the top), calendar on the right half; in portrait everything is
+  stacked and the column and the calendar share the height equally.
   All sizes are in `rem`; media queries set the root font size per display size (width or height,
   whichever is tighter), and switch to stacked widgets in portrait.
 - **Fit to the display** (`static/fit.js`, plain ES5): widgets never scroll. The server renders up to the
