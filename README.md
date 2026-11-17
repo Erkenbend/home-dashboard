@@ -1,126 +1,78 @@
 # home-dashboard
 
-Personal wall dashboard for home (Halle/Saale): an old Android tablet in kiosk mode shows a web page served
-by a Raspberry Pi in the home network.
+[![CI](https://github.com/Erkenbend/home-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/Erkenbend/home-dashboard/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Initial widgets:
+**A wall display for the hallway: which tram can I still catch, what's on this week, and do I need
+an umbrella?** An old Android tablet shows a page served by a Raspberry Pi. No app, no cloud, no
+build step.
 
-- **Abfahrten**: live departures of nearby trams/buses that are still reachable when leaving now
-- **Kalender**: events of the shared Google Calendar for the coming week, coloured by person
-- **Wetter**: felt and measured temperature now, the weather now and in about 1 and 2 hours from Open-Meteo, below the departures
+![The dashboard on a 10" tablet: departures and weather on the left, the family calendar on the right](docs/screenshot.png)
+
+<sub>Made-up data, rendered at the resolution of the Galaxy Tab A 10.1 it runs on
+(`scripts/screenshot.py`). The UI is German.</sub>
+
+## What it shows
+
+- **Abfahrten**: live departures of the trams near home, only those still reachable on foot, with
+  a "los in X min" countdown to the moment you have to leave, delays and cancellations.
+- **Termine**: the coming days of a shared calendar (any iCal feed), coloured by person; recurring
+  events are toned down so the one-off appointments stand out.
+- **Wetter**: felt temperature now, and the weather now and in one and two hours (Open-Meteo, no API key).
+
+It is built to hang on a wall unattended. The layout fits any screen without scrolling, the page
+recovers from Wi-Fi drops by itself and shows "Keine Verbindung seit HH:MM" in the meantime. When an
+API is down, it keeps the last known data, marked "Stand: HH:MM".
+
+## How it works
+
+```
+Tablet, kiosk browser ──HTTP──▶ Raspberry Pi, Docker ──▶ live departures (INSA HAFAS)
+  (HTMX polls widgets)          FastAPI + Jinja2       ──▶ calendar (iCal feed)
+                                server-side cache      ──▶ weather (Open-Meteo)
+```
+
+The server renders plain HTML; the tablet only needs a browser from the last decade. Each widget
+reaches its data through a small interface (source → service → template), so a data source can be
+swapped without touching the rest. Python 3.12, FastAPI, HTMX, uv, Docker Compose; tested at
+behaviour level against recorded API responses, with layout tests in headless Chromium.
+
+## Quick start
+
+```sh
+uv sync
+cp config.example.yaml config.yaml        # stops, people, location
+uv run home-dashboard serve               # http://localhost:3274/
+```
+
+The example config shows live trams in Halle (Saale) right away. For tests, deployment to a Pi and
+the tablet, see [setup](docs/setup.md) and [tablet setup](docs/tablet.md).
+
+## Make it yours
+
+Out of the box the dashboard speaks German and knows the public transport of Saxony-Anhalt. Your own
+stops, people and location are just config. Another city means one new transit provider class. Another
+calendar is usually just another iCal URL. [**Customizing**](docs/customizing.md) walks through it,
+including how to switch the transit data provider.
 
 ## Documentation
 
-- [Requirements](docs/requirements.md)
-- [Architecture](docs/architecture.md)
-- [Implementation plan](docs/implementation-plan.md)
-- Decisions: [0001 Stack and operations](docs/decisions/0001-stack-and-operations.md),
-  [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md),
-  [0003 Transit data source](docs/decisions/0003-transit-data-source.md),
-  [0004 Weather via Open-Meteo](docs/decisions/0004-weather-via-open-meteo.md)
-
-## Quick facts
-
-- Stack: Python 3.12, FastAPI, Jinja2, HTMX, Docker Compose
-- Port: **3274** (T9 for "DASH")
-- Development and tests in WSL only; the Pi is updated via `scripts/deploy.sh`
-
-## Development (WSL)
-
-```sh
-uv sync                                   # install dependencies (Python 3.12 is fetched by uv)
-uv run playwright install chromium-headless-shell   # browser for the layout tests
-cp config.example.yaml config.yaml        # local config, gitignored
-uv run pytest                             # behaviour tests (live tests: uv run pytest -m live)
-uv run ruff check && uv run ruff format --check
-uv run home-dashboard serve --reload      # http://localhost:3274/
-uv run home-dashboard find-stop "Franckeplatz Halle"   # stop ids for config.yaml
-uv run home-dashboard check-config        # validate config.yaml
-```
-
-## Deployment (Raspberry Pi)
-
-One-time setup on the Pi (`pi@192.168.0.10`):
-
-1. Install Docker and the compose plugin, add the user to the `docker` group
-   (Debian trixie: `sudo apt install docker.io docker-compose && sudo usermod -aG docker $USER`, re-login).
-2. SSH key login from WSL: `ssh-copy-id pi@192.168.0.10`.
-
-Configuration: keep the real `config.yaml` (contains the secret iCal URL, gitignored, never commit it) in the
-repo root in WSL. `scripts/deploy.sh` validates it (`uv run home-dashboard check-config`) and uploads it to
-`~/home-dashboard/config.yaml` on the Pi. Without a local `config.yaml` the one on the Pi is kept.
-
-Deploy (from WSL, Docker running):
-
-```sh
-scripts/deploy.sh                         # or: scripts/deploy.sh user@host
-```
-
-The script validates and uploads the config, cross-builds the arm64 image, ships it via SSH, recreates the
-container with `docker compose` and waits for `http://<pi>:3274/healthz`.
-After config-only changes simply run the script again.
-
-## Tablet setup (kiosk browser)
-
-The display is a Samsung Galaxy Tab A 10.1 (2016, SM-T580) on Android 8.1, running
-[Fully Kiosk Browser](https://www.fully-kiosk.com/). The free version covers everything the dashboard needs;
-PLUS (one-time fee per device) adds a kiosk lock, a night-time screen-off timer and remote admin.
-Menu paths are from Samsung Experience 9 (Oreo) and may differ slightly.
-
-### 1. Prepare the tablet
-
-- **Browser engine:** on Android 7–9 Chrome is the system WebView, so Fully renders with the installed Chrome.
-  Update **Chrome** from the Play Store (Chrome stopped updating on Android 8 around version 138, still far
-  more than the dashboard needs). Leave *Android System WebView* disabled if it is.
-- **Viewport:** the 1920×1200 screen reports about 1280×800 CSS px in landscape (pixel ratio 1.5), one of the
-  layout test viewports.
-- **Lock screen:** Settings → Lock screen and security → Screen lock type → **None**.
-- **Developer options:** Settings → About tablet → Software information → tap *Build number* 7 times, then
-  Developer options → **Stay awake** (screen stays on while charging) as a fallback.
-- **Battery optimization** (Samsung kills background apps aggressively):
-  - Settings → Device maintenance → Battery → **Unmonitored apps** → add Fully
-  - same screen, ⋮ → Settings → turn off "Put unused apps to sleep"
-  - Settings → Apps → ⋮ → Special access → **Optimize battery usage** → All apps → Fully: off
-- **Display:** Settings → Display → *Adaptive brightness* off, *Screen timeout* to the maximum (fallback).
-- **Distractions:** Settings → Software update → *Download updates automatically* off; notifications of
-  Galaxy Store and Play Store off.
-
-### 2. Configure Fully Kiosk Browser
-
-Install it from the Play Store, then:
-
-| Setting (approximate path) | Value |
+| | |
 |---|---|
-| Web Content → **Start URL** | `http://192.168.0.10:3274/` |
-| Web Auto Reload → **Reload on network reconnect** | on |
-| Web Auto Reload → **Reload on page error / timeout** | on, e.g. after 60 s |
-| Toolbars & Appearance → **Fullscreen**, hide status and navigation bar | on |
-| Device Management → **Keep screen on** | on |
-| Device Management → **Launch on boot** | on |
-| Device Management → screen brightness | fixed, dimmer than you'd expect |
-| Web Zoom and Scaling → **Enable zoom** | off |
-| Advanced Web Settings → pull to refresh, text selection | off (optional) |
+| [Setup](docs/setup.md) | development, tests, deployment to a Raspberry Pi |
+| [Tablet setup](docs/tablet.md) | kiosk browser on an old Android tablet, hardware tips |
+| [Customizing](docs/customizing.md) | config, other transit providers, calendars, language, new widgets |
+| [Architecture](docs/architecture.md) | components, caching, fit-to-screen, testing strategy |
+| [Requirements](docs/requirements.md) · [Implementation plan](docs/implementation-plan.md) | what it should do and how it got there |
+| Decisions | [0001 Stack](docs/decisions/0001-stack-and-operations.md) · [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md) · [0003 Transit data](docs/decisions/0003-transit-data-source.md) · [0004 Weather](docs/decisions/0004-weather-via-open-meteo.md) |
 
-The two reload settings matter most: the dashboard rides out short Wi-Fi drops by itself (HTMX retries on the
-next poll, and an offline notice shows meanwhile), but if the periodic full reload (`page_reload_hours`) hits
-while the tablet is offline, the browser shows an error page that only Fully's reload brings back.
+## Notes
 
-**Initial scale** (Web Zoom and Scaling) changes how many CSS pixels the tablet reports, so the dashboard picks
-a different size step. Use it if text is too small or too big from 2–3 m.
+- A personal hobby project, written together with an AI coding agent (see [AGENTS.md](AGENTS.md)).
+- The departures use INSA's unofficial HAFAS interface, which may change without notice; an optional
+  live test (`uv run pytest -m live`) notices it.
+- Meant for the home network only: there is no authentication.
 
-Without Fully (testing only): open the URL in Chrome, *Add to Home screen*, then Settings → Lock screen and
-security → Other security settings → **Pin windows**. No auto start after reboot, no recovery from error pages.
+## License
 
-### 3. Hardware
-
-- **Battery:** Samsung's charge limit only arrived with Android 11, so a battery permanently on the charger
-  ages and may swell; check the back now and then. A timer smart plug that charges a few hours a day is the
-  gentler option (the 7300 mAh battery lasts the rest of the day with a dimmed screen).
-- **Mounting:** keep the USB port and speakers free.
-
-### 4. Check on the device
-
-- Readable from 2–3 m
-- Reboot the tablet: it comes back to the dashboard on its own
-- Wi-Fi off for a few minutes: "Keine Verbindung seit HH:MM" replaces the date and the widgets dim;
-  Wi-Fi on: the dashboard recovers by itself within one poll
+[MIT](LICENSE)

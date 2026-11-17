@@ -83,7 +83,7 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 |---|---|
 | UI language | German |
 | Code / docs / commits | English |
-| Display | Samsung Galaxy Tab A 10.1 (2016, SM-T580), Android 8.1, Fully Kiosk Browser (Chrome WebView), landscape, about 1280×800 CSS px, readable from 2–3 m. Setup: README |
+| Display | Samsung Galaxy Tab A 10.1 (2016, SM-T580), Android 8.1, Fully Kiosk Browser (Chrome WebView), landscape, about 1280×800 CSS px, readable from 2–3 m. Setup: [tablet setup](tablet.md) |
 | Browser compatibility | Conservative: server-side rendering, minimal JavaScript, no frontend build step |
 | Server hardware | Raspberry Pi 3b (1 GB RAM, arm64, headless, no desktop environment) |
 | Network / security | Home network only, no authentication, no exposure to the internet |
