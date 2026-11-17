@@ -7,7 +7,7 @@ Docker should do), the Pi only runs the finished container.
 
 ## Prerequisites
 
-- [uv](https://docs.astral.sh/uv/) (fetches Python 3.12 by itself)
+- [uv](https://docs.astral.sh/uv/) (fetches Python 3.14 by itself)
 - For deployment: Docker with `buildx` on the workstation, SSH access to the Pi
 
 ## Development
