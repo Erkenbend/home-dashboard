@@ -21,6 +21,7 @@ home-dashboard = "home_dashboard.cli:main"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.16.2",
     "playwright>=1.65.0",
     "pytest>=8.3",
     "pytest-cov>=7.1.0",
@@ -39,6 +40,9 @@ packages = ["src/home_dashboard"]
 testpaths = ["tests"]
 addopts = "-m 'not live'"
 markers = ["live: talks to real external services (run explicitly with -m live)"]
+# Fail on any warning so deprecations surface early (some libraries, e.g. Starlette, emit them as
+# UserWarning, which a DeprecationWarning-only filter would miss)
+filterwarnings = ["error"]
 
 [tool.ruff]
 line-length = 100
