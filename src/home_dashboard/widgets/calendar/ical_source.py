@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -39,18 +39,13 @@ class IcalCalendarSource:
 
     def _to_event(self, component: icalendar.Event, series_uids: set[str]) -> Event:
         uid = str(component.get("UID", ""))
-        start = self._normalize(component.decoded("DTSTART"))
-        if "DTEND" in component:
-            end = self._normalize(component.decoded("DTEND"))
-        elif "DURATION" in component:
-            end = start + component.decoded("DURATION")
-        else:
-            end = start + timedelta(days=1) if not isinstance(start, datetime) else start
         return Event(
             uid=uid,
             title=str(component.get("SUMMARY", "")).strip() or "(ohne Titel)",
-            start=start,
-            end=end,
+            start=self._normalize(component.decoded("DTSTART")),
+            # recurring-ical-events sets DTEND on every occurrence: from DURATION, or by the RFC
+            # 5545 defaults (a date lasts one day, a date-time is a point in time)
+            end=self._normalize(component.decoded("DTEND")),
             recurring=uid in series_uids,
         )
 

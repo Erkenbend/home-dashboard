@@ -204,6 +204,113 @@ def single_event(summary: str) -> bytes:
     ).encode()
 
 
+def feed(*events: str) -> bytes:
+    """An iCal feed with the given VEVENT bodies (property lines separated by newlines)."""
+    vevents = "".join(
+        f"BEGIN:VEVENT\r\nUID:event{index}@test\r\nDTSTAMP:20261101T120000Z\r\n"
+        + "".join(f"{line.strip()}\r\n" for line in event.strip().splitlines())
+        + "END:VEVENT\r\n"
+        for index, event in enumerate(events)
+    )
+    return f"BEGIN:VCALENDAR\r\nVERSION:2.0\r\n{vevents}END:VCALENDAR\r\n".encode()
+
+
+@pytest.fixture
+def show_feed(
+    make_client: Callable[..., TestClient], respx_mock: respx.Router, monday_morning
+) -> Callable[[bytes], dict[str, list[dict]]]:
+    """Serve `content` as the iCal feed and return the rendered calendar days."""
+
+    def _show(content: bytes) -> dict[str, list[dict]]:
+        respx_mock.get(ICAL_URL).mock(return_value=httpx.Response(200, content=content))
+        return calendar_days(make_client(calendar_config()).get("/widgets/calendar").text)
+
+    return _show
+
+
+def test_event_with_duration_instead_of_end(show_feed) -> None:
+    days = show_feed(
+        feed("""
+            SUMMARY:Elternabend
+            DTSTART;TZID=Europe/Berlin:20261109T180000
+            DURATION:PT1H30M
+        """)
+    )
+
+    assert [(e["time"], e["title"]) for e in days["Heute"]] == [("18:00–19:30", "Elternabend")]
+
+
+def test_events_without_end(show_feed) -> None:
+    # RFC 5545: a date lasts one day, a date-time is a point in time
+    days = show_feed(
+        feed(
+            """
+            SUMMARY:Sperrmüll
+            DTSTART;VALUE=DATE:20261110
+            """,
+            """
+            SUMMARY:Paket abholen
+            DTSTART;TZID=Europe/Berlin:20261110T170000
+            """,
+        )
+    )
+
+    assert list(days) == ["Heute", "Morgen"]
+    assert [(e["time"], e["title"]) for e in days["Morgen"]] == [
+        ("ganztägig", "Sperrmüll"),
+        ("17:00", "Paket abholen"),
+    ]
+
+
+def test_floating_times_are_local_times(show_feed) -> None:
+    days = show_feed(
+        feed("""
+            SUMMARY:Laternenumzug
+            DTSTART:20261109T170000
+            DTEND:20261109T183000
+        """)
+    )
+
+    assert [(e["time"], e["title"]) for e in days["Heute"]] == [("17:00–18:30", "Laternenumzug")]
+
+
+INVALID_FEEDS = {
+    "html page": b"<!DOCTYPE html><html><body>Bitte anmelden</body></html>",
+    "empty": b"",
+    "broken date": feed("SUMMARY:Kaputt\nDTSTART:2026-11-09"),
+}
+
+
+@pytest.mark.parametrize("content", INVALID_FEEDS.values(), ids=INVALID_FEEDS.keys())
+def test_invalid_feed_shows_unavailable_calendar(
+    make_client: Callable[..., TestClient],
+    respx_mock: respx.Router,
+    monday_morning,
+    caplog: pytest.LogCaptureFixture,
+    content: bytes,
+) -> None:
+    respx_mock.get(ICAL_URL).mock(return_value=httpx.Response(200, content=content))
+
+    page = make_client(calendar_config()).get("/")
+
+    assert page.status_code == 200
+    assert "Kalender nicht verfügbar" in page.text
+    assert "secret123" not in caplog.text
+
+
+def test_invalid_feed_keeps_last_events(
+    client: TestClient, ical: respx.Route, clock: FixedClock
+) -> None:
+    client.get("/widgets/calendar")
+    ical.mock(return_value=httpx.Response(200, content=INVALID_FEEDS["html page"]))
+    clock.instant += timedelta(minutes=11)
+
+    html = client.get("/widgets/calendar").text
+
+    assert "Fußballturnier" in html
+    assert "Stand: 10:00" in html
+
+
 def test_legend_lists_people_and_everyone(client: TestClient) -> None:
     html = client.get("/widgets/calendar").text
 
