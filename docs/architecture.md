@@ -156,7 +156,7 @@ weather:                    # location: home.lat / home.lon, shown only if both 
 
 Development and builds happen in WSL; the Pi only runs the container.
 
-`scripts/deploy.sh [user@host]` (default `pi@192.168.0.10`):
+`scripts/deploy.sh [user@host]` (or `DEPLOY_HOST=user@host`):
 
 1. If a local `config.yaml` exists: validate it (`home-dashboard check-config`); otherwise require
    `~/home-dashboard/config.yaml` on the Pi. Check `docker compose` on the Pi

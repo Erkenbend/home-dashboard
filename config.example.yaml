@@ -39,12 +39,12 @@ calendar:
   refresh_seconds: 300      # how often the tablet updates the widget
   fetch_seconds: 600        # how often the Pi downloads the iCal feed at most (min. 60)
   people:                   # keywords are matched case-insensitively as whole words
-    - name: "Person A"
+    - name: "Alice"
       color: "#e07a5f"
-      match: ["Person A"]
-    - name: "Person B"
+      match: ["Alice"]
+    - name: "Bob"
       color: "#3d85c6"
-      match: ["Person B"]
+      match: ["Bob"]
   everyone:                 # events for everyone: keyword match OR no person recognized
     label: "Alle"
     color: "#c9b458"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the arm64 image locally (WSL), ship it to the Pi via SSH and (re)start it there.
 #
-# Usage: scripts/deploy.sh [user@host]      (default: $DEPLOY_HOST or pi@192.168.0.10)
+# Usage: scripts/deploy.sh [user@host]      (default: $DEPLOY_HOST)
 #
 # Prerequisites:
 #   - local: Docker with buildx and arm64 emulation
@@ -13,7 +13,11 @@
 # remote one is kept and must exist.
 set -euo pipefail
 
-HOST="${1:-${DEPLOY_HOST:-pi@192.168.0.10}}"
+HOST="${1:-${DEPLOY_HOST:-}}"
+if [[ -z "$HOST" ]]; then
+  echo "usage: scripts/deploy.sh user@host   (or set DEPLOY_HOST=user@host)" >&2
+  exit 2
+fi
 REMOTE_DIR="home-dashboard"   # relative to the remote user's home
 PORT=3274
 
