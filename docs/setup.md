@@ -17,6 +17,7 @@ uv sync                                   # install dependencies
 uv run playwright install chromium-headless-shell   # browser for the layout tests
 cp config.example.yaml config.yaml        # local config, gitignored
 uv run pytest                             # behaviour tests (live API tests: uv run pytest -m live)
+uv run pytest --cov --cov-report=term-missing   # with coverage (lines and branches)
 uv run ruff check && uv run ruff format --check
 uv run home-dashboard serve --reload      # http://localhost:3274/
 uv run home-dashboard find-stop "Marktplatz Halle"   # stop ids for config.yaml
@@ -25,7 +26,8 @@ uv run python scripts/screenshot.py       # regenerate docs/screenshot.png (made
 ```
 
 The port is **3274** (T9 for "DASH"). CI runs lint and tests on every push
-(`.github/workflows/ci.yml`); it builds no image.
+(`.github/workflows/ci.yml`) and keeps the coverage badge current via the `badges` branch; it
+builds no image.
 
 ## Configuration
 

@@ -23,6 +23,7 @@ home-dashboard = "home_dashboard.cli:main"
 dev = [
     "playwright>=1.65.0",
     "pytest>=8.3",
+    "pytest-cov>=7.1.0",
     "respx>=0.22",
     "ruff>=0.8",
 ]
@@ -46,3 +47,7 @@ extend-exclude = ["spikes"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.coverage.run]
+source = ["home_dashboard"]
+branch = true

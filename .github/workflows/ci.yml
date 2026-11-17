@@ -18,6 +18,8 @@ jobs:
     name: Lint and test
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      coverage: ${{ steps.test.outputs.coverage }}
     steps:
       - uses: actions/checkout@v5
 
@@ -38,4 +40,38 @@ jobs:
         run: uv run playwright install --with-deps chromium-headless-shell
 
       - name: Test
-        run: uv run pytest
+        id: test
+        run: |
+          uv run pytest --cov --cov-report=term-missing --cov-report=json \
+            --cov-report=markdown-append:"$GITHUB_STEP_SUMMARY"
+          coverage=$(python3 -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
+          echo "coverage=$coverage" >> "$GITHUB_OUTPUT"
+
+  # Keeps the README coverage badge current: a shields.io endpoint file on the `badges` branch
+  # (one commit, overwritten each time), so no external coverage service is needed.
+  coverage-badge:
+    name: Update coverage badge
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Push badge data
+        env:
+          COVERAGE: ${{ needs.test.outputs.coverage }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if   [ "$COVERAGE" -ge 90 ]; then color=brightgreen
+          elif [ "$COVERAGE" -ge 75 ]; then color=yellow
+          else color=red; fi
+          mkdir badges && cd badges
+          git init -q -b badges
+          printf '{"schemaVersion": 1, "label": "coverage", "message": "%s%%", "color": "%s"}\n' \
+            "$COVERAGE" "$color" > coverage.json
+          git add coverage.json
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -qm "Coverage badge: ${COVERAGE}% (${GITHUB_SHA::7})"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" badges

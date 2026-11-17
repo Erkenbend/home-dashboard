@@ -1,7 +1,10 @@
 # home-dashboard
 
 [![CI](https://github.com/Erkenbend/home-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/Erkenbend/home-dashboard/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Erkenbend/home-dashboard/badges/coverage.json)](https://github.com/Erkenbend/home-dashboard/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Vibe coded with Opus 5.5](https://img.shields.io/badge/vibe%20coded%20with-Opus%205.5-D97757?logo=claude&logoColor=white)](AGENTS.md)
 
 **A wall display for the hallway: which tram can I still catch, what's on this week, and do I need
 an umbrella?** An old Android tablet shows a page served by a Raspberry Pi. No app, no cloud, no

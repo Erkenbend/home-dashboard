@@ -6,3 +6,8 @@ __pycache__/
 
 # local config contains secrets (iCal URL)
 config.yaml
+
+# coverage reports
+.coverage
+coverage.json
+htmlcov/
