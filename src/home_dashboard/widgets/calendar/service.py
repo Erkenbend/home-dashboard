@@ -40,7 +40,7 @@ class EventRow:
     title: str
     """Title without the leading person/everyone keywords."""
     names: str
-    """Names of the people concerned ("Anna, Ben"), empty for events concerning everyone."""
+    """Names of the people concerned ("Alice, Bob"), empty for events concerning everyone."""
     time: TimeLabel
     tags: list[Tag]
     everyone: bool
@@ -67,13 +67,13 @@ class CalendarView:
 
 
 def _keyword_pattern(keyword: str) -> re.Pattern[str]:
-    """Case-insensitive whole-word match ('Ben' must not match 'Benefizlauf')."""
+    """Case-insensitive whole-word match ('Bob' must not match 'Bobbycar-Rennen')."""
     prefix = r"(?<!\w)" if re.match(r"\w", keyword) else ""
     suffix = r"(?!\w)" if re.search(r"\w$", keyword) else ""
     return re.compile(prefix + re.escape(keyword) + suffix, re.IGNORECASE)
 
 
-# Between leading keywords and the actual title, e.g. "Anna & Ben: Kino", "A - Zahnarzt"
+# Between leading keywords and the actual title, e.g. "Alice & Bob: Kino", "A - Zahnarzt"
 _SEPARATORS = re.compile(r"[\s:,;/&+|\-–—]*")
 
 
@@ -106,7 +106,7 @@ class _PersonMatcher:
         return people, False
 
     def strip_prefixes(self, title: str) -> str:
-        """The title without leading keywords and separators ("Anna: Zahnarzt" -> "Zahnarzt")."""
+        """The title without leading keywords and separators ("Alice: Zahnarzt" -> "Zahnarzt")."""
         rest = title
         while True:
             matches = (pattern.match(rest) for pattern in self._prefixes)

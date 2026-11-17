@@ -130,9 +130,9 @@ calendar:
   ical_url: "https://calendar.google.com/calendar/ical/…/basic.ics"
   days: 7
   people:
-    - name: "Anna"
+    - name: "Alice"
       color: "#e07a5f"
-      match: ["Anna"]       # case-insensitive whole words ("Ben" does not match "Benefiz")
+      match: ["Alice"]      # case-insensitive whole words ("Bob" does not match "Bobbycar")
   everyone:                 # keyword match OR no person recognized
     label: "Alle"
     color: "#c9b458"

@@ -19,8 +19,8 @@ from tests.html import calendar_days, titles
 ICAL_URL = "https://calendar.example/private-secret123/basic.ics"
 ICS = (FIXTURES / "calendar" / "family.ics").read_bytes()
 
-ANNA = PersonConfig(name="Anna", color="#e07a5f", match=["Anna"])
-BEN = PersonConfig(name="Ben", color="#3d85c6", match=["ben"])
+ALICE = PersonConfig(name="Alice", color="#e07a5f", match=["Alice"])
+BOB = PersonConfig(name="Bob", color="#3d85c6", match=["bob"])
 EVERYONE = EveryoneConfig(label="Alle", color="#c9b458", match=["Familie"])
 
 
@@ -28,7 +28,7 @@ def calendar_config(**overrides) -> AppConfig:
     settings = {
         "ical_url": ICAL_URL,
         "days": 7,
-        "people": [ANNA, BEN],
+        "people": [ALICE, BOB],
         "everyone": EVERYONE,
         **overrides,
     }
@@ -62,7 +62,7 @@ def test_shows_the_coming_seven_days_grouped_with_german_labels(days) -> None:
     assert list(days) == [
         "Heute", "Morgen", "Mi, 11.11.", "Do, 12.11.", "Fr, 13.11.", "Sa, 14.11.", "So, 15.11."
     ]  # fmt: skip
-    assert "Anna Konzert" not in str(days)  # 20.11. is outside the window
+    assert "Alice Konzert" not in str(days)  # 20.11. is outside the window
 
 
 def test_events_of_a_day_with_times_all_day_first(days) -> None:
@@ -88,36 +88,36 @@ def test_past_events_of_today_are_marked(days) -> None:
     assert today == {
         "Zahnarzt": True,
         "Fußballturnier": False,
-        "Benefizlauf im Park": False,
+        "Bobbycar-Rennen im Park": False,
     }
 
 
 def test_events_are_assigned_to_people_by_title(days) -> None:
     people = {e["title"]: e["people"] for day in days.values() for e in day}
 
-    assert people["Zahnarzt"] == ["Anna"]
-    assert people["Fußballturnier"] == ["Ben"]  # keywords are case-insensitive
-    assert people["Klassenfahrt Anna und Ben"] == ["Anna", "Ben"]
+    assert people["Zahnarzt"] == ["Alice"]
+    assert people["Fußballturnier"] == ["Bob"]  # keywords are case-insensitive
+    assert people["Klassenfahrt Alice und Bob"] == ["Alice", "Bob"]
 
 
 def test_leading_keywords_are_replaced_by_the_names_at_the_end(days) -> None:
     shown = {(e["title"], e["names"]) for day in days.values() for e in day}
 
-    assert ("Zahnarzt", "(Anna)") in shown  # "Anna: Zahnarzt"
-    assert ("Fußballturnier", "(Ben)") in shown  # "Ben Fußballturnier"
-    assert ("Elternabend Ben", "(Ben)") in shown  # not leading: title stays
-    assert ("Klassenfahrt Anna und Ben", "(Anna, Ben)") in shown
+    assert ("Zahnarzt", "(Alice)") in shown  # "Alice: Zahnarzt"
+    assert ("Fußballturnier", "(Bob)") in shown  # "Bob Fußballturnier"
+    assert ("Elternabend Bob", "(Bob)") in shown  # not leading: title stays
+    assert ("Klassenfahrt Alice und Bob", "(Alice, Bob)") in shown
     assert ("Omas Geburtstag", "") in shown  # "Familie: Omas Geburtstag", no names for everyone
-    assert ("Benefizlauf im Park", "") in shown
+    assert ("Bobbycar-Rennen im Park", "") in shown
 
 
 def test_events_for_everyone_by_keyword_or_without_recognized_person(days) -> None:
     events = {e["title"]: e for day in days.values() for e in day}
 
-    for title in ["Omas Geburtstag", "Müllabfuhr", "Benefizlauf im Park"]:
+    for title in ["Omas Geburtstag", "Müllabfuhr", "Bobbycar-Rennen im Park"]:
         assert events[title]["everyone"], title
         assert events[title]["people"] == ["Alle"], title
-    assert not events["Klassenfahrt Anna und Ben"]["everyone"]
+    assert not events["Klassenfahrt Alice und Bob"]["everyone"]
 
 
 def test_recurring_and_single_events_are_distinguished(days) -> None:
@@ -126,7 +126,7 @@ def test_recurring_and_single_events_are_distinguished(days) -> None:
     assert events["Sonntagsessen"] is True
     assert events["Yoga (später)"] is True  # moved occurrence of a series
     assert events["Zahnarzt"] is False
-    assert events["Klassenfahrt Anna und Ben"] is False
+    assert events["Klassenfahrt Alice und Bob"] is False
 
 
 def test_excluded_occurrence_of_a_series_is_not_shown(days) -> None:
@@ -137,7 +137,7 @@ def test_multi_day_events(days) -> None:
     def time_of(day: str, title: str) -> str:
         return next(e["time"] for e in days[day] if e["title"] == title)
 
-    trip = "Klassenfahrt Anna und Ben"
+    trip = "Klassenfahrt Alice und Bob"
     assert [time_of(d, trip) for d in ["Do, 12.11.", "Fr, 13.11.", "Sa, 14.11."]] == [
         "Tag 1/3", "Tag 2/3", "Tag 3/3"
     ]  # fmt: skip
@@ -148,7 +148,7 @@ def test_multi_day_events(days) -> None:
 
 def test_utc_times_are_shown_in_local_time(days) -> None:
     assert [(e["time"], e["title"]) for e in days["Mi, 11.11."]] == [
-        ("18:00–19:30", "Elternabend Ben")
+        ("18:00–19:30", "Elternabend Bob")
     ]
 
 
@@ -168,11 +168,11 @@ def test_days_without_events_are_skipped_but_today_is_always_shown(
 @pytest.mark.parametrize(
     ("summary", "title", "names"),
     [
-        ("A - Zahnarzt", "Zahnarzt", "(Anna)"),
-        ("A-Zahnarzt", "Zahnarzt", "(Anna)"),
-        ("A-N- Kino", "Kino", "(Anna, Nina)"),
+        ("A - Zahnarzt", "Zahnarzt", "(Alice)"),
+        ("A-Zahnarzt", "Zahnarzt", "(Alice)"),
+        ("A-N- Kino", "Kino", "(Alice, Nina)"),
         ("Alle: Ausflug", "Ausflug", ""),
-        ("A-", "A-", "(Anna)"),  # nothing left: keep the title
+        ("A-", "A-", "(Alice)"),  # nothing left: keep the title
     ],
 )
 def test_prefix_styles(
@@ -185,7 +185,7 @@ def test_prefix_styles(
 ) -> None:
     respx_mock.get(ICAL_URL).mock(return_value=httpx.Response(200, content=single_event(summary)))
     people = [
-        PersonConfig(name="Anna", color="#e07a5f", match=["A-", "A -"]),
+        PersonConfig(name="Alice", color="#e07a5f", match=["A-", "A -"]),
         PersonConfig(name="Nina", color="#3d85c6", match=["N-", "N -"]),
     ]
     everyone = EveryoneConfig(match=["Alle"])
@@ -207,7 +207,7 @@ def single_event(summary: str) -> bytes:
 def test_legend_lists_people_and_everyone(client: TestClient) -> None:
     html = client.get("/widgets/calendar").text
 
-    for name in ["Anna", "Ben", "Alle"]:
+    for name in ["Alice", "Bob", "Alle"]:
         assert f"{name}</span>" in html
 
 

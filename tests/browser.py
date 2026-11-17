@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 from home_dashboard.config import AppConfig, CalendarConfig, DeparturesConfig, HomeConfig
 from tests.hafas_fake import HafasFake
 from tests.open_meteo_fake import OpenMeteoFake
-from tests.test_calendar import ANNA, BEN, EVERYONE, ICAL_URL, ICS
+from tests.test_calendar import ALICE, BOB, EVERYONE, ICAL_URL, ICS
 from tests.test_departures import FRANCKEPLATZ, RANNISCHER_PLATZ
 
 try:
@@ -106,7 +106,7 @@ def open_dashboard(
             stops=[RANNISCHER_PLATZ.model_copy(update={"direction": "Markt"}), FRANCKEPLATZ],
             max_per_stop=8,
         ),
-        calendar=CalendarConfig(ical_url=ICAL_URL, people=[ANNA, BEN], everyone=EVERYONE, days=14),
+        calendar=CalendarConfig(ical_url=ICAL_URL, people=[ALICE, BOB], everyone=EVERYONE, days=14),
     )
     client = make_client(config)
     pages = []
