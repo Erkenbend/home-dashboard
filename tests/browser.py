@@ -5,6 +5,7 @@ Needs a headless Chromium: `uv run playwright install chromium-headless-shell`.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable, Iterator
 
 import httpx
@@ -26,15 +27,22 @@ except ImportError:  # dev dependency; without it the browser tests are skipped
 BASE_URL = "http://dashboard.test"
 
 
+def _unavailable(reason: str) -> None:
+    """Skip locally, but fail in CI: a missing browser must not silently drop the layout tests."""
+    if os.environ.get("CI"):
+        pytest.fail(reason)
+    pytest.skip(reason)
+
+
 @pytest.fixture(scope="session")
 def browser() -> Iterator:
     if playwright_api is None:
-        pytest.skip("playwright is not installed")
+        _unavailable("playwright is not installed")
     with playwright_api.sync_playwright() as playwright:
         try:
             browser = playwright.chromium.launch()
         except playwright_api.Error as error:
-            pytest.skip(f"no Chromium for Playwright ({error.message.splitlines()[0]})")
+            _unavailable(f"no Chromium for Playwright ({error.message.splitlines()[0]})")
         yield browser
         browser.close()
 
