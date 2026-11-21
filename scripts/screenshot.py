@@ -5,7 +5,8 @@ Usage: uv run python scripts/screenshot.py [output.png]
 Needs the dev dependencies and Chromium (`uv run playwright install chromium-headless-shell`).
 The app runs in-process with in-memory sources and a fixed clock, so no network access and no
 config.yaml are needed. The sources below are also the smallest possible examples of the
-DepartureProvider, CalendarSource and WeatherSource interfaces (see docs/customizing.md).
+DepartureProvider, CalendarSource, WeatherSource and HealthCheck interfaces (see
+docs/customizing.md).
 """
 
 from __future__ import annotations
@@ -27,10 +28,13 @@ from home_dashboard.config import (
     EveryoneConfig,
     HomeConfig,
     PersonConfig,
+    ServiceConfig,
+    StatusConfig,
     StopConfig,
 )
 from home_dashboard.widgets.calendar.source import Event
 from home_dashboard.widgets.departures.provider import Departure, Product, StopMatch
+from home_dashboard.widgets.status.source import Unhealthy
 from home_dashboard.widgets.weather.source import CurrentWeather, Forecast, HourForecast
 
 TZ = ZoneInfo("Europe/Berlin")
@@ -146,6 +150,16 @@ class FakeWeather:
         )
 
 
+class FakeHealthCheck:
+    """All services up except one whose last check failed (yellow)."""
+
+    FAILING = {"http://nas.home.arpa:5000/"}
+
+    def check(self, url: str) -> None:
+        if url in self.FAILING:
+            raise Unhealthy("HTTP 503")
+
+
 CONFIG = AppConfig(
     home=HomeConfig(lat=51.48, lon=11.97),
     departures=DeparturesConfig(
@@ -162,6 +176,14 @@ CONFIG = AppConfig(
         ],
         everyone=EveryoneConfig(label="Alle", color="#c9b458", match=["Familie"]),
     ),
+    status=StatusConfig(
+        services=[
+            ServiceConfig(name="Home Assistant", url="http://host.docker.internal:8123/"),
+            ServiceConfig(name="Pi-hole", url="http://host.docker.internal:8080/admin/"),
+            ServiceConfig(name="NAS", url="http://nas.home.arpa:5000/"),
+            ServiceConfig(name="Drucker", url="http://printer.home.arpa/"),
+        ]
+    ),
 )
 
 
@@ -173,6 +195,7 @@ def render(browser, output: Path) -> None:
         departure_provider=FakeDepartures(),
         calendar_source=FakeCalendar(),
         weather_source=FakeWeather(),
+        health_check=FakeHealthCheck(),
     )
     client = TestClient(app)
 

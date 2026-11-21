@@ -54,3 +54,15 @@ weather:                    # Open-Meteo, no API key; location: home.lat / home.
   enabled: true
   refresh_seconds: 300      # how often the tablet updates the widget
   fetch_seconds: 900        # how often the Pi asks Open-Meteo at most (min. 300)
+
+status:                     # services status in the header: green / yellow (last check failed) / red
+  refresh_seconds: 30       # how often the tablet updates the bubbles
+  check_seconds: 60         # how often the Pi checks each service at most (min. 10)
+  timeout_seconds: 5        # per check (max. 20)
+  # A GET to the url must answer 2xx (redirects are not followed). The dashboard runs in Docker:
+  # services on the Pi itself are reached via host.docker.internal, not localhost.
+  services: []
+  #  - name: "Pi-hole"      # short, shown below the bubble
+  #    url: "http://host.docker.internal:8080/admin/"
+  #  - name: "NAS"
+  #    url: "http://nas.home.arpa:5000/"

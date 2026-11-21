@@ -251,3 +251,86 @@ def test_source_code_link_sits_in_the_top_right_corner_next_to_the_date(open_das
     assert link["right"] == pytest.approx(boxes["calendar"]["right"], abs=1), "flush with widgets"
     assert header["top"] <= link["top"] and link["bottom"] <= header["bottom"]
     assert boxes["date"]["right"] < link["left"], "no overlap with the date"
+
+
+STATUS = """() => {
+    const box = (el) => {
+        const b = el.getBoundingClientRect();
+        return {left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+    };
+    const visible = (el) => el.offsetParent !== null;
+    const services = [...document.querySelectorAll('.service')];
+    return {
+        header: box(document.querySelector('.header')),
+        time: box(document.querySelector('.header-time')),
+        date: box(document.querySelector('.clock-date')),
+        link: box(document.querySelector('.repo-link')),
+        status: box(document.querySelector('#status')),
+        shown: services.filter(visible).map((el) => ({
+            name: el.dataset.service,
+            box: box(el),
+            bubble: box(el.querySelector('.service-bubble')),
+            label: box(el.querySelector('.service-name')),
+        })),
+        hidden: services.filter((el) => !visible(el)).map((el) => el.dataset.service),
+    };
+}"""
+
+
+def assert_status_fits(status: dict) -> None:
+    header = status["header"]
+    assert header["bottom"] - header["top"] == pytest.approx(
+        status["time"]["bottom"] - status["time"]["top"], abs=1
+    ), "the clock alone sets the header height"
+    for service in status["shown"]:
+        bubble, label = service["bubble"], service["label"]
+        assert status["date"]["right"] < bubble["left"], "right of the date"
+        assert label["right"] < status["link"]["left"], "left of the source code link"
+        assert header["top"] <= bubble["top"] and label["bottom"] <= header["bottom"], service
+        assert bubble["bottom"] <= label["top"], "name below the bubble"
+        assert (bubble["left"] + bubble["right"]) / 2 == pytest.approx(
+            (label["left"] + label["right"]) / 2, abs=1
+        ), "name centred below the bubble"
+
+
+@pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
+def test_services_status_sits_right_of_the_date_and_time(open_dashboard, viewport):
+    page = open_dashboard(viewport)
+    status = page.evaluate(STATUS)
+
+    assert_status_fits(status)
+    if viewport[0] >= 800:  # portrait (600 px wide) has room for fewer
+        shown = [service["name"] for service in status["shown"]]
+        assert shown == ["Home Assistant", "Pi-hole", "NAS"]
+    assert_fits(page)
+
+
+MANY_SERVICES = {f"Dienst {index}": 200 for index in range(1, 13)} | {"Dienst 4": 500}
+
+
+@pytest.mark.parametrize("dashboard_services", [MANY_SERVICES])
+@pytest.mark.parametrize("viewport", [SMALL, (1280, 800)], ids=lambda size: f"{size[0]}x{size[1]}")
+def test_healthy_services_give_way_first_when_not_all_fit(open_dashboard, viewport):
+    status = open_dashboard(viewport).evaluate(STATUS)
+
+    shown = [service["name"] for service in status["shown"]]
+    assert "Dienst 4" in shown, "the unhealthy service stays"
+    assert status["hidden"], "twelve services do not fit next to the date"
+    assert len({service["box"]["top"] for service in status["shown"]}) == 1, "one line"
+    assert_status_fits(status)
+
+
+def test_services_status_is_fitted_again_after_a_refresh(open_dashboard):
+    page = open_dashboard(SMALL)
+    before = page.evaluate(STATUS)
+
+    page.evaluate(
+        """() => new Promise((resolve) => {
+            document.addEventListener('htmx:afterSettle', () => setTimeout(resolve), {once: true});
+            htmx.ajax('GET', '/widgets/status', '#status');
+        })"""
+    )
+
+    after = page.evaluate(STATUS)
+    assert after["shown"] == before["shown"]
+    assert after["shown"][-1]["name"] == "NAS"

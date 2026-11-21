@@ -219,3 +219,43 @@ def weather(html: str) -> dict:
         "uv": tiles["uv"],
         "notices": parser.notices,
     }
+
+
+class _StatusParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.services: list[dict] = []
+        self._name: dict | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        classes = (attributes.get("class") or "").split()
+        if "service" in classes:
+            state = next(c.removeprefix("service-") for c in classes if c != "service")
+            self.services.append(
+                {"name": "", "state": state, "title": attributes.get("title"), "bubble": False}
+            )
+        elif self.services and "service-bubble" in classes:
+            self.services[-1]["bubble"] = True
+        elif self.services and "service-name" in classes:
+            self._name = self.services[-1]
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "span":
+            self._name = None
+
+    def handle_data(self, data: str) -> None:
+        if self._name is not None:
+            self._name["name"] = " ".join((self._name["name"] + data).split())
+
+
+def services(html: str) -> list[dict]:
+    """[{name, state: ok | warning | failing, title, bubble: bool}, ...] in the shown order"""
+    parser = _StatusParser()
+    parser.feed(html)
+    return parser.services
+
+
+def states(html: str) -> dict[str, str]:
+    """{service name: ok | warning | failing}"""
+    return {service["name"]: service["state"] for service in services(html)}

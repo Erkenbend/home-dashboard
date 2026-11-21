@@ -77,6 +77,8 @@ def _check_config(path: str) -> int:
     print(f"  Haltestellen: {stops or '-'}")
     print(f"  Kalender: {'iCal-Adresse gesetzt' if config.calendar.ical_url else 'aus'}")
     print(f"  Wetter: {_weather_summary(config)}")
+    services = ", ".join(service.name for service in config.status.services)
+    print(f"  Dienste: {services or '-'}")
     print(
         f"  Personen: {people or '-'}; {config.calendar.everyone.label}: "
         f"{', '.join(config.calendar.everyone.match) or 'nur ohne erkannte Person'}"
@@ -89,6 +91,7 @@ def _check_config(path: str) -> int:
         f"Abfahrten {departures.refresh_seconds} s (Abruf {departures.fetch_seconds} s), "
         f"Kalender {calendar.refresh_seconds} s (Abruf {calendar.fetch_seconds} s), "
         f"Wetter {weather.refresh_seconds} s (Abruf {weather.fetch_seconds} s), "
+        f"Dienste {config.status.refresh_seconds} s (Prüfung {config.status.check_seconds} s), "
         f"Seiten-Reload {reload}"
     )
     return 0

@@ -13,9 +13,17 @@ import pytest
 import respx
 from fastapi.testclient import TestClient
 
-from home_dashboard.config import AppConfig, CalendarConfig, DeparturesConfig, HomeConfig
+from home_dashboard.config import (
+    AppConfig,
+    CalendarConfig,
+    DeparturesConfig,
+    HomeConfig,
+    ServiceConfig,
+    StatusConfig,
+)
 from tests.hafas_fake import HafasFake
 from tests.open_meteo_fake import OpenMeteoFake
+from tests.services_fake import ServicesFake
 from tests.test_calendar import ALICE, BOB, EVERYONE, ICAL_URL, ICS
 from tests.test_departures import FRANCKEPLATZ, RANNISCHER_PLATZ
 
@@ -76,6 +84,24 @@ def open_meteo(respx_mock: respx.Router, clock) -> OpenMeteoFake:
     return open_meteo
 
 
+@pytest.fixture
+def dashboard_services() -> dict[str, int]:
+    """Services in the header: {short name: HTTP status of its health check}. Override with
+    `@pytest.mark.parametrize("dashboard_services", [...])`."""
+    return {"Home Assistant": 200, "Pi-hole": 200, "NAS": 503}
+
+
+@pytest.fixture
+def status_config(respx_mock: respx.Router, dashboard_services: dict[str, int]) -> StatusConfig:
+    health = ServicesFake(respx_mock)
+    services = []
+    for index, (name, status) in enumerate(dashboard_services.items()):
+        url = health.add(f"http://host.docker.internal:{8000 + index}/health")
+        health.answer(url, status)
+        services.append(ServiceConfig(name=name, url=url))
+    return StatusConfig(services=services)
+
+
 class Network:
     """Connection between tablet and server, as seen by the browser."""
 
@@ -105,6 +131,7 @@ def open_dashboard(
     make_client: Callable[..., TestClient],
     busy_hafas: HafasFake,
     open_meteo: OpenMeteoFake,
+    status_config: StatusConfig,
     network: Network,
 ) -> Iterator[Callable]:
     config = AppConfig(
@@ -115,6 +142,7 @@ def open_dashboard(
             max_per_stop=8,
         ),
         calendar=CalendarConfig(ical_url=ICAL_URL, people=[ALICE, BOB], everyone=EVERYONE, days=14),
+        status=status_config,
     )
     client = make_client(config)
     pages = []

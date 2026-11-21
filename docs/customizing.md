@@ -9,9 +9,10 @@ logic or the templates.
 |---|---|---|
 | use your own stops, people and location (Saxony-Anhalt) | config only | [`config.yaml`](#1-configuration) |
 | use another iCal calendar (Nextcloud, iCloud, Outlook, …) | config only | [`calendar.ical_url`](#3-calendar) |
+| watch your own services (green / yellow / red) | config only | [`status.services`](#5-services-status) |
 | show trams/buses in another city or country | new provider class | [transit provider](#2-switch-the-transit-provider) |
-| translate the UI | edit texts in place | [language](#5-language-and-look) |
-| add a widget | source + service + template | [new widgets](#6-add-a-widget) |
+| translate the UI | edit texts in place | [language](#6-language-and-look) |
+| add a widget | source + service + template | [new widgets](#7-add-a-widget) |
 
 ## 1. Configuration
 
@@ -116,7 +117,24 @@ only needs a `WeatherSource`
 ([`widgets/weather/source.py`](../src/home_dashboard/widgets/weather/source.py)) that maps its
 conditions to WMO weather codes, which drive the texts and icons.
 
-## 5. Language and look
+## 5. Services status
+
+The header shows a bubble per entry of `status.services`: a short `name` and a health check `url`.
+The Pi sends a `GET` to each URL at most every `status.check_seconds` (default 60 s) and expects a
+2xx answer within `status.timeout_seconds`; redirects count as failures, so configure the final URL.
+Green: the last check succeeded, yellow: it failed, red: two or more failed in a row.
+
+- The dashboard runs in Docker, where `localhost` is the container. Services on the Pi itself are
+  `http://host.docker.internal:<port>/…` (mapped in `compose.yaml`); they must listen on more than
+  `127.0.0.1`. Other devices are reached by host name or IP as usual.
+- Good URLs are cheap and say "working", not just "listening": an `/health` or `/api/` endpoint, a
+  login page. Without one, the start page will do.
+- If not all bubbles fit next to the date, healthy services are hidden first.
+- Another kind of check (TCP port, ping, a JSON field) only needs a `HealthCheck`
+  ([`widgets/status/source.py`](../src/home_dashboard/widgets/status/source.py)): `check(url)`
+  returns or raises `Unhealthy`.
+
+## 6. Language and look
 
 There is no i18n layer; the German texts sit where they are used:
 
@@ -124,6 +142,7 @@ There is no i18n layer; the German texts sit where they are used:
 - [`formatting.py`](../src/home_dashboard/formatting.py) (weekday and month names, date formats)
 - [`widgets/calendar/service.py`](../src/home_dashboard/widgets/calendar/service.py) ("Heute", "Morgen", "ganztägig", "Tag 1/3")
 - [`widgets/weather/service.py`](../src/home_dashboard/widgets/weather/service.py) (weather descriptions, UV categories, "jetzt", "16 Uhr")
+- [`widgets/status/service.py`](../src/home_dashboard/widgets/status/service.py) (the bubbles' tooltips)
 - [`cli.py`](../src/home_dashboard/cli.py) (`check-config` and `find-stop` output)
 
 The tests assert on the rendered German texts, so `uv run pytest` shows what to update alongside.
@@ -134,7 +153,7 @@ font size per display size). Widgets never scroll: [`static/fit.js`](../src/home
 hides the least important rows until everything fits (see [architecture](architecture.md)), and
 `tests/test_layout.py` checks this for several viewports in headless Chromium.
 
-## 6. Add a widget
+## 7. Add a widget
 
 Each widget follows the same pattern, e.g. [`widgets/weather/`](../src/home_dashboard/widgets/weather/):
 
@@ -146,7 +165,7 @@ Each widget follows the same pattern, e.g. [`widgets/weather/`](../src/home_dash
 4. A config section in `config.py` and `config.example.yaml`.
 5. Behaviour tests with recorded responses and a `FixedClock`, plus a layout test if it changes the page.
 
-## 7. Hardware
+## 8. Hardware
 
 Any always-on machine that runs Docker can be the server (see [setup](setup.md)), and any device
 with a browser can be the display ([tablet setup](tablet.md)). Several displays can share one server;

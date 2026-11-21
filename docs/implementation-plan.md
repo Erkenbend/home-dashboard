@@ -11,7 +11,7 @@ Each step ends with a commit on `main`. See [requirements](requirements.md) and 
 | 4 | Calendar widget | iCal source, day grouping, person colours incl. "Alle", single vs. recurring events, fragment template, behaviour tests | done |
 | 5 | Tablet setup + polish | Kiosk browser setup ([tablet setup](tablet.md): start URL, screen always on, reload on connection loss), layout tuning on the real device, visible error states | in progress: kiosk setup documented (Galaxy Tab A 2016, Fully Kiosk Browser), offline indicator done; open: layout tuning on the real device |
 | 6 | Weather widget | ADR 0004 (Open-Meteo), weather source + service, fragment below the departures, behaviour and layout tests | done |
-| 7 | Services status widget | ADR 0005, health check source + service (consecutive failures), bubbles in the header, behaviour and layout tests | in progress |
+| 7 | Services status widget | ADR 0005, health check source + service (consecutive failures), bubbles in the header, behaviour and layout tests | done |
 
 ## Later
 

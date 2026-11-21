@@ -1,0 +1,11 @@
+{#- One bubble per service, the short name below. fit.js hides the healthy ones first if the header
+    is too narrow for all of them. #}
+{%- set fit_priority = {"ok": 2, "warning": 1, "failing": 0} %}
+<ul class="status-services">
+  {% for service in status.services %}
+  <li class="service service-{{ service.state }}" data-service="{{ service.name }}" data-fit-priority="{{ fit_priority[service.state] }}" title="{{ service.name }}: {{ service.description }}">
+    <span class="service-bubble"></span>
+    <span class="service-name">{{ service.name }}</span>
+  </li>
+  {% endfor %}
+</ul>

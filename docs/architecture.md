@@ -8,7 +8,8 @@
 │ kiosk browser        │  HTML pages +  │  FastAPI app                          │
 │ (HTMX polls widgets) │  fragments     │   ├─ departures widget ──▶ transit API│
 └──────────────────────┘                │   ├─ calendar widget  ──▶ iCal feed   │
-                                        │   └─ weather widget   ──▶ Open-Meteo  │
+                                        │   ├─ weather widget   ──▶ Open-Meteo  │
+                                        │   └─ status widget    ──▶ health URLs │
                                         │  in-memory TTL cache per source       │
                                         └───────────────────────────────────────┘
 ```
@@ -23,6 +24,9 @@
   one third with its content at the top, more if its tiles need it on small displays), calendar on the
   right half; in portrait everything is
   stacked and the column and the calendar share the height equally.
+  Header: one flex line with the clock (its height sets the header height), the services status in
+  the free space (bubbles right-aligned, the list absolutely positioned so it never grows the header)
+  and the source code link.
   All sizes are in `rem`; media queries set the root font size per display size (width or height,
   whichever is tighter), and switch to stacked widgets in portrait.
 - **Fit to the display** (`static/fit.js`, plain ES5): widgets never scroll. The server renders up to the
@@ -30,11 +34,12 @@
   widget fits, on load, resize and after every HTMX swap. Templates declare what may go via
   `data-fit-priority` (higher goes first, rows without it always stay) and `data-fit-group` (hidden when
   empty). Departures: the next one per stop stays, later ones go round-robin. Calendar: past events of
-  today first, then from the end of the window.
+  today first, then from the end of the window. Services status: bubbles that wrap into a second line
+  are hidden, healthy ones first, then yellow ones; red ones last.
 - **Offline indicator** (`static/connection.js`, plain ES5): every HTMX poll reports the connection state.
   A network error or timeout (`htmx.config.timeout` 30 s, above the slowest widget request) sets
   `body.offline`: the date gives way to "Keine Verbindung seit HH:MM" (last clock time shown) and the
-  widgets are dimmed, without changing the layout. Any server response clears it. HTTP error responses
+  widgets and the services status are dimmed, without changing the layout. Any server response clears it. HTTP error responses
   count as reachable; upstream failures are covered by "Stand: HH:MM".
 - **Static asset URLs** carry a content hash (`static_url('style.css')` → `/static/style.css?v=<hash>`).
   StaticFiles sends no Cache-Control, so the kiosk WebView caches CSS/JS heuristically and would otherwise
@@ -64,8 +69,12 @@ src/home_dashboard/
       source.py     WeatherSource protocol + Forecast model (WMO weather codes)
       open_meteo.py concrete source (Open-Meteo, see ADR 0004)
       service.py    upcoming hours, today/tomorrow, WMO code -> German text + icon
+    status/
+      source.py     HealthCheck protocol (check(url), raises Unhealthy)
+      http_check.py concrete check: GET must answer 2xx (see ADR 0005)
+      service.py    parallel check rounds, consecutive failures -> green / yellow / red
   formatting.py     German date/time formatting (no system locale needed)
-  templates/base.html, index.html, widgets/clock.html, widgets/weather_icons.html
+  templates/base.html, index.html, widgets/clock.html, widgets/status.html, widgets/weather_icons.html
   static/style.css, fit.js, connection.js, htmx.min.js
 ```
 
@@ -81,6 +90,7 @@ External systems are only reached through the source interface, so a source can 
 | `GET /widgets/departures` | Departures fragment |
 | `GET /widgets/calendar` | Calendar fragment |
 | `GET /widgets/weather` | Weather fragment |
+| `GET /widgets/status` | Services status fragment (bubbles in the header) |
 | `GET /healthz` | Health check (used by deploy script) |
 
 ## Caching and refresh
@@ -93,12 +103,16 @@ All intervals are configurable (defaults shown):
 | Departures (per stop) | 30 s | 60 s (min. 15) |
 | Calendar | 5 min | 10 min (min. 60 s) |
 | Weather | 5 min | 15 min (min. 5 min) |
+| Services status (`status.check_seconds`) | 30 s | 60 s per service (min. 10 s), timeout 5 s |
 | Full page reload (`display.page_reload_hours`, 0 = off) | 6 h | – |
 
 The cache treats an entry as expired slightly early (10 %, max. 5 s) so that a poll arriving a bit early
 does not skip a whole fetch cycle.
 
 On upstream errors the cache serves the last good value; the fragment shows "Stand: HH:MM".
+The services status does not use the cache: a failed check is exactly what it shows. It keeps the
+number of consecutive failures per service and checks all services in parallel, at most once per
+`check_seconds` for all displays together (ADR 0005).
 Failed loads are also retried at most once per TTL, so a broken upstream (10 s HTTP timeout) does not
 slow down every refresh. Reachability is recomputed on every request from the cached departures.
 
@@ -140,6 +154,11 @@ calendar:
     match: ["Familie", "Alle"]
 weather:                    # location: home.lat / home.lon, shown only if both are set
   enabled: true
+status:                     # services status in the header, shown only with services
+  check_seconds: 60         # per service at most
+  services:
+    - name: "Pi-hole"       # short name below the bubble
+      url: "http://host.docker.internal:8080/admin/"   # GET must answer 2xx
 ```
 
 ## Testing strategy
@@ -168,4 +187,5 @@ Development and builds happen in WSL; the Pi only runs the container.
    `docker compose up -d --force-recreate` with `TAG=<git-sha>`,
    then poll `http://<host>:3274/healthz`
 
-Container: `restart: unless-stopped`, `TZ=Europe/Berlin`, port `3274:3274`, Docker `HEALTHCHECK` on `/healthz`.
+Container: `restart: unless-stopped`, `TZ=Europe/Berlin`, port `3274:3274`, Docker `HEALTHCHECK` on `/healthz`,
+`host.docker.internal` mapped to the Pi (`host-gateway`) for health checks of services on the Pi itself.

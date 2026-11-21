@@ -98,6 +98,26 @@ class WeatherConfig(_Strict):
     )
 
 
+class ServiceConfig(_Strict):
+    name: str = Field(min_length=1, description="short name shown below the bubble")
+    url: str = Field(
+        pattern=r"^https?://\S+$",
+        description="health check URL, a 2xx answer counts as healthy; services on the Pi itself: "
+        "http://host.docker.internal:<port>/...",
+    )
+
+
+class StatusConfig(_Strict):
+    """Health of services in the home network, checked by the Pi over HTTP."""
+
+    refresh_seconds: int = Field(default=30, ge=5, description="how often the tablet updates")
+    check_seconds: int = Field(default=60, ge=10, description="how often the Pi checks at most")
+    timeout_seconds: float = Field(
+        default=5, gt=0, le=20, description="per check, below the tablet's request timeout (30 s)"
+    )
+    services: list[ServiceConfig] = []
+
+
 class AppConfig(_Strict):
     timezone: str = "Europe/Berlin"
     display: DisplayConfig = DisplayConfig()
@@ -105,6 +125,7 @@ class AppConfig(_Strict):
     departures: DeparturesConfig = DeparturesConfig()
     calendar: CalendarConfig = CalendarConfig()
     weather: WeatherConfig = WeatherConfig()
+    status: StatusConfig = StatusConfig()
 
     @property
     def weather_location(self) -> tuple[float, float] | None:

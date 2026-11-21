@@ -38,21 +38,37 @@ body {
   box-sizing: border-box;
 }
 
+/* One line: clock (or offline notice) | services status, taking the free space | source code link */
 .header {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
-  position: relative;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
   margin-bottom: 1rem;
   white-space: nowrap;
   overflow: hidden;
 }
 
+/* Clock and offline notice share one line (baseline-aligned), so the header height never changes */
+.header-time {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+
+#clock,
+.offline-notice {
+  display: inline-block;
+}
+
 /* Small and muted in the top right corner, vertically centred on the header line */
 .repo-link {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  margin-top: -1rem;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-left: 1.5rem;
   width: 2rem;
   height: 2rem;
   color: #4a525a;
@@ -64,11 +80,80 @@ body {
   height: 100%;
 }
 
-/* Clock and offline notice share one line (baseline-aligned), so the header height never changes */
-#clock,
-.offline-notice {
-  display: inline-block;
+/* Services status: bubbles right-aligned in the free space of the header. The list is out of the
+ * flow, so only the clock sets the header height; the box is as high as the header (stretch) and
+ * clips. Bubbles that do not fit wrap into a second line below, which fit.js ([data-fit]) then hides,
+ * healthy services first. */
+.status {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 0;
+  flex: 1 1 0;
+  min-width: 0;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+  position: relative;
+  margin-left: 1.5rem;
+  overflow: hidden;
 }
+
+/* Vertically centred: one line of services is 3.25rem high (bubble, gap, name) */
+.status-services {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin: -1.625rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+.service {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  height: 3.25rem;
+  margin-left: 1rem;
+  max-width: 8rem;
+}
+
+.service-bubble {
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  margin-bottom: 0.3rem;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+
+.service-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: #a0a8b0;
+}
+
+.service-ok .service-bubble { background: #4caf50; }
+.service-warning .service-bubble { background: #f2d33c; }
+.service-failing .service-bubble { background: #d93a3a; }
+.service-failing .service-name { color: #f08080; }
 
 .clock {
   white-space: nowrap;
@@ -544,6 +629,7 @@ body {
   color: #707880;
 }
 
-.offline .widget {
+.offline .widget,
+.offline .status {
   opacity: 0.4;
 }

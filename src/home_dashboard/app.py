@@ -22,6 +22,9 @@ from home_dashboard.widgets.calendar.source import CalendarSource
 from home_dashboard.widgets.departures.insa_hafas import InsaHafasProvider
 from home_dashboard.widgets.departures.provider import DepartureProvider
 from home_dashboard.widgets.departures.service import DeparturesService
+from home_dashboard.widgets.status.http_check import HttpHealthCheck
+from home_dashboard.widgets.status.service import StatusService
+from home_dashboard.widgets.status.source import HealthCheck
 from home_dashboard.widgets.weather.open_meteo import OpenMeteoSource
 from home_dashboard.widgets.weather.service import WeatherService
 from home_dashboard.widgets.weather.source import WeatherSource
@@ -60,6 +63,7 @@ def create_app(
     departure_provider: DepartureProvider | None = None,
     calendar_source: CalendarSource | None = None,
     weather_source: WeatherSource | None = None,
+    health_check: HealthCheck | None = None,
 ) -> FastAPI:
     clock = clock or SystemClock(config.timezone)
     cache = TtlCache(clock)
@@ -85,6 +89,13 @@ def create_app(
             clock,
             cache,
         )
+    status = None
+    if config.status.services:
+        status = StatusService(
+            config.status,
+            health_check or HttpHealthCheck(http, config.status.timeout_seconds),
+            clock,
+        )
 
     app = FastAPI(title="Home Dashboard", docs_url=None, redoc_url=None)
     app.mount("/static", StaticFiles(directory=PACKAGE_DIR / "static"), name="static")
@@ -105,10 +116,14 @@ def create_app(
     def weather_context() -> dict:
         return {"weather": weather.view() if weather else None}
 
+    def status_context() -> dict:
+        return {"status": status.view() if status else None}
+
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request) -> HTMLResponse:
         context = {
             "now": clock.now(),
+            **status_context(),
             **departures_context(),
             **calendar_context(),
             **weather_context(),
@@ -134,6 +149,12 @@ def create_app(
         if weather is None:
             return HTMLResponse("", status_code=404)
         return templates.TemplateResponse(request, "widgets/weather.html", weather_context())
+
+    @app.get("/widgets/status", response_class=HTMLResponse)
+    def status_widget(request: Request) -> HTMLResponse:
+        if status is None:
+            return HTMLResponse("", status_code=404)
+        return templates.TemplateResponse(request, "widgets/status.html", status_context())
 
     @app.get("/healthz")
     def healthz() -> dict[str, str]:

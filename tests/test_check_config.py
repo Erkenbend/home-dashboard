@@ -30,6 +30,7 @@ def test_valid_config_prints_summary_without_secrets(
     assert "Rannischer Platz (5 min)" in output
     assert "iCal-Adresse gesetzt" in output
     assert "Wetter: an" in output
+    assert "Dienste: -" in output
     assert "secret42" not in output
 
 
@@ -52,3 +53,20 @@ def test_broken_yaml_and_missing_file(tmp_path: Path) -> None:
 
     assert run(str(broken)) == 1
     assert run(str(tmp_path / "missing.yaml")) == 1
+
+
+def test_summary_names_the_checked_services(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    config = tmp_path / "config.yaml"
+    config.write_text(
+        "status:\n  services:\n"
+        "    - {name: Pi-hole, url: 'http://host.docker.internal:8080/admin/'}\n"
+        "    - {name: NAS, url: 'https://nas.home.arpa/'}\n"
+    )
+
+    assert run(str(config)) == 0
+
+    output = capsys.readouterr().out
+    assert "Dienste: Pi-hole, NAS" in output
+    assert "Dienste 30 s (Prüfung 60 s)" in output

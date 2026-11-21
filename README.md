@@ -10,7 +10,7 @@
 an umbrella?** An old Android tablet shows a page served by a Raspberry Pi. No app, no cloud, no
 build step.
 
-![The dashboard on a 10" tablet: departures and weather on the left, the family calendar on the right](docs/screenshot.png)
+![The dashboard on a 10" tablet: departures and weather on the left, the family calendar on the right, service bubbles next to the date](docs/screenshot.png)
 
 <sub>Made-up data, rendered at the resolution of the Galaxy Tab A 10.1 it runs on
 (`scripts/screenshot.py`). The UI is German.</sub>
@@ -23,6 +23,8 @@ build step.
   events are toned down so the one-off appointments stand out.
 - **Wetter**: real and felt temperature now, the weather and the colour-coded UV index now and in one
   and two hours (Open-Meteo, no API key).
+- **Dienste**: a green, yellow or red bubble per service in the home network, next to the date: the
+  Pi checks a health URL of each one every minute.
 
 It is built to hang on a wall unattended. The layout fits any screen without scrolling, the page
 recovers from Wi-Fi drops by itself and shows "Keine Verbindung seit HH:MM" in the meantime. When an
@@ -34,6 +36,7 @@ API is down, it keeps the last known data, marked "Stand: HH:MM".
 Tablet, kiosk browser ──HTTP──▶ Raspberry Pi, Docker ──▶ live departures (INSA HAFAS)
   (HTMX polls widgets)          FastAPI + Jinja2       ──▶ calendar (iCal feed)
                                 server-side cache      ──▶ weather (Open-Meteo)
+                                                       ──▶ health URLs of home services
 ```
 
 The server renders plain HTML; the tablet only needs a browser from the last decade. Each widget
@@ -45,7 +48,7 @@ behaviour level against recorded API responses, with layout tests in headless Ch
 
 ```sh
 uv sync
-cp config.example.yaml config.yaml        # stops, people, location
+cp config.example.yaml config.yaml        # stops, people, location, services
 uv run home-dashboard serve               # http://localhost:3274/
 ```
 
@@ -55,7 +58,7 @@ the tablet, see [setup](docs/setup.md) and [tablet setup](docs/tablet.md).
 ## Make it yours
 
 Out of the box the dashboard speaks German and knows the public transport of Saxony-Anhalt. Your own
-stops, people and location are just config. Another city means one new transit provider class. Another
+stops, people, location and services are just config. Another city means one new transit provider class. Another
 calendar is usually just another iCal URL. [**Customizing**](docs/customizing.md) walks through it,
 including how to switch the transit data provider.
 
@@ -68,7 +71,7 @@ including how to switch the transit data provider.
 | [Customizing](docs/customizing.md) | config, other transit providers, calendars, language, new widgets |
 | [Architecture](docs/architecture.md) | components, caching, fit-to-screen, testing strategy |
 | [Requirements](docs/requirements.md) · [Implementation plan](docs/implementation-plan.md) | what it should do and how it got there |
-| Decisions | [0001 Stack](docs/decisions/0001-stack-and-operations.md) · [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md) · [0003 Transit data](docs/decisions/0003-transit-data-source.md) · [0004 Weather](docs/decisions/0004-weather-via-open-meteo.md) |
+| Decisions | [0001 Stack](docs/decisions/0001-stack-and-operations.md) · [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md) · [0003 Transit data](docs/decisions/0003-transit-data-source.md) · [0004 Weather](docs/decisions/0004-weather-via-open-meteo.md) · [0005 Health checks](docs/decisions/0005-service-health-checks.md) |
 
 ## Notes
 
