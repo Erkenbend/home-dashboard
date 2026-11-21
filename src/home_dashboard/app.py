@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from home_dashboard import formatting
+from home_dashboard import REPOSITORY_URL, formatting
 from home_dashboard.cache import TtlCache
 from home_dashboard.clock import Clock, SystemClock
 from home_dashboard.config import AppConfig, config_path_from_env, load_config
@@ -93,6 +93,7 @@ def create_app(
     templates.env.filters["time"] = formatting.format_time
     templates.env.filters["long_date"] = formatting.format_long_date
     templates.env.globals["config"] = config
+    templates.env.globals["repository_url"] = REPOSITORY_URL
     templates.env.globals["static_url"] = static_url_builder(PACKAGE_DIR / "static")
 
     def departures_context() -> dict:

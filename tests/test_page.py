@@ -54,3 +54,13 @@ def test_health_check(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_dashboard_links_to_its_source_code(client: TestClient) -> None:
+    page = client.get("/").text
+
+    link = re.search(r'<a class="repo-link" href="([^"]+)" title="([^"]+)">\s*<svg', page)
+    assert link and link.groups() == (
+        "https://github.com/Erkenbend/home-dashboard",
+        "Quellcode auf GitHub",
+    )

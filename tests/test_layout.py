@@ -231,3 +231,23 @@ def test_weather_tiles_form_a_grid_of_four_by_two_with_the_times_on_the_line(
         assert icon["bottom"] <= time["top"] and time["bottom"] <= uv["top"]
         middle = (time["top"] + time["bottom"]) / 2
         assert middle == pytest.approx((cell["top"] + cell["bottom"]) / 2, abs=1), "on the line"
+
+
+REPO_LINK = """() => {
+    const box = (selector) => {
+        const b = document.querySelector(selector).getBoundingClientRect();
+        return {left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+    };
+    return {link: box('.repo-link'), date: box('.clock-date'), header: box('.header'),
+            calendar: box('#calendar'), width: innerWidth};
+}"""
+
+
+@pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
+def test_source_code_link_sits_in_the_top_right_corner_next_to_the_date(open_dashboard, viewport):
+    boxes = open_dashboard(viewport).evaluate(REPO_LINK)
+    link, header = boxes["link"], boxes["header"]
+
+    assert link["right"] == pytest.approx(boxes["calendar"]["right"], abs=1), "flush with widgets"
+    assert header["top"] <= link["top"] and link["bottom"] <= header["bottom"]
+    assert boxes["date"]["right"] < link["left"], "no overlap with the date"

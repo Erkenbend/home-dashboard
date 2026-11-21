@@ -34,6 +34,7 @@ Install it from the Play Store, then:
 | Web Content → **Start URL** | `http://<pi-host>:3274/` (IP address of the server) |
 | Web Auto Reload → **Reload on network reconnect** | on |
 | Web Auto Reload → **Reload on page error / timeout** | on, e.g. after 60 s |
+| Web Auto Reload → **Auto reload on idle** | e.g. 60 s: back to the start URL after a tap on the GitHub link |
 | Toolbars & Appearance → **Fullscreen**, hide status and navigation bar | on |
 | Device Management → **Keep screen on** | on |
 | Device Management → **Launch on boot** | on |
