@@ -92,17 +92,18 @@ body {
   -webkit-align-self: stretch;
   align-self: stretch;
   position: relative;
-  margin-left: 1.5rem;
+  margin: 0 1rem 0 1.5rem;
   overflow: hidden;
 }
 
-/* Vertically centred: one line of services is 3.25rem high (bubble, gap, name) */
+/* The bubbles sit on the middle line of the header, like the source code link; the names hang
+ * below (bubble 1.75rem, gap 0.2rem, name 1.1rem: within the clock's line height of about 4.6rem) */
 .status-services {
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
-  margin: -1.625rem 0 0 0;
+  margin: -0.875rem 0 0 0;
   padding: 0;
   list-style: none;
   display: -webkit-box;
@@ -125,7 +126,7 @@ body {
   -webkit-box-align: center;
   -webkit-align-items: center;
   align-items: center;
-  height: 3.25rem;
+  height: 3.05rem;
   margin-left: 1rem;
   max-width: 8rem;
 }
@@ -135,7 +136,7 @@ body {
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 50%;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
 }
@@ -146,7 +147,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 1rem;
-  line-height: 1.2;
+  line-height: 1.1;
   color: #a0a8b0;
 }
 

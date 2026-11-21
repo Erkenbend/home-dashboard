@@ -273,6 +273,7 @@ STATUS = """() => {
             label: box(el.querySelector('.service-name')),
         })),
         hidden: services.filter((el) => !visible(el)).map((el) => el.dataset.service),
+        rem: parseFloat(getComputedStyle(document.documentElement).fontSize),
     };
 }"""
 
@@ -282,12 +283,17 @@ def assert_status_fits(status: dict) -> None:
     assert header["bottom"] - header["top"] == pytest.approx(
         status["time"]["bottom"] - status["time"]["top"], abs=1
     ), "the clock alone sets the header height"
+    link, rem = status["link"], status["rem"]
     for service in status["shown"]:
         bubble, label = service["bubble"], service["label"]
         assert status["date"]["right"] < bubble["left"], "right of the date"
         assert label["right"] < status["link"]["left"], "left of the source code link"
         assert header["top"] <= bubble["top"] and label["bottom"] <= header["bottom"], service
         assert bubble["bottom"] <= label["top"], "name below the bubble"
+        assert (bubble["top"] + bubble["bottom"]) / 2 == pytest.approx(
+            (link["top"] + link["bottom"]) / 2, abs=1
+        ), "bubbles in line with the source code link"
+        assert link["left"] - label["right"] >= 2 * rem, "some space before the link"
         assert (bubble["left"] + bubble["right"]) / 2 == pytest.approx(
             (label["left"] + label["right"]) / 2, abs=1
         ), "name centred below the bubble"
