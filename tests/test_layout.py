@@ -196,21 +196,40 @@ def test_wide_temperatures_do_not_push_into_the_weather_icons(open_dashboard, op
     assert_fits(page)
 
 
-WEATHER_TILES = """() => [...document.querySelectorAll('.weather-grid tr')].map((row) =>
-    [...row.children].map((cell) => {
-        const box = cell.getBoundingClientRect();
-        return {left: box.left, right: box.right, top: box.top, bottom: box.bottom};
-    }))"""
+WEATHER_TILES = """() => {
+    const box = (el) => {
+        const b = el.getBoundingClientRect();
+        return {left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+    };
+    const all = (selector) => [...document.querySelectorAll(selector)].map(box);
+    return {
+        rows: [...document.querySelectorAll('.weather-grid tr')]
+            .map((row) => [...row.children].map(box)),
+        icons: all('.weather-slot .weather-icon'),
+        times: all('.weather-time .weather-label'),
+        uv: all('.uv'),
+        real: box(document.querySelector('.weather-actual-label')),
+    };
+}"""
 
 
 @pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
-def test_weather_tiles_form_a_grid_of_four_by_two(open_dashboard, viewport):
-    rows = open_dashboard(viewport).evaluate(WEATHER_TILES)
+def test_weather_tiles_form_a_grid_of_four_by_two_with_the_times_on_the_line(
+    open_dashboard, viewport
+):
+    tiles = open_dashboard(viewport).evaluate(WEATHER_TILES)
 
-    assert [len(row) for row in rows] == [4, 4]
-    top, bottom = rows
+    top, line, bottom = tiles["rows"]
+    assert [len(row) for row in (top, line, bottom)] == [4, 3, 4]
     for upper, lower in zip(top, bottom, strict=True):
         assert (upper["left"], upper["right"]) == pytest.approx((lower["left"], lower["right"]))
-        assert upper["bottom"] <= lower["top"] + 1
+    for upper, middle in zip(top[1:], line, strict=True):
+        assert (upper["left"], upper["right"]) == pytest.approx((middle["left"], middle["right"]))
     widths = [tile["right"] - tile["left"] for tile in top[1:]]
     assert max(widths) - min(widths) <= 1, "weather and UV tiles share the width equally"
+
+    for icon, time, uv, cell in zip(tiles["icons"], tiles["times"], tiles["uv"], line, strict=True):
+        assert icon["bottom"] <= time["top"] and time["bottom"] <= uv["top"]
+        middle = (time["top"] + time["bottom"]) / 2
+        assert middle == pytest.approx((cell["top"] + cell["bottom"]) / 2, abs=1), "on the line"
+        assert time["top"] == pytest.approx(tiles["real"]["top"], abs=1), "level with 'echt'"

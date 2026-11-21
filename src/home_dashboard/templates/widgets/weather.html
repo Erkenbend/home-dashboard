@@ -3,22 +3,26 @@
 {% if weather.unavailable %}
 <p class="notice">Wetter nicht verfügbar</p>
 {% else %}
-{#- 4x2 tiles: temperatures | weather now, +1 h, +2 h / UV index at the same times.
-    A table keeps rows and columns aligned without Grid (old WebViews). #}
+{#- 4x2 tiles: temperatures | weather now, +1 h, +2 h / UV index at the same times. The times sit on
+    the line between weather and UV, they hold for both. A table keeps rows and columns aligned
+    without Grid (old WebViews). #}
 {%- set missing = range(3 - weather.slots | length) %}
 <table class="weather-grid">
   <tr>
-    <td class="weather-temperature">
+    <td class="weather-temperature" rowspan="2">
       <span class="weather-value weather-actual">{{ weather.temperature }}°</span>
-      <span class="weather-label">echt</span>
+      <span class="weather-label weather-actual-label">echt</span>
     </td>
     {% for slot in weather.slots %}
-    <td class="weather-slot">
-      {{ icons.icon(slot.condition.icon, slot.condition.label) }}
-      <span class="weather-label weather-slot-label">{{ slot.label }}</span>
-    </td>
+    <td class="weather-slot">{{ icons.icon(slot.condition.icon, slot.condition.label) }}</td>
     {% endfor %}
     {% for _ in missing %}<td class="weather-empty"></td>{% endfor %}
+  </tr>
+  <tr>
+    {% for slot in weather.slots %}
+    <td class="weather-divider weather-time"><span class="weather-label">{{ slot.label }}</span></td>
+    {% endfor %}
+    {% for _ in missing %}<td class="weather-divider"></td>{% endfor %}
   </tr>
   <tr>
     <td class="weather-temperature">
@@ -28,8 +32,10 @@
     {% for slot in weather.slots %}
     <td class="weather-uv">
       {%- if slot.uv %}
-      <span class="uv uv-{{ slot.uv.level }}" title="UV-Index {{ slot.uv.value }}: {{ slot.uv.label }}">{{ slot.uv.value }}</span>
-      <span class="weather-label weather-uv-label">UV {{ slot.uv.label }}</span>
+      <span class="uv uv-{{ slot.uv.level }}" title="UV-Index {{ slot.uv.value }}: {{ slot.uv.label }}">
+        <span class="uv-value">{{ slot.uv.value }}</span>
+        <span class="uv-label">{{ slot.uv.label }}</span>
+      </span>
       {%- endif %}
     </td>
     {% endfor %}

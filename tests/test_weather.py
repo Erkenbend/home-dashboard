@@ -61,21 +61,21 @@ def test_shows_temperature_now_and_the_weather_and_uv_index_now_in_one_and_in_tw
     ]
     # current 0.9, 16 o'clock 0.2, 17 o'clock 0.0
     assert [tile["value"] for tile in widget["uv"]] == ["1", "0", "0"]
-    assert widget["uv"][0] == {"value": "1", "level": "low", "label": "UV niedrig"}
+    assert widget["uv"][0] == {"value": "1", "level": "low", "label": "niedrig"}
 
 
 @pytest.mark.parametrize(
     ("uv_index", "shown_as", "level", "label"),
     [
-        (0.0, "0", "low", "UV niedrig"),
-        (2.49, "2", "low", "UV niedrig"),
-        (2.5, "3", "moderate", "UV mäßig"),  # rounded half up, then categorized
-        (5.4, "5", "moderate", "UV mäßig"),
-        (6.0, "6", "high", "UV hoch"),
-        (7.6, "8", "very-high", "UV sehr hoch"),
-        (10.4, "10", "very-high", "UV sehr hoch"),
-        (11.0, "11", "extreme", "UV extrem"),
-        (13.2, "13", "extreme", "UV extrem"),
+        (0.0, "0", "low", "niedrig"),
+        (2.49, "2", "low", "niedrig"),
+        (2.5, "3", "moderate", "mäßig"),  # rounded half up, then categorized
+        (5.4, "5", "moderate", "mäßig"),
+        (6.0, "6", "high", "hoch"),
+        (7.6, "8", "very-high", "sehr hoch"),
+        (10.4, "10", "very-high", "sehr hoch"),
+        (11.0, "11", "extreme", "extrem"),
+        (13.2, "13", "extreme", "extrem"),
     ],
 )
 def test_uv_index_is_colour_coded_on_the_who_scale(

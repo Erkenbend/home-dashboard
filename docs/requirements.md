@@ -67,12 +67,13 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - 4x2 tiles, nothing more detailed, three parts separated by light lines:
   - Left: the current temperature for the home location (`home.lat` / `home.lon`), the measured one on
     top ("9°", labelled "echt"), the felt one below ("6°", labelled "gefühlt").
-  - Top right: the weather (icon) now and for the full hours nearest to now + 1 hour and now + 2 hours,
-    labelled with their clock time ("jetzt", "16 Uhr", "17 Uhr"). The German description
-    ("Leicht bewölkt") is the icon's title.
-  - Bottom right: the UV index at the same three times, a whole number on a badge in the colours of the
-    WHO scale, labelled with its category ("UV niedrig" 0-2, "mäßig" 3-5, "hoch" 6-7, "sehr hoch" 8-10,
+  - Top right: the weather (icon) now and for the full hours nearest to now + 1 hour and now + 2 hours.
+    The German description ("Leicht bewölkt") is the icon's title.
+  - Bottom right: the UV index at the same three times, a badge in the colours of the WHO scale with
+    the whole number and its category ("niedrig" 0-2, "mäßig" 3-5, "hoch" 6-7, "sehr hoch" 8-10,
     "extrem" 11+).
+  - The clock times ("jetzt", "16 Uhr", "17 Uhr") sit on the line between weather and UV index, they
+    hold for both.
 - Day and night icons (sun / moon) according to daylight at that time.
 - The widget never cuts its tiles: on small displays it takes more than a third of the column and the
   departures give up rows.
