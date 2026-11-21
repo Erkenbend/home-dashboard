@@ -47,15 +47,68 @@ def shown(client: TestClient) -> dict:
     return weather(response.text)
 
 
-def test_shows_temperature_now_and_the_weather_now_in_one_and_in_two_hours(client) -> None:
+def test_shows_temperature_now_and_the_weather_and_uv_index_now_in_one_and_in_two_hours(
+    client,
+) -> None:
     widget = shown(client)
 
-    assert (widget["apparent"], widget["actual"]) == ("6°", "echt: 9°C")  # felt 6.0, measured 8.8
+    # real first, felt below: measured 8.8, felt 6.0
+    assert list(widget["temperatures"].items()) == [("echt", "9°"), ("gefühlt", "6°")]
     assert [(slot["label"], slot["icon"]) for slot in widget["slots"]] == [
         ("jetzt", "partly-day"),
         ("16 Uhr", "partly-day"),  # 14:40 + 1 h = 15:40 -> nearest full hour
         ("17 Uhr", "clear-night"),  # after sunset
     ]
+    # current 0.9, 16 o'clock 0.2, 17 o'clock 0.0
+    assert [tile["value"] for tile in widget["uv"]] == ["1", "0", "0"]
+    assert widget["uv"][0] == {"value": "1", "level": "low", "label": "UV niedrig"}
+
+
+@pytest.mark.parametrize(
+    ("uv_index", "shown_as", "level", "label"),
+    [
+        (0.0, "0", "low", "UV niedrig"),
+        (2.49, "2", "low", "UV niedrig"),
+        (2.5, "3", "moderate", "UV mäßig"),  # rounded half up, then categorized
+        (5.4, "5", "moderate", "UV mäßig"),
+        (6.0, "6", "high", "UV hoch"),
+        (7.6, "8", "very-high", "UV sehr hoch"),
+        (10.4, "10", "very-high", "UV sehr hoch"),
+        (11.0, "11", "extreme", "UV extrem"),
+        (13.2, "13", "extreme", "UV extrem"),
+    ],
+)
+def test_uv_index_is_colour_coded_on_the_who_scale(
+    client: TestClient, open_meteo: OpenMeteoFake, uv_index, shown_as, level, label
+) -> None:
+    open_meteo.response["current"]["uv_index"] = uv_index
+
+    now = shown(client)["uv"][0]
+
+    assert now == {"value": shown_as, "level": level, "label": label}
+
+
+def test_later_uv_index_is_the_one_of_the_same_hour_as_the_weather(
+    client: TestClient, open_meteo: OpenMeteoFake
+) -> None:
+    open_meteo.set_hour(15, uv_index=9.0)  # not shown: 14:40 + 1 h is nearer to 16 o'clock
+    open_meteo.set_hour(16, uv_index=4.0)
+    open_meteo.set_hour(17, uv_index=7.0)
+
+    later = [tile["value"] for tile in shown(client)["uv"][1:]]
+
+    assert later == ["4", "7"]
+
+
+def test_uv_index_tile_stays_empty_without_a_value(
+    client: TestClient, open_meteo: OpenMeteoFake
+) -> None:
+    open_meteo.set_hour(16, uv_index=None)
+
+    widget = shown(client)
+
+    assert [slot["label"] for slot in widget["slots"]] == ["jetzt", "16 Uhr", "17 Uhr"]
+    assert [tile["value"] for tile in widget["uv"]] == ["1", None, "0"]
 
 
 @pytest.mark.parametrize(
@@ -93,7 +146,10 @@ def test_later_weather_is_left_out_beyond_the_forecast(client, open_meteo: OpenM
         hourly["weather_code"][open_meteo.hour(17) :]
     )
 
-    assert [slot["label"] for slot in shown(client)["slots"]] == ["jetzt", "16 Uhr"]
+    widget = shown(client)
+
+    assert [slot["label"] for slot in widget["slots"]] == ["jetzt", "16 Uhr"]
+    assert [tile["value"] for tile in widget["uv"]] == ["1", "0"]
 
 
 @pytest.mark.parametrize(
@@ -124,10 +180,10 @@ def test_weather_codes_are_described_in_german(
 def test_temperatures_are_rounded_to_whole_degrees(client, open_meteo: OpenMeteoFake) -> None:
     open_meteo.response["current"].update(temperature_2m=-0.4, apparent_temperature=-2.5)
 
-    widget = shown(client)
+    temperatures = shown(client)["temperatures"]
 
-    assert widget["actual"] == "echt: 0°C"  # not "-0°C"
-    assert widget["apparent"] == "-2°"  # half rounds up
+    assert temperatures["echt"] == "0°"  # not "-0°"
+    assert temperatures["gefühlt"] == "-2°"  # half rounds up
 
 
 def test_asks_for_the_home_location_in_local_time(client, open_meteo: OpenMeteoFake) -> None:
@@ -171,7 +227,7 @@ def test_last_known_weather_is_shown_when_open_meteo_fails(
     widget = shown(client)
 
     assert len(open_meteo.requests) == 2
-    assert widget["actual"] == "echt: 9°C"
+    assert widget["temperatures"]["echt"] == "9°"
     assert widget["notices"] == ["Stand: 14:40"]
 
 
@@ -180,7 +236,7 @@ def test_notice_when_there_is_no_weather_yet(client: TestClient, open_meteo) -> 
 
     widget = shown(client)
 
-    assert widget["apparent"] is None
+    assert widget["temperatures"] == {}
     assert widget["notices"] == ["Wetter nicht verfügbar"]
 
 

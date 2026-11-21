@@ -51,3 +51,5 @@ def test_open_meteo_delivers_a_forecast_for_halle() -> None:
     assert -40 < forecast.current.temperature < 45
     assert -50 < forecast.current.apparent_temperature < 50
     assert len(forecast.hours) == 48
+    assert forecast.current.uv_index is not None and 0 <= forecast.current.uv_index < 20
+    assert all(hour.uv_index is not None for hour in forecast.hours)

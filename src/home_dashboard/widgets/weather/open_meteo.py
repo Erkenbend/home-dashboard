@@ -29,8 +29,8 @@ class OpenMeteoSource:
             "timezone": timezone,
             "timeformat": "unixtime",  # unambiguous, also around DST changes
             "forecast_days": FORECAST_DAYS,
-            "current": "temperature_2m,apparent_temperature,weather_code,is_day",
-            "hourly": "weather_code,is_day",
+            "current": "temperature_2m,apparent_temperature,weather_code,is_day,uv_index",
+            "hourly": "weather_code,is_day,uv_index",
         }
 
     def forecast(self) -> Forecast:
@@ -51,9 +51,15 @@ class OpenMeteoSource:
         current = data["current"]
         hourly = data["hourly"]
         hours = [
-            HourForecast(time=self._time(time), code=code, is_day=bool(is_day))
-            for time, code, is_day in zip(
-                hourly["time"], hourly["weather_code"], hourly["is_day"], strict=True
+            HourForecast(
+                time=self._time(time), code=code, is_day=bool(is_day), uv_index=_number(uv_index)
+            )
+            for time, code, is_day, uv_index in zip(
+                hourly["time"],
+                hourly["weather_code"],
+                hourly["is_day"],
+                hourly["uv_index"],
+                strict=True,
             )
             if code is not None  # end of a model's range
         ]
@@ -64,6 +70,11 @@ class OpenMeteoSource:
                 apparent_temperature=float(current["apparent_temperature"]),
                 code=int(current["weather_code"]),
                 is_day=bool(current["is_day"]),
+                uv_index=_number(current["uv_index"]),
             ),
             hours=hours,
         )
+
+
+def _number(value: float | None) -> float | None:
+    return None if value is None else float(value)

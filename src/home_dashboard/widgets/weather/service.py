@@ -1,4 +1,5 @@
-"""Weather widget logic: temperature now (felt and real), the weather now and in 1 and 2 hours."""
+"""Weather widget logic: temperature now (real and felt), the weather and the UV index now and in 1
+and 2 hours."""
 
 from __future__ import annotations
 
@@ -73,12 +74,39 @@ def degrees(celsius: float) -> int:
     return math.floor(celsius + 0.5)
 
 
+# WHO UV index categories: (lowest whole value, level for the colour code, German label)
+_UV_LEVELS = (
+    (11, "extreme", "extrem"),
+    (8, "very-high", "sehr hoch"),
+    (6, "high", "hoch"),
+    (3, "moderate", "mäßig"),
+    (0, "low", "niedrig"),
+)
+
+
+@dataclass(frozen=True)
+class UvIndex:
+    value: int
+    """Whole number, as the WHO scale is published"""
+    level: str
+    """low, moderate, high, very-high, extreme (colour code of the WHO scale)"""
+    label: str
+
+
+def uv_index(value: float) -> UvIndex:
+    whole = max(0, math.floor(value + 0.5))
+    _, level, label = next(category for category in _UV_LEVELS if whole >= category[0])
+    return UvIndex(whole, level, label)
+
+
 @dataclass(frozen=True)
 class Slot:
     """The weather at one point in time: now, in about 1 hour, in about 2 hours."""
 
     label: str
     condition: Condition
+    uv: UvIndex | None = None
+    """None if the source has no UV index for that time"""
 
 
 @dataclass
@@ -129,9 +157,20 @@ class WeatherService:
         view.stale = cached.stale
         view.apparent_temperature = degrees(forecast.current.apparent_temperature)
         view.temperature = degrees(forecast.current.temperature)
-        view.slots = [Slot("jetzt", condition(forecast.current.code, forecast.current.is_day))]
+        current = forecast.current
+        view.slots = [Slot("jetzt", condition(current.code, current.is_day), _uv(current.uv_index))]
         for hours_ahead in LATER_HOURS:
             hour = nearest_hour(forecast.hours, now + timedelta(hours=hours_ahead))
             if hour is not None:
-                view.slots.append(Slot(f"{hour.time.hour} Uhr", condition(hour.code, hour.is_day)))
+                view.slots.append(
+                    Slot(
+                        f"{hour.time.hour} Uhr",
+                        condition(hour.code, hour.is_day),
+                        _uv(hour.uv_index),
+                    )
+                )
         return view
+
+
+def _uv(value: float | None) -> UvIndex | None:
+    return None if value is None else uv_index(value)

@@ -135,11 +135,13 @@ class FakeWeather:
         hour = NOW.replace(minute=0)
         return Forecast(
             current=CurrentWeather(
-                NOW, temperature=6.0, apparent_temperature=3.0, code=3, is_day=True
+                NOW, temperature=6.0, apparent_temperature=3.0, code=3, is_day=True, uv_index=0.0
             ),
             hours=[
-                HourForecast(hour + timedelta(hours=offset), code, is_day=True)
-                for offset, code in enumerate([3, 3, 61, 63, 61])
+                HourForecast(hour + timedelta(hours=offset), code, is_day=True, uv_index=uv)
+                for offset, (code, uv) in enumerate(
+                    [(3, 0.0), (3, 0.0), (61, 0.2), (63, 0.4), (61, 0.7)]
+                )
             ],
         )
 

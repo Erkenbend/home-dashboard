@@ -120,10 +120,10 @@ conditions to WMO weather codes, which drive the texts and icons.
 
 There is no i18n layer; the German texts sit where they are used:
 
-- templates in [`templates/`](../src/home_dashboard/templates/) (headings, "los in", "fällt aus", "Stand:", offline notice)
+- templates in [`templates/`](../src/home_dashboard/templates/) (headings, "los in", "fällt aus", "Stand:", "echt", "gefühlt", offline notice)
 - [`formatting.py`](../src/home_dashboard/formatting.py) (weekday and month names, date formats)
 - [`widgets/calendar/service.py`](../src/home_dashboard/widgets/calendar/service.py) ("Heute", "Morgen", "ganztägig", "Tag 1/3")
-- [`widgets/weather/service.py`](../src/home_dashboard/widgets/weather/service.py) (weather descriptions, "jetzt", "16 Uhr")
+- [`widgets/weather/service.py`](../src/home_dashboard/widgets/weather/service.py) (weather descriptions, UV categories, "jetzt", "16 Uhr")
 - [`cli.py`](../src/home_dashboard/cli.py) (`check-config` and `find-stop` output)
 
 The tests assert on the rendered German texts, so `uv run pytest` shows what to update alongside.

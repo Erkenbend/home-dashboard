@@ -3,18 +3,39 @@
 {% if weather.unavailable %}
 <p class="notice">Wetter nicht verfügbar</p>
 {% else %}
-<div class="weather-row">
-  <span class="weather-temperature">
-    <span class="weather-apparent" title="gefühlt">{{ weather.apparent_temperature }}°</span>
-    <span class="weather-actual">echt: {{ weather.temperature }}°C</span>
-  </span>
-  {% for slot in weather.slots %}
-  <span class="weather-slot">
-    {{ icons.icon(slot.condition.icon, slot.condition.label) }}
-    <span class="weather-slot-label">{{ slot.label }}</span>
-  </span>
-  {% endfor %}
-</div>
+{#- 4x2 tiles: temperatures | weather now, +1 h, +2 h / UV index at the same times.
+    A table keeps rows and columns aligned without Grid (old WebViews). #}
+{%- set missing = range(3 - weather.slots | length) %}
+<table class="weather-grid">
+  <tr>
+    <td class="weather-temperature">
+      <span class="weather-value weather-actual">{{ weather.temperature }}°</span>
+      <span class="weather-label">echt</span>
+    </td>
+    {% for slot in weather.slots %}
+    <td class="weather-slot">
+      {{ icons.icon(slot.condition.icon, slot.condition.label) }}
+      <span class="weather-label weather-slot-label">{{ slot.label }}</span>
+    </td>
+    {% endfor %}
+    {% for _ in missing %}<td class="weather-empty"></td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="weather-temperature">
+      <span class="weather-value weather-apparent">{{ weather.apparent_temperature }}°</span>
+      <span class="weather-label">gefühlt</span>
+    </td>
+    {% for slot in weather.slots %}
+    <td class="weather-uv">
+      {%- if slot.uv %}
+      <span class="uv uv-{{ slot.uv.level }}" title="UV-Index {{ slot.uv.value }}: {{ slot.uv.label }}">{{ slot.uv.value }}</span>
+      <span class="weather-label weather-uv-label">UV {{ slot.uv.label }}</span>
+      {%- endif %}
+    </td>
+    {% endfor %}
+    {% for _ in missing %}<td class="weather-empty"></td>{% endfor %}
+  </tr>
+</table>
 {% if weather.stale %}
 <p class="notice stale">Stand: {{ weather.fetched_at | time }}</p>
 {% endif %}

@@ -21,7 +21,8 @@ build step.
   a "los in X min" countdown to the moment you have to leave, delays and cancellations.
 - **Termine**: the coming days of a shared calendar (any iCal feed), coloured by person; recurring
   events are toned down so the one-off appointments stand out.
-- **Wetter**: felt temperature now, and the weather now and in one and two hours (Open-Meteo, no API key).
+- **Wetter**: real and felt temperature now, the weather and the colour-coded UV index now and in one
+  and two hours (Open-Meteo, no API key).
 
 It is built to hang on a wall unattended. The layout fits any screen without scrolling, the page
 recovers from Wi-Fi drops by itself and shows "Keine Verbindung seit HH:MM" in the meantime. When an

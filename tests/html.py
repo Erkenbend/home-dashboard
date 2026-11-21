@@ -143,46 +143,52 @@ def titles(events: list[dict]) -> list[str]:
 
 
 class _WeatherParser(HTMLParser):
-    """Temperatures now, the slots (now, +1 h, +2 h) with label, icon and its description."""
+    """The tiles: temperatures now (by label), the slots (now, +1 h, +2 h) with label, icon and its
+    description, and the UV index at the same times."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.weather: dict = {"apparent": None, "actual": None, "slots": [], "notices": []}
-        self._slot: dict | None = None
+        self.weather: dict = {"notices": []}
+        self.tiles: dict[str, list[dict]] = {"temperature": [], "slot": [], "uv": []}
+        self._tile: dict | None = None
         self._field: str | None = None
         self._text: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
         classes = (attributes.get("class") or "").split()
-        if "weather-slot" in classes:
-            self._slot = {"label": "", "icon": None, "condition": ""}
-            self.weather["slots"].append(self._slot)
-        elif tag == "svg" and self._slot is not None:
-            self._slot["icon"] = attributes.get("data-icon")
-        elif tag == "title" and self._slot is not None:
+        tiles = {
+            "weather-temperature": ("temperature", {"value": "", "label": ""}),
+            "weather-slot": ("slot", {"label": "", "icon": None, "condition": ""}),
+            "weather-uv": ("uv", {"value": None, "level": None, "label": None}),
+        }
+        if tag == "td":
+            kind, self._tile = next((tiles[c] for c in classes if c in tiles), (None, None))
+            if kind:
+                self.tiles[kind].append(self._tile)
+        elif tag == "svg" and self._tile is not None:
+            self._tile["icon"] = attributes.get("data-icon")
+        elif tag == "title" and self._tile is not None:
             self._start("condition")
-        elif "weather-slot-label" in classes:
-            self._start("label")
-        elif "weather-apparent" in classes:
-            self._start("apparent")
-        elif "weather-actual" in classes:
-            self._start("actual")
         elif "notice" in classes:
             self._start("notice")
+        elif self._tile is not None and {"weather-value", "uv"} & set(classes):
+            if "uv" in classes:
+                self._tile["level"] = next(c.removeprefix("uv-") for c in classes if c != "uv")
+            self._start("value")
+        elif self._tile is not None and "weather-label" in classes:
+            self._start("label")
 
     def handle_endtag(self, tag: str) -> None:
         if self._field is not None and tag in ("span", "title", "p"):
             text = " ".join("".join(self._text).split())
             if self._field == "notice":
                 self.weather["notices"].append(text)
-            elif self._field in ("apparent", "actual"):
-                self.weather[self._field] = text
             else:
-                self._slot[self._field] = text
+                self._tile[self._field] = text
             self._field = None
-        elif tag == "span" and self._slot is not None:
-            self._slot = None
+        elif tag == "td":
+            self._tile = None
 
     def handle_data(self, data: str) -> None:
         if self._field is not None:
@@ -193,8 +199,13 @@ class _WeatherParser(HTMLParser):
 
 
 def weather(html: str) -> dict:
-    """{apparent: "6°", actual: "echt: 9°C" (both None if not shown),
-    slots: [{label, icon, condition}], notices: [text]}"""
+    """{temperatures: {"echt": "9°", "gefühlt": "6°"} (empty if not shown),
+    slots: [{label, icon, condition}],
+    uv: [{value: "1", level: "low", label: "UV niedrig"}] (None each without a UV index),
+    notices: [text]}"""
     parser = _WeatherParser()
     parser.feed(html)
+    tiles = parser.tiles
+    parser.weather["temperatures"] = {t["label"]: t["value"] for t in tiles["temperature"]}
+    parser.weather["slots"], parser.weather["uv"] = tiles["slot"], tiles["uv"]
     return parser.weather

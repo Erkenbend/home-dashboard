@@ -17,6 +17,8 @@ class CurrentWeather:
     code: int
     """WMO weather interpretation code (0 clear ... 99 thunderstorm with hail)"""
     is_day: bool
+    uv_index: float | None = None
+    """UV index (WHO scale, 0 ... 11+), None if the source has none"""
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class HourForecast:
     """Full hour, timezone-aware, in the configured timezone."""
     code: int
     is_day: bool
+    uv_index: float | None = None
 
 
 @dataclass(frozen=True)

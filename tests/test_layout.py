@@ -83,12 +83,12 @@ def test_widgets_fit_the_display_without_overlapping_or_scrolling(open_dashboard
     assert_fits(open_dashboard(viewport))
 
 
-@pytest.mark.parametrize(
-    "viewport", [LARGE, (1280, 800), SMALL], ids=lambda size: f"{size[0]}x{size[1]}"
-)
+@pytest.mark.parametrize("viewport", [LARGE, (1280, 800)], ids=lambda size: f"{size[0]}x{size[1]}")
 def test_calendar_takes_the_right_half_and_departures_two_thirds_of_the_left(
     open_dashboard, viewport
 ):
+    """Smaller displays: the weather needs more than a third for its two rows of tiles, the
+    departures give up rows instead (see test_widgets_fit_the_display_without_overlapping...)."""
     boxes = {
         widget["id"]: widget["box"]
         for widget in open_dashboard(viewport).evaluate(LAYOUT)["widgets"]
@@ -184,12 +184,33 @@ def test_wide_temperatures_do_not_push_into_the_weather_icons(open_dashboard, op
     open_meteo.response["current"].update(temperature_2m=-10.2, apparent_temperature=-12.4)
     page = open_dashboard(viewport)
 
-    temperature, slot = page.evaluate(
-        """() => ['.weather-actual', '.weather-slot']
+    temperature, slot, uv = page.evaluate(
+        """() => ['.weather-apparent', '.weather-slot .weather-icon', '.uv']
             .map((selector) => document.querySelector(selector).getBoundingClientRect())
             .map((box) => ({left: box.left, right: box.right}))"""
     )
 
-    assert page.text_content(".weather-temperature").split() == ["-12°", "echt:", "-10°C"]
+    assert page.text_content(".weather-grid").split()[:2] == ["-10°", "echt"]
     assert temperature["right"] <= slot["left"]
+    assert temperature["right"] <= uv["left"]
     assert_fits(page)
+
+
+WEATHER_TILES = """() => [...document.querySelectorAll('.weather-grid tr')].map((row) =>
+    [...row.children].map((cell) => {
+        const box = cell.getBoundingClientRect();
+        return {left: box.left, right: box.right, top: box.top, bottom: box.bottom};
+    }))"""
+
+
+@pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
+def test_weather_tiles_form_a_grid_of_four_by_two(open_dashboard, viewport):
+    rows = open_dashboard(viewport).evaluate(WEATHER_TILES)
+
+    assert [len(row) for row in rows] == [4, 4]
+    top, bottom = rows
+    for upper, lower in zip(top, bottom, strict=True):
+        assert (upper["left"], upper["right"]) == pytest.approx((lower["left"], lower["right"]))
+        assert upper["bottom"] <= lower["top"] + 1
+    widths = [tile["right"] - tile["left"] for tile in top[1:]]
+    assert max(widths) - min(widths) <= 1, "weather and UV tiles share the width equally"

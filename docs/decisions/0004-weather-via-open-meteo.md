@@ -4,6 +4,7 @@
 - Date: 2026-11-14
 - Amended: 2026-11-14, the widget only shows now, +1 h and +2 h: the request asks for `current` and
   `hourly` only (no `daily`, no precipitation probability)
+- Amended: 2026-11-21, `current` and `hourly` also ask for `uv_index` (UV index row of the widget)
 
 ## Context
 
