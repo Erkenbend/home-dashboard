@@ -80,6 +80,22 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - Data source: Open-Meteo, no API key. See [ADR 0004](decisions/0004-weather-via-open-meteo.md).
 - Without coordinates (or with `weather.enabled: false`) the widget is not shown.
 
+### FR-5 Services status widget
+
+- Basic monitoring of the services running on the Raspberry Pi (or other devices in the home network).
+- Configured in `config.yaml` as a list of short service name + health check URL (`status.services`).
+- The Pi checks each URL over HTTP(S) periodically and expects a 2xx status; anything else (other status,
+  redirect, connection error, timeout) is a failed check. The tablet only talks to the dashboard server.
+- Shown in the free space of the header, right of the date and time (left of the source code link): one
+  bubble per service with its short name below:
+  - green: the last check succeeded
+  - yellow: the last check failed (once)
+  - red: two or more checks in a row failed
+- One success turns the bubble green again.
+- If not all bubbles fit, healthy services give way first; the header never grows.
+- Without configured services the widget is not shown.
+- See [ADR 0005](decisions/0005-service-health-checks.md).
+
 ### Future widget ideas (not in scope yet)
 
 - Photo of the day (e.g. Wikimedia Commons Picture of the Day, or own photos).
