@@ -202,7 +202,7 @@ class _WeatherParser(HTMLParser):
 
 
 def weather(html: str) -> dict:
-    """{temperatures: {"echt": "9°", "gefühlt": "6°"} (empty if not shown),
+    """{temperatures: {"echt": "9°C", "gefühlt": "6°C"} (empty if not shown),
     slots: [{label: "jetzt", icon, condition}],
     uv: [{value: "1", level: "low", label: "niedrig"}] (None each without a UV index),
     notices: [text]}"""

@@ -10,8 +10,8 @@
 <table class="weather-grid">
   <tr>
     <td class="weather-temperature" rowspan="2">
-      <span class="weather-value weather-actual">{{ weather.temperature }}°</span>
-      <span class="weather-label weather-actual-label">echt</span>
+      <span class="weather-value weather-actual">{{ weather.temperature }}°C</span>
+      <span class="weather-label">echt</span>
     </td>
     {% for slot in weather.slots %}
     <td class="weather-slot">{{ icons.icon(slot.condition.icon, slot.condition.label) }}</td>
@@ -26,7 +26,7 @@
   </tr>
   <tr>
     <td class="weather-temperature">
-      <span class="weather-value weather-apparent">{{ weather.apparent_temperature }}°</span>
+      <span class="weather-value weather-apparent">{{ weather.apparent_temperature }}°C</span>
       <span class="weather-label">gefühlt</span>
     </td>
     {% for slot in weather.slots %}

@@ -66,7 +66,7 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
   give up rows for it.
 - 4x2 tiles, nothing more detailed, three parts separated by light lines:
   - Left: the current temperature for the home location (`home.lat` / `home.lon`), the measured one on
-    top ("9°", labelled "echt"), the felt one below ("6°", labelled "gefühlt").
+    top ("9°C", labelled "echt"), the felt one below ("6°C", labelled "gefühlt").
   - Top right: the weather (icon) now and for the full hours nearest to now + 1 hour and now + 2 hours.
     The German description ("Leicht bewölkt") is the icon's title.
   - Bottom right: the UV index at the same three times, a badge in the colours of the WHO scale with

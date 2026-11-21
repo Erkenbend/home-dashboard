@@ -53,7 +53,7 @@ def test_shows_temperature_now_and_the_weather_and_uv_index_now_in_one_and_in_tw
     widget = shown(client)
 
     # real first, felt below: measured 8.8, felt 6.0
-    assert list(widget["temperatures"].items()) == [("echt", "9°"), ("gefühlt", "6°")]
+    assert list(widget["temperatures"].items()) == [("echt", "9°C"), ("gefühlt", "6°C")]
     assert [(slot["label"], slot["icon"]) for slot in widget["slots"]] == [
         ("jetzt", "partly-day"),
         ("16 Uhr", "partly-day"),  # 14:40 + 1 h = 15:40 -> nearest full hour
@@ -182,8 +182,8 @@ def test_temperatures_are_rounded_to_whole_degrees(client, open_meteo: OpenMeteo
 
     temperatures = shown(client)["temperatures"]
 
-    assert temperatures["echt"] == "0°"  # not "-0°"
-    assert temperatures["gefühlt"] == "-2°"  # half rounds up
+    assert temperatures["echt"] == "0°C"  # not "-0°C"
+    assert temperatures["gefühlt"] == "-2°C"  # half rounds up
 
 
 def test_asks_for_the_home_location_in_local_time(client, open_meteo: OpenMeteoFake) -> None:
@@ -227,7 +227,7 @@ def test_last_known_weather_is_shown_when_open_meteo_fails(
     widget = shown(client)
 
     assert len(open_meteo.requests) == 2
-    assert widget["temperatures"]["echt"] == "9°"
+    assert widget["temperatures"]["echt"] == "9°C"
     assert widget["notices"] == ["Stand: 14:40"]
 
 

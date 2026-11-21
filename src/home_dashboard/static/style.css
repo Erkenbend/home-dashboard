@@ -437,7 +437,7 @@ body {
   width: 33%;
 }
 
-/* Every value (temperature, icon) is 3.5rem high, every label 1.5rem */
+/* Temperatures 3.5rem high, icons 4.5rem, every label 1.5rem */
 .weather-value {
   display: block;
   font-size: 3.25rem;
@@ -447,8 +447,8 @@ body {
 
 .weather-icon {
   display: block;
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
   margin: 0 auto;
 }
 
@@ -459,7 +459,7 @@ body {
   color: #a0a8b0;
 }
 
-/* The line between weather and UV, the time on it (2rem high, as "echt" with its margins) */
+/* The line between weather and UV, the time on it */
 .weather-grid .weather-divider {
   padding: 0.25rem 0;
   vertical-align: middle;
@@ -474,16 +474,11 @@ body {
   background: #111418;
 }
 
-.weather-actual-label {
-  margin: 0.25rem 0;
-}
-
-/* UV index with its category on a badge in the colours of the WHO scale, as high as a temperature
- * with its label */
+/* UV index with its category on a badge in the colours of the WHO scale */
 .uv {
   display: block;
-  width: 7rem;
-  height: 5rem;
+  width: 6rem;
+  height: 4.25rem;
   margin: 0 auto;
   box-sizing: border-box;
   padding-top: 0.25rem;
@@ -493,14 +488,14 @@ body {
 
 .uv-value {
   display: block;
-  font-size: 2.25rem;
-  line-height: 2.75rem;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
   font-weight: bold;
 }
 
 .uv-label {
   display: block;
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 1.5rem;
 }
 

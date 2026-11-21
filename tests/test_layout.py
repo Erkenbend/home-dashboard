@@ -190,7 +190,7 @@ def test_wide_temperatures_do_not_push_into_the_weather_icons(open_dashboard, op
             .map((box) => ({left: box.left, right: box.right}))"""
     )
 
-    assert page.text_content(".weather-grid").split()[:2] == ["-10°", "echt"]
+    assert page.text_content(".weather-grid").split()[:2] == ["-10°C", "echt"]
     assert temperature["right"] <= slot["left"]
     assert temperature["right"] <= uv["left"]
     assert_fits(page)
@@ -208,7 +208,6 @@ WEATHER_TILES = """() => {
         icons: all('.weather-slot .weather-icon'),
         times: all('.weather-time .weather-label'),
         uv: all('.uv'),
-        real: box(document.querySelector('.weather-actual-label')),
     };
 }"""
 
@@ -232,4 +231,3 @@ def test_weather_tiles_form_a_grid_of_four_by_two_with_the_times_on_the_line(
         assert icon["bottom"] <= time["top"] and time["bottom"] <= uv["top"]
         middle = (time["top"] + time["bottom"]) / 2
         assert middle == pytest.approx((cell["top"] + cell["bottom"]) / 2, abs=1), "on the line"
-        assert time["top"] == pytest.approx(tiles["real"]["top"], abs=1), "level with 'echt'"
