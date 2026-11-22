@@ -62,7 +62,7 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 
 ### FR-4 Weather widget
 
-- Shown below the departures (same column): the weather matters when leaving the house. The departures
+- Shown above the departures (same column): the weather matters when leaving the house. The departures
   give up rows for it.
 - 4x2 tiles, nothing more detailed, three parts separated by light lines:
   - Left: the current temperature for the home location (`home.lat` / `home.lon`), the measured one on

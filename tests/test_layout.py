@@ -68,13 +68,13 @@ def assert_fits(page) -> None:
     assert layout["directionChars"] >= 8, "direction must stay readable"
     assert layout["cutStopDirections"] == 0, "stop direction must stay readable"
     boxes = {widget["id"]: widget["box"] for widget in layout["widgets"]}
-    assert list(boxes) == ["departures", "weather", "calendar"]
+    assert list(boxes) == ["weather", "departures", "calendar"]
     for first, second in itertools.combinations(boxes.values(), 2):
         side_by_side = first["right"] <= second["left"]
         stacked = first["bottom"] <= second["top"]
         assert side_by_side or stacked, layout["widgets"]
     departures, weather = boxes["departures"], boxes["weather"]
-    assert weather["top"] >= departures["bottom"], "weather below the departures"
+    assert departures["top"] >= weather["bottom"], "departures below the weather"
     assert (weather["left"], weather["right"]) == (departures["left"], departures["right"])
 
 
@@ -98,8 +98,8 @@ def test_calendar_takes_the_right_half_and_departures_two_thirds_of_the_left(
     assert departures["right"] - departures["left"] == pytest.approx(
         calendar["right"] - calendar["left"], abs=1
     )
-    # the gap between departures and weather is taken from both
-    column = calendar["bottom"] - departures["top"]
+    # the gap between weather and departures is taken from both
+    column = calendar["bottom"] - weather["top"]
     third = column / 3
     assert departures["bottom"] - departures["top"] == pytest.approx(2 * third, abs=0.15 * third)
     assert weather["bottom"] - weather["top"] == pytest.approx(third, abs=0.15 * third)

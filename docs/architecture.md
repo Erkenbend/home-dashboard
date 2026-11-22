@@ -20,8 +20,8 @@
 - **Weather icons**: inline SVG macros (`templates/widgets/weather_icons.html`), one per WMO code group,
   sun or moon depending on daylight.
 - **CSS**: plain CSS, Flexbox (no Grid) for compatibility with old Android WebViews. Dark theme, large type.
-  Layout: departures and weather share the left half (departures two thirds of the height, weather
-  one third with its content at the top, more if its tiles need it on small displays), calendar on the
+  Layout: weather and departures share the left half (weather on top with one third of the height and
+  its content at the top, more if its tiles need it on small displays, departures below with two thirds), calendar on the
   right half; in portrait everything is
   stacked and the column and the calendar share the height equally.
   Header: one flex line with the clock (its height sets the header height), the services status in

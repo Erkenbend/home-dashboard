@@ -261,7 +261,7 @@ def test_no_weather_widget_without_location_or_when_disabled(
     assert open_meteo.requests == []
 
 
-def test_weather_is_placed_below_the_departures(
+def test_weather_is_placed_above_the_departures(
     make_client: Callable[..., TestClient], open_meteo, afternoon, respx_mock
 ) -> None:
     HafasFake(respx_mock)
@@ -270,6 +270,6 @@ def test_weather_is_placed_below_the_departures(
     page = make_client(config).get("/").text
 
     column = page[page.index('class="column') :]
-    assert column.index('id="departures"') < column.index('id="weather"')
+    assert column.index('id="weather"') < column.index('id="departures"')
     assert 'hx-get="/widgets/weather"' in page
     assert "Teils bewölkt" in page

@@ -194,7 +194,7 @@ body {
   margin-right: 0;
 }
 
-/* A column of widgets (departures + weather), as wide as the calendar */
+/* A column of widgets (weather + departures), as wide as the calendar */
 .column {
   -webkit-box-flex: 1;
   -webkit-flex: 1 1 0;
@@ -218,8 +218,8 @@ body {
   margin-right: 0;
 }
 
-/* Departures get two thirds of the column (and fit their rows into it), the weather one third,
- * its content at the top. On small displays the weather keeps all its tiles (it never clips, so
+/* The weather on top gets one third of the column, its content at the top, the departures below
+ * two thirds (and fit their rows into it). On small displays the weather keeps all its tiles (it never clips, so
  * min-height: auto is its content height) and the departures give up rows instead. */
 .column .widget-departures {
   -webkit-box-flex: 2;
@@ -235,7 +235,7 @@ body {
   overflow: visible;
 }
 
-.widget-departures + .widget-weather {
+.widget-weather + .widget-departures {
   margin-top: 1rem;
 }
 
@@ -259,7 +259,7 @@ body {
     margin-bottom: 0;
   }
 
-  /* Departures + weather and the calendar share the height equally */
+  /* Weather + departures and the calendar share the height equally */
   .column {
     -webkit-box-flex: 1;
     -webkit-flex: 1 1 0;

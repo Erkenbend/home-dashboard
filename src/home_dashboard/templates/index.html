@@ -22,16 +22,16 @@
 </header>
 <main class="widgets">
   {% if show_departures or weather %}
-  {#- Departures and weather belong together (leaving the house): weather below, departures get the rest #}
+  {#- Weather and departures belong together (leaving the house): weather on top, departures get the rest below #}
   <div class="column column-outdoors">
-    {% if show_departures %}
-    <section class="widget widget-departures" id="departures" data-fit hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
-      {% include "widgets/departures.html" %}
-    </section>
-    {% endif %}
     {% if weather %}
     <section class="widget widget-weather" id="weather" hx-get="/widgets/weather" hx-trigger="every {{ config.weather.refresh_seconds }}s">
       {% include "widgets/weather.html" %}
+    </section>
+    {% endif %}
+    {% if show_departures %}
+    <section class="widget widget-departures" id="departures" data-fit hx-get="/widgets/departures" hx-trigger="every {{ config.departures.refresh_seconds }}s">
+      {% include "widgets/departures.html" %}
     </section>
     {% endif %}
   </div>

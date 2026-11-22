@@ -10,7 +10,7 @@
 an umbrella?** An old Android tablet shows a page served by a Raspberry Pi. No app, no cloud, no
 build step.
 
-![The dashboard on a 10" tablet: departures and weather on the left, the family calendar on the right, service bubbles next to the date](docs/screenshot.png)
+![The dashboard on a 10" tablet: weather and departures on the left, the family calendar on the right, service bubbles next to the date](docs/screenshot.png)
 
 <sub>Made-up data, rendered at the resolution of the Galaxy Tab A 10.1 it runs on
 (`scripts/screenshot.py`). The UI is German.</sub>
