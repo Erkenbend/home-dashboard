@@ -458,7 +458,8 @@ OCCASIONS = """() => [...document.querySelectorAll('.occasion')].map((row) => {
 def test_the_years_follow_the_name_and_are_never_cut_off(open_dashboard, viewport):
     short, long = open_dashboard(viewport).evaluate(OCCASIONS)
 
-    assert short["years"]["left"] - short["text"]["right"] <= 1 * short["rem"], "close to the name"
+    gap = short["years"]["left"] - short["text"]["right"]
+    assert short["rem"] / 2 <= gap <= short["rem"], "some space, but close to the name"
     assert short["years"]["right"] < short["row"]["right"] - 5 * short["rem"], "not at the edge"
     assert long["years"]["right"] <= long["row"]["right"] + 1, "the long name gives way"
     assert long["years"]["left"] >= long["text"]["right"]

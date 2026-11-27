@@ -567,7 +567,7 @@ body {
   color: #a0a8b0;
 }
 
-/* Icon, name (contact muted), the years right after it; a long name is cut off, never the years */
+/* Icon, name (contact muted), " — wird 4" right after it; a long name is cut off, never the years */
 .occasion-icon {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
@@ -599,6 +599,14 @@ body {
   flex: 0 0 auto;
   margin-left: 0.75rem;
   color: #a0a8b0;
+}
+
+/* "Mia (Anna Muster) — wird 4"; the dash is decoration, not text */
+.occasion-years:before {
+  content: "\2014";
+  margin-right: 0.75rem;
+  font-weight: normal;
+  color: #707880;
 }
 
 .occasion.today .occasion-day,
