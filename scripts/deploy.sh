@@ -2,6 +2,8 @@
 # Build the arm64 image locally (WSL), ship it to the Pi via SSH and (re)start it there.
 #
 # Usage: scripts/deploy.sh [user@host]      (default: $DEPLOY_HOST)
+#        LANGUAGE=en scripts/deploy.sh …    UI language baked into the image (default: de,
+#                                           see src/home_dashboard/locales/)
 #
 # Prerequisites:
 #   - local: Docker with buildx and arm64 emulation
@@ -20,6 +22,7 @@ if [[ -z "$HOST" ]]; then
 fi
 REMOTE_DIR="home-dashboard"   # relative to the remote user's home
 PORT=3274
+LANGUAGE="${LANGUAGE:-de}"
 
 cd "$(dirname "$0")/.."
 
@@ -47,8 +50,9 @@ ssh "$HOST" "docker compose version >/dev/null && mkdir -p ${REMOTE_DIR} && ${RE
   exit 1
 }
 
-echo "==> Building ${IMAGE} for linux/arm64"
-docker buildx build --platform linux/arm64 --tag "$IMAGE" --tag home-dashboard:latest --load .
+echo "==> Building ${IMAGE} for linux/arm64 (language: ${LANGUAGE})"
+docker buildx build --platform linux/arm64 --build-arg LANGUAGE="$LANGUAGE" \
+  --tag "$IMAGE" --tag home-dashboard:latest --load .
 
 echo "==> Transferring image"
 docker save "$IMAGE" home-dashboard:latest | gzip -1 | ssh "$HOST" "gunzip | docker load"
