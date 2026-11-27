@@ -59,8 +59,9 @@ the tablet, see [setup](docs/setup.md) and [tablet setup](docs/tablet.md).
 
 ## Make it yours
 
-Out of the box the dashboard speaks German and knows the public transport of Saxony-Anhalt. Your own
-stops, people, location and services are just config. Another city means one new transit provider class. Another
+Out of the box the dashboard speaks German (or English) and knows the public transport of
+Saxony-Anhalt. Your own stops, people, location and services are just config. Another language is
+one text file. Another city means one new transit provider class. Another
 calendar is usually just another iCal URL. [**Customizing**](docs/customizing.md) walks through it,
 including how to switch the transit data provider.
 
@@ -73,7 +74,7 @@ including how to switch the transit data provider.
 | [Customizing](docs/customizing.md) | config, other transit providers, calendars, language, new widgets |
 | [Architecture](docs/architecture.md) | components, caching, fit-to-screen, testing strategy |
 | [Requirements](docs/requirements.md) · [Implementation plan](docs/implementation-plan.md) | what it should do and how it got there |
-| Decisions | [0001 Stack](docs/decisions/0001-stack-and-operations.md) · [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md) · [0003 Transit data](docs/decisions/0003-transit-data-source.md) · [0004 Weather](docs/decisions/0004-weather-via-open-meteo.md) · [0005 Health checks](docs/decisions/0005-service-health-checks.md) |
+| Decisions | [0001 Stack](docs/decisions/0001-stack-and-operations.md) · [0002 Calendar via iCal](docs/decisions/0002-calendar-via-ical.md) · [0003 Transit data](docs/decisions/0003-transit-data-source.md) · [0004 Weather](docs/decisions/0004-weather-via-open-meteo.md) · [0005 Health checks](docs/decisions/0005-service-health-checks.md) · [0006 Languages](docs/decisions/0006-i18n.md) |
 
 ## Notes
 

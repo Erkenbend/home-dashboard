@@ -5,6 +5,8 @@
 * Code in english (variables, function names, technical docs, ...)
 * Commits in english
 * User-Interface in german
+* UI texts live only in the catalogs `src/home_dashboard/locales/*.toml` (`de.toml` is the reference), never as literals in templates or code
+* When adding, changing or removing a UI text, update **every** catalog in the same commit, not only `de.toml`: translate the new meaning, don't just copy the German. `tests/test_language.py` catches missing keys and placeholders, but not a stale translation
 * Chat in the language of the user's prompt
 
 ## Coding

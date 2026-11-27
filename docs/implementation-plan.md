@@ -13,7 +13,7 @@ Each step ends with a commit on `main`. See [requirements](requirements.md) and 
 | 6 | Weather widget | ADR 0004 (Open-Meteo), weather source + service, fragment below the departures, behaviour and layout tests | done |
 | 7 | Services status widget | ADR 0005, health check source + service (consecutive failures), bubbles in the header, behaviour and layout tests | done |
 | 8 | Birthdays widget | Upcoming birthdays/anniversaries of a second iCal feed (reusing `CalendarSource`) below the calendar, toggle in the config, behaviour and layout tests | basic version done; open: tuning with the real feed |
-| 9 | Languages | ADR 0006, UI texts in one TOML catalog per language (`de` with the original texts, `en` for testing), language chosen at build time, English CLI, catalog consistency test | in progress |
+| 9 | Languages | ADR 0006, UI texts in one TOML catalog per language (`de` with the original texts, `en` for testing), language chosen at build time, English CLI, catalog consistency test | done |
 
 ## Later
 

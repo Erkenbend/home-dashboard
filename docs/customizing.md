@@ -11,7 +11,7 @@ logic or the templates.
 | use another iCal calendar (Nextcloud, iCloud, Outlook, …) | config only | [`calendar.ical_url`](#3-calendar) |
 | watch your own services (green / yellow / red) | config only | [`status.services`](#5-services-status) |
 | show trams/buses in another city or country | new provider class | [transit provider](#2-switch-the-transit-provider) |
-| translate the UI | edit texts in place | [language](#6-language-and-look) |
+| translate the UI | one text file + a build argument | [language](#6-language-and-look) |
 | add a widget | source + service + template | [new widgets](#7-add-a-widget) |
 
 ## 1. Configuration
@@ -39,7 +39,7 @@ Copy [`config.example.yaml`](../config.example.yaml) to `config.yaml` (gitignore
   [`widgets/birthdays/parsing.py`](../src/home_dashboard/widgets/birthdays/parsing.py).
 - **`calendar.people`**: a name, a colour and title keywords per person. An event titled
   "Alice: Zahnarzt" is shown as "Zahnarzt (Alice)" in Alice's colour. Events matching
-  `calendar.everyone.match`, or no person at all, get the "Alle" colour.
+  `calendar.everyone.match`, or no person at all, get the colour of `calendar.everyone` ("Alle").
 - **`timezone`**, refresh and fetch intervals: see the comments in the example.
 
 The INSA provider covers all of Saxony-Anhalt (Halle, Magdeburg, Dessau, regional trains and
@@ -145,17 +145,32 @@ Green: the last check succeeded, yellow: it failed, red: two or more failed in a
 
 ## 6. Language and look
 
-There is no i18n layer; the German texts sit where they are used:
+All UI texts, weekday and month names and date formats are in one file per language in
+[`locales/`](../src/home_dashboard/locales/): `de.toml` (the original) and `en.toml`. The language
+is chosen when the image is built, and only that file goes into the container
+([ADR 0006](decisions/0006-i18n.md)):
 
-- templates in [`templates/`](../src/home_dashboard/templates/) (headings, "los in", "fällt aus", "Stand:", "echt", "gefühlt", offline notice)
-- [`formatting.py`](../src/home_dashboard/formatting.py) (weekday and month names, date formats, "Heute", "Morgen")
-- [`widgets/calendar/service.py`](../src/home_dashboard/widgets/calendar/service.py) ("ganztägig", "Tag 1/3")
-- [`widgets/weather/service.py`](../src/home_dashboard/widgets/weather/service.py) (weather descriptions, UV categories, "jetzt", "16 Uhr")
-- [`widgets/status/service.py`](../src/home_dashboard/widgets/status/service.py) (the bubbles' tooltips)
-- [`widgets/birthdays/`](../src/home_dashboard/widgets/birthdays/) ("wird 4", "11 Jahre"; the parsing rules match German event texts)
-- [`cli.py`](../src/home_dashboard/cli.py) (`check-config` and `find-stop` output)
+```sh
+LANGUAGE=en scripts/deploy.sh                 # or: docker build --build-arg LANGUAGE=en .
+HOME_DASHBOARD_LANGUAGE=en uv run home-dashboard serve   # locally, without Docker
+```
 
-The tests assert on the rendered German texts, so `uv run pytest` shows what to update alongside.
+To add a language, e.g. French:
+
+1. `cp src/home_dashboard/locales/en.toml src/home_dashboard/locales/fr.toml` (the file name is the
+   language code) and translate the values. Keep the keys and the `{placeholders}`; their order
+   within a text is up to you.
+2. Set `page.lang = "fr"` and adapt the date patterns in `[dates]` (`long_date`, `short_date`,
+   `hour`); the comment there lists the available fields.
+3. `uv run pytest tests/test_language.py` lists missing or extra keys and placeholders.
+4. Try it with `HOME_DASHBOARD_LANGUAGE=fr uv run home-dashboard serve`, then deploy with
+   `LANGUAGE=fr scripts/deploy.sh`. Longer texts are fine: the widgets hide rows that don't fit.
+
+Not translated: what comes from the sources (event titles, stop names, destinations), the labels in
+your `config.yaml` (`calendar.everyone.label` and `birthdays.title`; without them the catalog's
+defaults are used), the CLI output (English), and the birthdays parsing rules, which match the
+German texts of a contacts sync (adapt `RULES` in
+[`widgets/birthdays/parsing.py`](../src/home_dashboard/widgets/birthdays/parsing.py)).
 
 Colours, sizes and the layout are plain CSS in
 [`static/style.css`](../src/home_dashboard/static/style.css) (dark theme, sizes in `rem`, one root
@@ -171,7 +186,8 @@ Each widget follows the same pattern, e.g. [`widgets/weather/`](../src/home_dash
 2. `service.py`: the logic, using the source, the injected `Clock` and the shared `TtlCache`
    (keeps the last good value, so an outage shows "Stand: HH:MM" instead of an empty widget).
 3. A fragment template in `templates/widgets/`, a route `/widgets/<name>` and a polling container
-   in `index.html` (`hx-get` + `hx-trigger="every …s"`).
+   in `index.html` (`hx-get` + `hx-trigger="every …s"`). Its texts go into a new section of every
+   catalog in `locales/` (`{{ t('<name>.title') }}`).
 4. A config section in `config.py` and `config.example.yaml`.
 5. Behaviour tests with recorded responses and a `FixedClock`, plus a layout test if it changes the page.
 

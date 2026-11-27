@@ -45,6 +45,9 @@
   `body.offline`: the date gives way to "Keine Verbindung seit HH:MM" (last clock time shown) and the
   widgets and the services status are dimmed, without changing the layout. Any server response clears it. HTTP error responses
   count as reachable; upstream failures are covered by "Stand: HH:MM".
+- **Languages** ([ADR 0006](decisions/0006-i18n.md)): every UI text comes from `locales/<language>.toml`
+  through a `Translator`, injected into the services and the templates (`{{ t('departures.title') }}`).
+  The language is a Docker build argument; the image contains only that catalog.
 - **Static asset URLs** carry a content hash (`static_url('style.css')` → `/static/style.css?v=<hash>`).
   StaticFiles sends no Cache-Control, so the kiosk WebView caches CSS/JS heuristically and would otherwise
   combine new HTML with stale assets after a deployment (e.g. the offline notice always visible).
@@ -75,12 +78,13 @@ src/home_dashboard/
     weather/
       source.py     WeatherSource protocol + Forecast model (WMO weather codes)
       open_meteo.py concrete source (Open-Meteo, see ADR 0004)
-      service.py    upcoming hours, today/tomorrow, WMO code -> German text + icon
+      service.py    upcoming hours, today/tomorrow, WMO code -> text + icon
     status/
       source.py     HealthCheck protocol (check(url), raises Unhealthy)
       http_check.py concrete check: GET must answer 2xx (see ADR 0005)
       service.py    parallel check rounds, consecutive failures -> green / yellow / red
-  formatting.py     German date/time formatting (no system locale needed)
+  i18n.py           Translator: texts and date formats of one language (no system locale needed)
+  locales/          de.toml, en.toml: one text catalog per language (see ADR 0006)
   templates/base.html, index.html, widgets/clock.html, widgets/status.html, widgets/weather_icons.html
   static/style.css, fit.js, connection.js, htmx.min.js
 ```

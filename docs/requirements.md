@@ -116,7 +116,7 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 
 | Topic | Requirement |
 |---|---|
-| UI language | German |
+| UI language | German; other languages through one text catalog each, chosen at build time ([ADR 0006](decisions/0006-i18n.md)) |
 | Code / docs / commits | English |
 | Display | Samsung Galaxy Tab A 10.1 (2016, SM-T580), Android 8.1, Fully Kiosk Browser (Chrome WebView), landscape, about 1280×800 CSS px, readable from 2–3 m. Setup: [tablet setup](tablet.md) |
 | Browser compatibility | Conservative: server-side rendering, minimal JavaScript, no frontend build step |
