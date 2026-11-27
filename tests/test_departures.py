@@ -157,6 +157,34 @@ def test_same_trip_at_two_platforms_is_shown_once(show, hafas: HafasFake) -> Non
     assert [(row["line"], row["time"]) for row in rows] == [("7", "22:02"), ("7", "22:22")]
 
 
+def test_redirected_variant_of_a_trip_is_shown_once(show, hafas: HafasFake) -> None:
+    # A redirection can be published as an additional trip (other jid, same line, destination, time)
+    tram_95 = hafas.journey("5258", "95", "215200")
+    hafas.add_journey("5258", tram_95, via=("5232", "215600"))
+
+    rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
+
+    assert [(row["line"], row["time"]) for row in rows] == [
+        ("1", "21:52"),
+        ("95", "21:52"),
+        ("1", "22:12"),
+        ("95", "22:12"),
+    ]
+
+
+def test_variant_still_running_wins_over_cancelled_original(show, hafas: HafasFake) -> None:
+    tram_95 = hafas.journey("5258", "95", "215200")
+    hafas.add_journey("5258", tram_95, via=("5232", "215600"))
+    tram_95["stbStop"]["dCncl"] = True
+
+    rows = show(RANNISCHER_PLATZ)["Rannischer Platz"]
+
+    assert [(row["line"], row["time"], row["cancelled"]) for row in rows[:2]] == [
+        ("1", "21:52", False),
+        ("95", "21:52", False),
+    ]
+
+
 def test_line_filter(show) -> None:
     only_95 = RANNISCHER_PLATZ.model_copy(update={"lines": ["95"]})
 

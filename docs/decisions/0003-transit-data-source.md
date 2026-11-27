@@ -51,7 +51,9 @@ Implementation notes from the spike:
 - **Duplicates**: a station board spans several stop points of the station (platforms `A`…`F`), so the same
   journey (`jid`) can appear twice within ~1 min (observed: line 94 at platforms B and D). The same `jid` can also
   legitimately reappear much later as another departure (line 94 → line 7, 38 min later). Deduplicate by
-  `jid` **only within a few minutes**, keeping the first occurrence.
+  `jid` **only within a few minutes**, keeping the first occurrence. A redirected trip can also be published as an
+  additional journey (`isRedir: true`, other `jid`, same line, `dirTxt` and scheduled time; observed: line 95 at
+  Rannischer Platz). Those count as the same departure too, a variant that is not cancelled wins.
 - **Product filter**: only trams are wanted. `StationBoard` accepts
   `jnyFltrL: [{type: PROD, mode: INC, value: "<bitmask>"}]`; INSA bitmasks: tram `32`, bus `64|128`.
 - **Cancellations**: `stbStop.dCncl = true` (not present in the recorded fixtures; tests derive a variant).

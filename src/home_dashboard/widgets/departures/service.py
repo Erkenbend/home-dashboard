@@ -40,21 +40,34 @@ class StopBoard:
     unavailable: bool = False
 
 
-def _without_duplicates(departures: list[Departure]) -> list[Departure]:
-    """A station board spans several stop points, so a trip may show up twice within minutes.
+def _is_duplicate(earlier: Departure, later: Departure) -> bool:
+    """Whether `later` is the same tram leaving as `earlier` (sorted by departure time).
 
-    The same trip may legitimately reappear much later (e.g. after a loop with another line number),
-    therefore only nearby repetitions are dropped.
+    - A station board spans several stop points, so a trip may show up twice within minutes. The
+      same trip may legitimately reappear much later (e.g. after a loop with another line number),
+      therefore only nearby repetitions count.
+    - A redirected trip can be published as an additional trip next to the original one, with
+      another trip id but the same line, destination and schedule (observed: line 95).
     """
+    if earlier.trip_id == later.trip_id:
+        return later.when - earlier.when < DUPLICATE_WINDOW
+    return (earlier.line, earlier.direction, earlier.planned) == (
+        later.line,
+        later.direction,
+        later.planned,
+    )
+
+
+def _without_duplicates(departures: list[Departure]) -> list[Departure]:
+    """Keep one departure per tram, preferring a variant that is not cancelled."""
     kept: list[Departure] = []
-    for departure in sorted(departures, key=lambda d: d.when):
-        if any(
-            other.trip_id == departure.trip_id and departure.when - other.when < DUPLICATE_WINDOW
-            for other in kept
-        ):
-            continue
-        kept.append(departure)
-    return kept
+    for departure in sorted(departures, key=lambda d: (d.when, d.cancelled)):
+        index = next((i for i, other in enumerate(kept) if _is_duplicate(other, departure)), None)
+        if index is None:
+            kept.append(departure)
+        elif kept[index].cancelled and not departure.cancelled:
+            kept[index] = departure
+    return sorted(kept, key=lambda d: d.when)
 
 
 def _short_direction(direction: str) -> str:
