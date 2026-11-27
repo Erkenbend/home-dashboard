@@ -431,3 +431,34 @@ def test_services_status_is_fitted_again_after_a_refresh(open_dashboard):
     after = page.evaluate(STATUS)
     assert after["shown"] == before["shown"]
     assert after["shown"][-1]["name"] == "NAS"
+
+
+LONG_NAME = feed(
+    "SUMMARY:Geburtstag Mia\nDTSTART;VALUE=DATE:20261110\n"
+    "DESCRIPTION:Heute hat Mia Geburtstag!\\nJahr: 2022",
+    "SUMMARY:Geburtstag Maximilian Alexander von und zu Mustermann-Beispielhausen-Langenfeld\n"
+    "DTSTART;VALUE=DATE:20261112\n"
+    "DESCRIPTION:Heute hat Maximilian Alexander von und zu Mustermann-Beispielhausen-Langenfeld"
+    " Geburtstag!\\nJahr: 1990",
+)
+
+OCCASIONS = """() => [...document.querySelectorAll('.occasion')].map((row) => {
+  const box = (selector) => row.querySelector(selector).getBoundingClientRect();
+  return {
+    text: box('.occasion-text'),
+    years: box('.occasion-years'),
+    row: row.getBoundingClientRect(),
+    rem: parseFloat(getComputedStyle(document.documentElement).fontSize),
+  };
+})"""
+
+
+@pytest.mark.parametrize("dashboard_birthdays", [LONG_NAME])
+@pytest.mark.parametrize("viewport", [LARGE, SMALL], ids=lambda size: f"{size[0]}x{size[1]}")
+def test_the_years_follow_the_name_and_are_never_cut_off(open_dashboard, viewport):
+    short, long = open_dashboard(viewport).evaluate(OCCASIONS)
+
+    assert short["years"]["left"] - short["text"]["right"] <= 1 * short["rem"], "close to the name"
+    assert short["years"]["right"] < short["row"]["right"] - 5 * short["rem"], "not at the edge"
+    assert long["years"]["right"] <= long["row"]["right"] + 1, "the long name gives way"
+    assert long["years"]["left"] >= long["text"]["right"]

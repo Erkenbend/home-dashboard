@@ -567,7 +567,7 @@ body {
   color: #a0a8b0;
 }
 
-/* Icon, name (contact muted), the years right-aligned */
+/* Icon, name (contact muted), the years right after it; a long name is cut off, never the years */
 .occasion-icon {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
@@ -581,8 +581,8 @@ body {
 .occasion[data-kind="other"] .occasion-icon { color: #c9b458; }
 
 .occasion-text {
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -webkit-flex: 0 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
