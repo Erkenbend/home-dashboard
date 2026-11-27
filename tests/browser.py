@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 
 from home_dashboard.config import (
     AppConfig,
+    BirthdaysConfig,
     CalendarConfig,
     DeparturesConfig,
     HomeConfig,
@@ -25,6 +26,7 @@ from home_dashboard.config import (
 from tests.hafas_fake import HafasFake
 from tests.open_meteo_fake import OpenMeteoFake
 from tests.services_fake import ServicesFake
+from tests.test_birthdays import BIRTHDAYS_ICS, BIRTHDAYS_URL
 from tests.test_calendar import ALICE, BOB, EVERYONE, ICAL_URL, ICS
 from tests.test_departures import FRANCKEPLATZ, RANNISCHER_PLATZ
 
@@ -93,6 +95,20 @@ def dashboard_services() -> dict[str, int]:
 
 
 @pytest.fixture
+def dashboard_birthdays() -> bytes:
+    """iCal feed of the birthdays widget. Override with
+    `@pytest.mark.parametrize("dashboard_birthdays", [...])`."""
+    return BIRTHDAYS_ICS
+
+
+@pytest.fixture
+def birthdays_feed(respx_mock: respx.Router, dashboard_birthdays: bytes) -> None:
+    respx_mock.get(BIRTHDAYS_URL).mock(
+        return_value=httpx.Response(200, content=dashboard_birthdays)
+    )
+
+
+@pytest.fixture
 def dashboard_stops() -> list[StopConfig]:
     """Departure stops. Override with `@pytest.mark.parametrize("dashboard_stops", [...])`."""
     # One stop with a configured direction, one showing the destination of each tram
@@ -138,6 +154,7 @@ def open_dashboard(
     browser,
     make_client: Callable[..., TestClient],
     busy_hafas: HafasFake,
+    birthdays_feed: None,
     open_meteo: OpenMeteoFake,
     status_config: StatusConfig,
     dashboard_stops: list[StopConfig],
@@ -150,6 +167,7 @@ def open_dashboard(
             max_per_stop=8,
         ),
         calendar=CalendarConfig(ical_url=ICAL_URL, people=[ALICE, BOB], everyone=EVERYONE, days=14),
+        birthdays=BirthdaysConfig(ical_url=BIRTHDAYS_URL),
         status=status_config,
     )
     client = make_client(config)

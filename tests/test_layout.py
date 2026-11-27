@@ -6,6 +6,7 @@ import itertools
 
 import pytest
 
+from tests.test_calendar import feed
 from tests.test_departures import FRANCKEPLATZ, RANNISCHER_PLATZ
 
 # Common landscape tablets (CSS pixels) plus portrait
@@ -53,7 +54,8 @@ VISIBLE_ROWS = """() => {
   }
   const days = [...document.querySelectorAll('[data-day]')]
     .map((day) => [day.dataset.day, visible(day)]);
-  return {stops, days};
+  const birthdays = [...document.querySelectorAll('.occasion')].map(visible);
+  return {stops, days, birthdays};
 }"""
 
 
@@ -73,7 +75,7 @@ def assert_fits(page) -> None:
     assert layout["directionChars"] >= 8, "direction must stay readable"
     assert layout["cutStopDirections"] == 0, "stop direction must stay readable"
     boxes = {widget["id"]: widget["box"] for widget in layout["widgets"]}
-    assert list(boxes) == ["weather", "departures", "calendar"]
+    assert list(boxes) == ["weather", "departures", "calendar", "birthdays"]
     for first, second in itertools.combinations(boxes.values(), 2):
         side_by_side = first["right"] <= second["left"]
         stacked = first["bottom"] <= second["top"]
@@ -81,6 +83,9 @@ def assert_fits(page) -> None:
     departures, weather = boxes["departures"], boxes["weather"]
     assert departures["top"] >= weather["bottom"], "departures below the weather"
     assert (weather["left"], weather["right"]) == (departures["left"], departures["right"])
+    calendar, birthdays = boxes["calendar"], boxes["birthdays"]
+    assert birthdays["top"] >= calendar["bottom"], "birthdays below the calendar"
+    assert (calendar["left"], calendar["right"]) == (birthdays["left"], birthdays["right"])
 
 
 @pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
@@ -123,7 +128,7 @@ def test_calendar_takes_55_percent_and_departures_two_thirds_of_the_left_column(
     right = calendar["right"] - calendar["left"]
     assert right / (left + right) == pytest.approx(0.55, abs=0.005)
     # the gap between weather and departures is taken from both
-    column = calendar["bottom"] - weather["top"]
+    column = departures["bottom"] - weather["top"]
     third = column / 3
     assert departures["bottom"] - departures["top"] == pytest.approx(2 * third, abs=0.15 * third)
     assert weather["bottom"] - weather["top"] == pytest.approx(third, abs=0.15 * third)
@@ -142,6 +147,61 @@ def test_small_display_shows_fewer_rows_and_keeps_the_most_important(open_dashbo
     large_days = [label for label, visible in large["days"] if visible]
     assert len(small_days) < len(large_days)
     assert small_days == large_days[: len(small_days)], "days are dropped from the end"
+
+
+BIRTHDAYS = """() => {
+  const height = (selector) => document.querySelector(selector).getBoundingClientRect().height;
+  return {
+    birthdays: height('#birthdays'),
+    column: height('.column-calendar'),
+    calendarOverflows: (() => {
+      const calendar = document.getElementById('calendar');
+      return calendar.scrollHeight > calendar.clientHeight + 1;
+    })(),
+  };
+}"""
+
+
+# Twenty all-day events in the coming two weeks of 2026-11-09, more than any display shows
+MANY_BIRTHDAYS = feed(
+    *(
+        f"SUMMARY:Geburtstag {index}\nDTSTART;VALUE=DATE:202611{10 + index // 2}\n"
+        f"DTEND;VALUE=DATE:202611{11 + index // 2}"
+        for index in range(20)
+    )
+)
+
+
+@pytest.mark.parametrize("dashboard_birthdays", [MANY_BIRTHDAYS])
+@pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
+def test_birthdays_take_at_most_a_third_below_the_calendar(open_dashboard, viewport):
+    page = open_dashboard(viewport)
+    heights = page.evaluate(BIRTHDAYS)
+    rows = page.evaluate(VISIBLE_ROWS)["birthdays"]
+
+    assert heights["birthdays"] <= heights["column"] / 3 + 1
+    assert rows[0], "the next one always stays"
+    visible = rows.count(True)
+    assert rows == [True] * visible + [False] * (len(rows) - visible), "dropped from the end"
+    assert not rows[-1], "twenty do not fit"
+    assert not heights["calendarOverflows"]
+    assert_fits(page)
+
+
+def test_few_birthdays_take_only_the_space_they_need(open_dashboard):
+    page = open_dashboard(LARGE)
+    heights = page.evaluate(BIRTHDAYS)
+
+    assert all(page.evaluate(VISIBLE_ROWS)["birthdays"]), "all six fit"
+    assert heights["birthdays"] < heights["column"] / 4
+
+
+@pytest.mark.parametrize("dashboard_birthdays", [MANY_BIRTHDAYS])
+def test_small_display_shows_fewer_birthdays(open_dashboard):
+    small = open_dashboard(SMALL).evaluate(VISIBLE_ROWS)["birthdays"]
+    large = open_dashboard(LARGE).evaluate(VISIBLE_ROWS)["birthdays"]
+
+    assert 0 < small.count(True) < large.count(True)
 
 
 def test_rows_are_dropped_round_robin_across_stops(open_dashboard):
@@ -166,7 +226,7 @@ def test_refreshed_widget_content_is_fitted_again(open_dashboard):
     before = page.evaluate(VISIBLE_ROWS)
 
     # What HTMX polling does every refresh_seconds
-    for widget in ("departures", "weather", "calendar"):
+    for widget in ("departures", "weather", "calendar", "birthdays"):
         page.evaluate(
             """(id) => new Promise((resolve) => {
                 const settled = () => setTimeout(resolve);
@@ -180,7 +240,7 @@ def test_refreshed_widget_content_is_fitted_again(open_dashboard):
     assert page.evaluate(VISIBLE_ROWS) == before
 
 
-@pytest.mark.parametrize("widget", ["departures", "calendar"])
+@pytest.mark.parametrize("widget", ["departures", "calendar", "birthdays"])
 def test_refreshed_widget_is_never_shown_unfitted(open_dashboard, widget):
     """No flicker: the new content is fitted before the browser can paint it."""
     page = open_dashboard(SMALL)

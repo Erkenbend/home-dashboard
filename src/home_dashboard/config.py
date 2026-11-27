@@ -88,6 +88,22 @@ class CalendarConfig(_Strict):
     everyone: EveryoneConfig = EveryoneConfig()
 
 
+class BirthdaysConfig(_Strict):
+    """Upcoming birthdays, anniversaries etc. from a separate iCal feed, small below the calendar;
+    the widget is shown only if enabled and ical_url is set."""
+
+    enabled: bool = True
+    ical_url: str | None = None
+    title: str = Field(default="Geburtstage", min_length=1, description="heading of the widget")
+    days: int = Field(
+        default=14, ge=1, le=366, description="upper limit, the display shows as many as fit"
+    )
+    refresh_seconds: int = Field(default=300, ge=5, description="how often the tablet updates")
+    fetch_seconds: int = Field(
+        default=3600, ge=60, description="how often the Pi downloads the iCal feed at most"
+    )
+
+
 class WeatherConfig(_Strict):
     """Weather at home.lat / home.lon; the widget is shown only if both are set."""
 
@@ -124,8 +140,14 @@ class AppConfig(_Strict):
     home: HomeConfig = HomeConfig()
     departures: DeparturesConfig = DeparturesConfig()
     calendar: CalendarConfig = CalendarConfig()
+    birthdays: BirthdaysConfig = BirthdaysConfig()
     weather: WeatherConfig = WeatherConfig()
     status: StatusConfig = StatusConfig()
+
+    @property
+    def birthdays_url(self) -> str | None:
+        """iCal address of the birthdays widget, None if it is off."""
+        return self.birthdays.ical_url if self.birthdays.enabled else None
 
     @property
     def weather_location(self) -> tuple[float, float] | None:

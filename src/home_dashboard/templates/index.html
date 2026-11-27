@@ -36,10 +36,20 @@
     {% endif %}
   </div>
   {% endif %}
-  {% if calendar %}
-  <section class="widget widget-calendar" id="calendar" data-fit hx-get="/widgets/calendar" hx-trigger="every {{ config.calendar.refresh_seconds }}s">
-    {% include "widgets/calendar.html" %}
-  </section>
+  {% if calendar or birthdays %}
+  {#- The calendar takes what the birthdays below leave: they are as high as their content, at most a third #}
+  <div class="column column-calendar">
+    {% if calendar %}
+    <section class="widget widget-calendar" id="calendar" data-fit hx-get="/widgets/calendar" hx-trigger="every {{ config.calendar.refresh_seconds }}s">
+      {% include "widgets/calendar.html" %}
+    </section>
+    {% endif %}
+    {% if birthdays %}
+    <section class="widget widget-birthdays" id="birthdays" data-fit="content" hx-get="/widgets/birthdays" hx-trigger="every {{ config.birthdays.refresh_seconds }}s">
+      {% include "widgets/birthdays.html" %}
+    </section>
+    {% endif %}
+  </div>
   {% endif %}
 </main>
 {% endblock %}

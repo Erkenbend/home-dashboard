@@ -4,6 +4,9 @@
  *
  * Markup contract (set by the widget templates):
  *   [data-fit]           a widget container with a fixed height (CSS: overflow hidden)
+ *   [data-fit="content"] a widget as high as its content up to a maximum (CSS: max-height), so the
+ *                        space of its neighbours depends on it: it is fitted first, and a refresh
+ *                        of it fits all widgets again
  *   [data-fit-priority]  a row that may be hidden; higher numbers go first, ties from the bottom.
  *                        Rows without the attribute are always shown.
  *   [data-fit-group]     a container (e.g. a day) that is hidden once all its rows are hidden
@@ -65,10 +68,22 @@
     }
   }
 
+  function isContentSized(widget) {
+    return widget.getAttribute("data-fit") === "content";
+  }
+
   function fitAll() {
     var widgets = document.querySelectorAll("[data-fit]");
-    for (var i = 0; i < widgets.length; i++) {
-      fit(widgets[i]);
+    var i;
+    for (i = 0; i < widgets.length; i++) {
+      if (isContentSized(widgets[i])) {
+        fit(widgets[i]);
+      }
+    }
+    for (i = 0; i < widgets.length; i++) {
+      if (!isContentSized(widgets[i])) {
+        fit(widgets[i]);
+      }
     }
   }
 
@@ -84,7 +99,11 @@
   document.addEventListener("htmx:afterSwap", function (event) {
     var target = event.target;
     if (target && target.hasAttribute && target.hasAttribute("data-fit")) {
-      fit(target);
+      if (isContentSized(target)) {
+        fitAll();
+      } else {
+        fit(target);
+      }
     }
   });
 })();

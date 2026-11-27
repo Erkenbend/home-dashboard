@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import CalendarConfig
-from home_dashboard.formatting import format_short_date, format_time
+from home_dashboard.formatting import format_day_label, format_time
 from home_dashboard.widgets.calendar.source import CalendarSource, Event
 
 log = logging.getLogger(__name__)
@@ -160,7 +160,7 @@ class CalendarService:
                 if self._occurs_on(event, day)
             ]
             if rows or day == today:
-                view.days.append(Day(day, self._day_label(day, today), day == today, rows))
+                view.days.append(Day(day, format_day_label(day, today), day == today, rows))
         return view
 
     def _midnight(self, day: date) -> datetime:
@@ -177,14 +177,6 @@ class CalendarService:
         if event.start == event.end:
             return day_start <= event.start < day_end
         return event.start < day_end and event.end > day_start
-
-    @staticmethod
-    def _day_label(day: date, today: date) -> str:
-        if day == today:
-            return "Heute"
-        if day == today + timedelta(days=1):
-            return "Morgen"
-        return format_short_date(day)
 
     def _row(self, event: Event, day: date, now: datetime) -> EventRow:
         tags, everyone = self._matcher.tags(event.title)

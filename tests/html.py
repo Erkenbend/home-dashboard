@@ -259,3 +259,36 @@ def services(html: str) -> list[dict]:
 def states(html: str) -> dict[str, str]:
     """{service name: ok | warning | failing}"""
     return {service["name"]: service["state"] for service in services(html)}
+
+
+class _BirthdaysParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.occasions: list[dict] = []
+        self._field: str | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        classes = (dict(attrs).get("class") or "").split()
+        if tag == "li" and "occasion" in classes:
+            self.occasions.append({"day": "", "title": "", "today": "today" in classes})
+        elif self.occasions and "occasion-day" in classes:
+            self._field = "day"
+        elif self.occasions and "occasion-title" in classes:
+            self._field = "title"
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "li":
+            self._field = None
+
+    def handle_data(self, data: str) -> None:
+        if self._field is not None:
+            occasion = self.occasions[-1]
+            occasion[self._field] = " ".join((occasion[self._field] + " " + data).split())
+
+
+def birthdays(html: str) -> list[dict]:
+    """[{day: "Heute" | "Morgen" | "Sa, 14.11.", title, today: bool}, ...] in the shown order;
+    the title includes the start time of timed events ("18:00 Hochzeitsfeier")."""
+    parser = _BirthdaysParser()
+    parser.feed(html)
+    return parser.occasions

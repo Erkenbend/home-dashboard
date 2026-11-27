@@ -28,6 +28,9 @@ Copy [`config.example.yaml`](../config.example.yaml) to `config.yaml` (gitignore
     centre" is expressed. `direction` (optional) is a label shown next to the stop name instead of
     each tram's destination.
   - `lines` (optional): only these lines. `departures.products` selects trams, buses, trains.
+- **`birthdays`** (optional): a second iCal feed (`birthdays.ical_url`), e.g. a calendar of yearly
+  birthdays and anniversaries, listed small below the calendar for the next `birthdays.days`
+  (14). `birthdays.enabled: false` hides it, `birthdays.title` names it.
 - **`calendar.people`**: a name, a colour and title keywords per person. An event titled
   "Alice: Zahnarzt" is shown as "Zahnarzt (Alice)" in Alice's colour. Events matching
   `calendar.everyone.match`, or no person at all, get the "Alle" colour.
@@ -107,7 +110,7 @@ anyone who has it, so it lives only in the gitignored `config.yaml` and is never
 For a backend without iCal (e.g. the Google Calendar API with a service account), implement
 `CalendarSource.events(start, end)`
 ([`widgets/calendar/source.py`](../src/home_dashboard/widgets/calendar/source.py)) and pass it in
-`create_app`.
+`create_app`. The birthdays widget reads its feed through the same interface (`birthdays_source`).
 
 ## 4. Weather
 
@@ -139,8 +142,8 @@ Green: the last check succeeded, yellow: it failed, red: two or more failed in a
 There is no i18n layer; the German texts sit where they are used:
 
 - templates in [`templates/`](../src/home_dashboard/templates/) (headings, "los in", "fällt aus", "Stand:", "echt", "gefühlt", offline notice)
-- [`formatting.py`](../src/home_dashboard/formatting.py) (weekday and month names, date formats)
-- [`widgets/calendar/service.py`](../src/home_dashboard/widgets/calendar/service.py) ("Heute", "Morgen", "ganztägig", "Tag 1/3")
+- [`formatting.py`](../src/home_dashboard/formatting.py) (weekday and month names, date formats, "Heute", "Morgen")
+- [`widgets/calendar/service.py`](../src/home_dashboard/widgets/calendar/service.py) ("ganztägig", "Tag 1/3")
 - [`widgets/weather/service.py`](../src/home_dashboard/widgets/weather/service.py) (weather descriptions, UV categories, "jetzt", "16 Uhr")
 - [`widgets/status/service.py`](../src/home_dashboard/widgets/status/service.py) (the bubbles' tooltips)
 - [`cli.py`](../src/home_dashboard/cli.py) (`check-config` and `find-stop` output)

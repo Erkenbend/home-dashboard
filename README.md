@@ -21,6 +21,8 @@ build step.
   a "los in X min" countdown to the moment you have to leave, delays and cancellations.
 - **Termine**: the coming days of a shared calendar (any iCal feed), coloured by person; recurring
   events are toned down so the one-off appointments stand out.
+- **Geburtstage**: optional, small below the calendar: birthdays, anniversaries and the like of
+  the next two weeks from a second iCal feed, today's highlighted.
 - **Wetter**: real and felt temperature now, the weather and the colour-coded UV index now and in one
   and two hours (Open-Meteo, no API key).
 - **Dienste**: a green, yellow or red bubble per service in the home network, next to the date: the

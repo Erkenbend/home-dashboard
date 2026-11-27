@@ -76,6 +76,7 @@ def _check_config(path: str) -> int:
     print(f"{path}: OK")
     print(f"  Haltestellen: {stops or '-'}")
     print(f"  Kalender: {'iCal-Adresse gesetzt' if config.calendar.ical_url else 'aus'}")
+    print(f"  {config.birthdays.title}: {_birthdays_summary(config)}")
     print(f"  Wetter: {_weather_summary(config)}")
     services = ", ".join(service.name for service in config.status.services)
     print(f"  Dienste: {services or '-'}")
@@ -90,11 +91,21 @@ def _check_config(path: str) -> int:
         f"  Aktualisierung: Uhr {display.clock_refresh_seconds} s, "
         f"Abfahrten {departures.refresh_seconds} s (Abruf {departures.fetch_seconds} s), "
         f"Kalender {calendar.refresh_seconds} s (Abruf {calendar.fetch_seconds} s), "
+        f"{config.birthdays.title} {config.birthdays.refresh_seconds} s "
+        f"(Abruf {config.birthdays.fetch_seconds} s), "
         f"Wetter {weather.refresh_seconds} s (Abruf {weather.fetch_seconds} s), "
         f"Dienste {config.status.refresh_seconds} s (Prüfung {config.status.check_seconds} s), "
         f"Seiten-Reload {reload}"
     )
     return 0
+
+
+def _birthdays_summary(config: AppConfig) -> str:
+    if not config.birthdays.enabled:
+        return "aus"
+    if config.birthdays_url is None:
+        return "aus (keine iCal-Adresse)"
+    return f"iCal-Adresse gesetzt, {config.birthdays.days} Tage"
 
 
 def _weather_summary(config: AppConfig) -> str:

@@ -48,6 +48,13 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - Access initially via the calendar's secret iCal address; a switch to the Google Calendar API
   (service account) must remain possible. See [ADR 0002](decisions/0002-calendar-via-ical.md).
 
+### FR-2a Birthdays widget
+
+- Optional (config toggle), small, below the calendar: upcoming birthdays, anniversaries and similar
+  events of a separate calendar (own iCal address), by default the next 14 days, one line each
+  ("Sa, 14.11.  Anna Geburtstag"), soonest first, today's highlighted.
+- As high as its entries, at most a third of the calendar column; when not all fit, the latest give way.
+
 ### FR-3 General display
 
 - Current time and date.

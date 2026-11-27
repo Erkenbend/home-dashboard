@@ -8,6 +8,7 @@
 │ kiosk browser        │  HTML pages +  │  FastAPI app                          │
 │ (HTMX polls widgets) │  fragments     │   ├─ departures widget ──▶ transit API│
 └──────────────────────┘                │   ├─ calendar widget  ──▶ iCal feed   │
+                                        │   ├─ birthdays widget ──▶ iCal feed 2 │
                                         │   ├─ weather widget   ──▶ Open-Meteo  │
                                         │   └─ status widget    ──▶ health URLs │
                                         │  in-memory TTL cache per source       │
@@ -22,7 +23,8 @@
 - **CSS**: plain CSS, Flexbox (no Grid) for compatibility with old Android WebViews. Dark theme, large type.
   Layout: weather and departures share the left column (45 % of the width) (weather on top with one third of the height and
   its content at the top, more if its tiles need it on small displays, departures below with two thirds), calendar on the
-  right (55 %); in portrait everything is
+  right (55 %), with the optional birthdays below it (as high as their content, at most a third of the
+  column; the calendar takes the rest); in portrait everything is
   stacked and the column and the calendar share the height equally.
   Header: one flex line with the clock (its height sets the header height), the services status in
   the free space (bubbles right-aligned, the list absolutely positioned so it never grows the header)
@@ -34,7 +36,9 @@
   widget fits, on load, resize and after every HTMX swap. Templates declare what may go via
   `data-fit-priority` (higher goes first, rows without it always stay) and `data-fit-group` (hidden when
   empty). Departures: the next one per stop stays, later ones go round-robin. Calendar: past events of
-  today first, then from the end of the window. Services status: bubbles that wrap into a second line
+  today first, then from the end of the window. Birthdays: from the end, the next one always stays;
+  as the widget is as high as its content (`data-fit="content"`), it is fitted before the calendar
+  and its refresh fits all widgets again. Services status: bubbles that wrap into a second line
   are hidden, healthy ones first, then yellow ones; red ones last.
 - **Offline indicator** (`static/connection.js`, plain ES5): every HTMX poll reports the connection state.
   A network error or timeout (`htmx.config.timeout` 30 s, above the slowest widget request) sets
@@ -65,6 +69,8 @@ src/home_dashboard/
       ical_source.py
       service.py    day grouping, person/colour matching
       templates/
+    birthdays/
+      service.py    upcoming events of a second feed (via calendar's CalendarSource), one line each
     weather/
       source.py     WeatherSource protocol + Forecast model (WMO weather codes)
       open_meteo.py concrete source (Open-Meteo, see ADR 0004)
@@ -89,6 +95,7 @@ External systems are only reached through the source interface, so a source can 
 | `GET /` | Full page: layout, clock, widget containers |
 | `GET /widgets/departures` | Departures fragment |
 | `GET /widgets/calendar` | Calendar fragment |
+| `GET /widgets/birthdays` | Birthdays fragment (below the calendar) |
 | `GET /widgets/weather` | Weather fragment |
 | `GET /widgets/status` | Services status fragment (bubbles in the header) |
 | `GET /healthz` | Health check (used by deploy script) |
@@ -102,6 +109,7 @@ All intervals are configurable (defaults shown):
 | Clock (`display.clock_refresh_seconds`) | 15 s | – |
 | Departures (per stop) | 30 s | 60 s (min. 15) |
 | Calendar | 5 min | 10 min (min. 60 s) |
+| Birthdays | 5 min | 60 min (min. 60 s) |
 | Weather | 5 min | 15 min (min. 5 min) |
 | Services status (`status.check_seconds`) | 30 s | 60 s per service (min. 10 s), timeout 5 s |
 | Full page reload (`display.page_reload_hours`, 0 = off) | 6 h | – |
@@ -152,6 +160,10 @@ calendar:
     label: "Alle"
     color: "#c9b458"
     match: ["Familie", "Alle"]
+birthdays:                  # small below the calendar, shown only if enabled and ical_url is set
+  enabled: true
+  ical_url: "https://calendar.google.com/calendar/ical/…/basic.ics"
+  days: 14
 weather:                    # location: home.lat / home.lon, shown only if both are set
   enabled: true
 status:                     # services status in the header, shown only with services

@@ -5,8 +5,8 @@ Usage: uv run python scripts/screenshot.py [output.png]
 Needs the dev dependencies and Chromium (`uv run playwright install chromium-headless-shell`).
 The app runs in-process with in-memory sources and a fixed clock, so no network access and no
 config.yaml are needed. The sources below are also the smallest possible examples of the
-DepartureProvider, CalendarSource, WeatherSource and HealthCheck interfaces (see
-docs/customizing.md).
+DepartureProvider, CalendarSource (calendar and birthdays), WeatherSource and HealthCheck
+interfaces (see docs/customizing.md).
 """
 
 from __future__ import annotations
@@ -23,6 +23,7 @@ from home_dashboard.app import create_app
 from home_dashboard.clock import FixedClock
 from home_dashboard.config import (
     AppConfig,
+    BirthdaysConfig,
     CalendarConfig,
     DeparturesConfig,
     EveryoneConfig,
@@ -132,6 +133,20 @@ class FakeCalendar:
         return [e for e in self.EVENTS if bounds(e)[0] < end and bounds(e)[1] > start]
 
 
+class FakeBirthdays:
+    """Birthdays and an anniversary of the coming two weeks (a CalendarSource as well)."""
+
+    EVENTS = [
+        _all_day("granny", "Oma (70)", 0),
+        _all_day("anna", "Tante Anna", 4),
+        _all_day("wedding", "Hochzeitstag Alice & Bob", 9),
+        _all_day("max", "Max (Bobs Freund)", 12),
+    ]
+
+    def events(self, start: datetime, end: datetime) -> list[Event]:
+        return [e for e in self.EVENTS if start.date() <= e.start < end.date()]
+
+
 class FakeWeather:
     """A grey November morning, rain later."""
 
@@ -176,6 +191,7 @@ CONFIG = AppConfig(
         ],
         everyone=EveryoneConfig(label="Alle", color="#c9b458", match=["Familie"]),
     ),
+    birthdays=BirthdaysConfig(ical_url="https://calendar.example/birthdays.ics"),
     status=StatusConfig(
         services=[
             ServiceConfig(name="Home Assistant", url="http://host.docker.internal:8123/"),
@@ -194,6 +210,7 @@ def render(browser, output: Path) -> None:
         clock=FixedClock(NOW),
         departure_provider=FakeDepartures(),
         calendar_source=FakeCalendar(),
+        birthdays_source=FakeBirthdays(),
         weather_source=FakeWeather(),
         health_check=FakeHealthCheck(),
     )

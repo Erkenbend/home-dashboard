@@ -1,0 +1,19 @@
+<h2 class="widget-title">{{ birthdays.title }}</h2>
+{% if birthdays.unavailable %}
+<p class="notice">Nicht verfügbar</p>
+{% else %}
+{#- When space is short, the latest go first; the next one always stays #}
+<ul class="occasions">
+  {% for occasion in birthdays.occasions %}
+  <li class="occasion{% if occasion.is_today %} today{% endif %}"{% if not loop.first %} data-fit-priority="1"{% endif %}>
+    <span class="occasion-day">{{ occasion.label }}</span>
+    <span class="occasion-title">{% if occasion.time %}<span class="occasion-time">{{ occasion.time }}</span> {% endif %}{{ occasion.title }}</span>
+  </li>
+  {% else %}
+  <li class="notice">Keine in den nächsten {{ config.birthdays.days }} Tagen</li>
+  {% endfor %}
+</ul>
+{% if birthdays.stale %}
+<p class="notice stale">Stand: {{ birthdays.fetched_at | time }}</p>
+{% endif %}
+{% endif %}

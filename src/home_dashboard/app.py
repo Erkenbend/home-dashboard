@@ -16,6 +16,7 @@ from home_dashboard import REPOSITORY_URL, formatting
 from home_dashboard.cache import TtlCache
 from home_dashboard.clock import Clock, SystemClock
 from home_dashboard.config import AppConfig, config_path_from_env, load_config
+from home_dashboard.widgets.birthdays.service import BirthdaysService
 from home_dashboard.widgets.calendar.ical_source import IcalCalendarSource
 from home_dashboard.widgets.calendar.service import CalendarService
 from home_dashboard.widgets.calendar.source import CalendarSource
@@ -62,6 +63,7 @@ def create_app(
     clock: Clock | None = None,
     departure_provider: DepartureProvider | None = None,
     calendar_source: CalendarSource | None = None,
+    birthdays_source: CalendarSource | None = None,
     weather_source: WeatherSource | None = None,
     health_check: HealthCheck | None = None,
 ) -> FastAPI:
@@ -81,6 +83,15 @@ def create_app(
         if calendar_source is not None
         else None
     )
+    birthdays = None
+    if birthdays_url := config.birthdays_url:
+        birthdays = BirthdaysService(
+            config.birthdays,
+            birthdays_source or IcalCalendarSource(http, birthdays_url, config.timezone),
+            clock,
+            cache,
+            config.timezone,
+        )
     weather = None
     if location := config.weather_location:
         weather = WeatherService(
@@ -113,6 +124,9 @@ def create_app(
     def calendar_context() -> dict:
         return {"calendar": calendar.view() if calendar else None}
 
+    def birthdays_context() -> dict:
+        return {"birthdays": birthdays.view() if birthdays else None}
+
     def weather_context() -> dict:
         return {"weather": weather.view() if weather else None}
 
@@ -126,6 +140,7 @@ def create_app(
             **status_context(),
             **departures_context(),
             **calendar_context(),
+            **birthdays_context(),
             **weather_context(),
         }
         return templates.TemplateResponse(request, "index.html", context)
@@ -143,6 +158,12 @@ def create_app(
         if calendar is None:
             return HTMLResponse("", status_code=404)
         return templates.TemplateResponse(request, "widgets/calendar.html", calendar_context())
+
+    @app.get("/widgets/birthdays", response_class=HTMLResponse)
+    def birthdays_widget(request: Request) -> HTMLResponse:
+        if birthdays is None:
+            return HTMLResponse("", status_code=404)
+        return templates.TemplateResponse(request, "widgets/birthdays.html", birthdays_context())
 
     @app.get("/widgets/weather", response_class=HTMLResponse)
     def weather_widget(request: Request) -> HTMLResponse:
