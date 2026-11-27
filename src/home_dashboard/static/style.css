@@ -216,12 +216,13 @@ body {
 }
 
 /* Fine lines split the widgets: a vertical one between the columns, a horizontal one in each
- * column, in the middle of the gaps (as wide and high as before the lines). Lighter than the lines
- * inside the widgets (#2a3038). Padding and borders are outside the flex distribution, so the
- * 45/55 split of the widths stays exact. */
+ * column, in the middle of the gaps (as wide and high as before the lines). Clearly lighter than
+ * the lines inside the widgets (#2a3038, e.g. between the calendar days), so they do not read as
+ * one more day. Padding and borders are outside the flex distribution, so the 45/55 split of the
+ * widths stays exact. */
 .column + .column {
   padding-left: 0.75rem;
-  border-left: 1px solid #3a424b;
+  border-left: 1px solid #6a727c;
 }
 
 .column .widget {
@@ -263,7 +264,7 @@ body {
 .widget-weather + .widget-departures {
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid #3a424b;
+  border-top: 1px solid #6a727c;
 }
 
 /* Below the calendar: as high as its content, at most a third of the column; the calendar takes
@@ -279,7 +280,7 @@ body {
  * rows */
 .column .widget-calendar:not(:last-child) {
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #3a424b;
+  border-bottom: 1px solid #6a727c;
 }
 
 .widget-calendar + .widget-birthdays {
@@ -311,7 +312,7 @@ body {
     padding-left: 0;
     border-left: 0;
     padding-top: 1rem;
-    border-top: 1px solid #3a424b;
+    border-top: 1px solid #6a727c;
   }
 
   /* Weather + departures and calendar + birthdays share the height equally */
