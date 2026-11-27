@@ -28,9 +28,9 @@ def test_valid_config_prints_summary_without_secrets(
     output = capsys.readouterr().out
     assert "OK" in output
     assert "Rannischer Platz (5 min)" in output
-    assert "iCal-Adresse gesetzt" in output
-    assert "Wetter: an" in output
-    assert "Dienste: -" in output
+    assert "Calendar: iCal address set" in output
+    assert "Weather: on" in output
+    assert "Services: -" in output
     assert "secret42" not in output
 
 
@@ -68,5 +68,5 @@ def test_summary_names_the_checked_services(
     assert run(str(config)) == 0
 
     output = capsys.readouterr().out
-    assert "Dienste: Pi-hole, NAS" in output
-    assert "Dienste 30 s (Prüfung 60 s)" in output
+    assert "Services: Pi-hole, NAS" in output
+    assert "services 30 s (check 60 s)" in output

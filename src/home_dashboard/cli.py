@@ -49,7 +49,7 @@ def _find_stop(query: str) -> None:
     with create_http_client() as http:
         matches = InsaHafasProvider(http).search_stops(query)
     if not matches:
-        print("Keine Haltestelle gefunden.")
+        print("No stop found.")
     for match in matches:
         print(f"{match.id:>10}  {match.name}")
 
@@ -59,13 +59,13 @@ def _check_config(path: str) -> int:
     try:
         config = load_config(path)
     except FileNotFoundError:
-        print(f"{path}: Datei nicht gefunden", file=sys.stderr)
+        print(f"{path}: file not found", file=sys.stderr)
         return 1
     except yaml.YAMLError as error:
-        print(f"{path}: kein gültiges YAML: {error}", file=sys.stderr)
+        print(f"{path}: not valid YAML: {error}", file=sys.stderr)
         return 1
     except ValidationError as error:
-        print(f"{path}: ungültige Konfiguration", file=sys.stderr)
+        print(f"{path}: invalid configuration", file=sys.stderr)
         for problem in error.errors():
             location = ".".join(str(part) for part in problem["loc"])
             print(f"  {location}: {problem['msg']}", file=sys.stderr)
@@ -74,46 +74,46 @@ def _check_config(path: str) -> int:
     stops = ", ".join(f"{s.name} ({s.walk_minutes} min)" for s in config.departures.stops)
     people = ", ".join(person.name for person in config.calendar.people)
     print(f"{path}: OK")
-    print(f"  Haltestellen: {stops or '-'}")
-    print(f"  Kalender: {'iCal-Adresse gesetzt' if config.calendar.ical_url else 'aus'}")
-    print(f"  {config.birthdays.title}: {_birthdays_summary(config)}")
-    print(f"  Wetter: {_weather_summary(config)}")
+    print(f"  Stops: {stops or '-'}")
+    print(f"  Calendar: {'iCal address set' if config.calendar.ical_url else 'off'}")
+    print(f"  Birthdays: {_birthdays_summary(config)}")
+    print(f"  Weather: {_weather_summary(config)}")
     services = ", ".join(service.name for service in config.status.services)
-    print(f"  Dienste: {services or '-'}")
+    print(f"  Services: {services or '-'}")
     print(
-        f"  Personen: {people or '-'}; {config.calendar.everyone.label}: "
-        f"{', '.join(config.calendar.everyone.match) or 'nur ohne erkannte Person'}"
+        f"  People: {people or '-'}; everyone: "
+        f"{', '.join(config.calendar.everyone.match) or 'only without a recognized person'}"
     )
     display, departures, calendar = config.display, config.departures, config.calendar
     weather = config.weather
-    reload = f"{display.page_reload_hours:g} h" if display.page_reload_hours else "aus"
+    reload = f"{display.page_reload_hours:g} h" if display.page_reload_hours else "off"
     print(
-        f"  Aktualisierung: Uhr {display.clock_refresh_seconds} s, "
-        f"Abfahrten {departures.refresh_seconds} s (Abruf {departures.fetch_seconds} s), "
-        f"Kalender {calendar.refresh_seconds} s (Abruf {calendar.fetch_seconds} s), "
-        f"{config.birthdays.title} {config.birthdays.refresh_seconds} s "
-        f"(Abruf {config.birthdays.fetch_seconds} s), "
-        f"Wetter {weather.refresh_seconds} s (Abruf {weather.fetch_seconds} s), "
-        f"Dienste {config.status.refresh_seconds} s (Prüfung {config.status.check_seconds} s), "
-        f"Seiten-Reload {reload}"
+        f"  Refresh: clock {display.clock_refresh_seconds} s, "
+        f"departures {departures.refresh_seconds} s (fetch {departures.fetch_seconds} s), "
+        f"calendar {calendar.refresh_seconds} s (fetch {calendar.fetch_seconds} s), "
+        f"birthdays {config.birthdays.refresh_seconds} s "
+        f"(fetch {config.birthdays.fetch_seconds} s), "
+        f"weather {weather.refresh_seconds} s (fetch {weather.fetch_seconds} s), "
+        f"services {config.status.refresh_seconds} s (check {config.status.check_seconds} s), "
+        f"page reload {reload}"
     )
     return 0
 
 
 def _birthdays_summary(config: AppConfig) -> str:
     if not config.birthdays.enabled:
-        return "aus"
+        return "off"
     if config.birthdays_url is None:
-        return "aus (keine iCal-Adresse)"
-    return f"iCal-Adresse gesetzt, {config.birthdays.days} Tage"
+        return "off (no iCal address)"
+    return f"iCal address set, {config.birthdays.days} days"
 
 
 def _weather_summary(config: AppConfig) -> str:
     if not config.weather.enabled:
-        return "aus"
+        return "off"
     if config.weather_location is None:
-        return "aus (home.lat / home.lon fehlen)"
-    return "an"
+        return "off (home.lat / home.lon missing)"
+    return "on"
 
 
 if __name__ == "__main__":

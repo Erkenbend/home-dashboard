@@ -25,4 +25,4 @@ def test_find_stop_without_result(
 
     main(["find-stop", "Gibtsnicht"])
 
-    assert "Keine Haltestelle gefunden." in capsys.readouterr().out
+    assert "No stop found." in capsys.readouterr().out
