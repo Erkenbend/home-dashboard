@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from home_dashboard.app import create_app
 from home_dashboard.clock import FixedClock
 from home_dashboard.config import AppConfig
+from home_dashboard.i18n import DEFAULT_LANGUAGE, load_translator
 
 BERLIN = ZoneInfo("Europe/Berlin")
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -27,8 +28,9 @@ def clock() -> FixedClock:
 
 @pytest.fixture
 def make_client(clock: FixedClock) -> Callable[..., TestClient]:
-    def _make(config: AppConfig | None = None) -> TestClient:
-        return TestClient(create_app(config or AppConfig(), clock=clock))
+    def _make(config: AppConfig | None = None, language: str = DEFAULT_LANGUAGE) -> TestClient:
+        app = create_app(config or AppConfig(), clock=clock, translator=load_translator(language))
+        return TestClient(app)
 
     return _make
 

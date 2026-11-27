@@ -1,0 +1,111 @@
+# English UI texts (British date order, 24 h times). Same keys and {placeholders} as de.toml,
+# checked by tests/test_language.py. A good starting point for another language.
+
+[page]
+lang = "en"  # <html lang>
+title = "Dashboard"
+offline = "No connection since {time}"
+source_code = "Source code on GitHub"
+
+[dates]
+weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+weekdays_short = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+]
+today = "Today"
+tomorrow = "Tomorrow"
+# Fields: {weekday}, {weekday_short}, {day}, {month} (number), {month_name}, {year};
+# {day:02} pads with a zero
+long_date = "{weekday}, {day} {month_name} {year}"
+short_date = "{weekday_short} {day}/{month}"
+hour = "{hour}:00"
+
+[common]
+stale = "As of {time}"  # last successful update, shown while a source is down
+
+[departures]
+title = "Departures"
+walk = "{minutes} min walk"
+unavailable = "No data available"
+none_reachable = "No reachable departures"
+in_minutes = "in {minutes} min"
+leave_in = "leave in {minutes} min"
+leave_now = "leave now!"
+cancelled = "cancelled"
+
+[calendar]
+title = "Calendar"
+unavailable = "Calendar not available"
+no_events = "No events"
+everyone = "Everyone"  # default of calendar.everyone.label
+recurring = "Recurring event"
+all_day = "all day"
+day_of = "day {day}/{total}"  # day of an event over several days
+range = "{start}–{end}"
+from = "from {start}"  # starts that day, ends later
+until = "until {end}"  # started earlier, ends that day
+
+[birthdays]
+title = "Birthdays & more"  # default of birthdays.title
+unavailable = "Not available"
+none = "None in the next {days} days"
+birthday = "Birthday"
+anniversary = "Anniversary"
+other = "Event"
+turns = "turns {years}"  # birthday with a known year
+years_one = "{years} year"  # anniversaries and other events
+years_other = "{years} years"
+
+[weather]
+title = "Weather"
+unavailable = "Weather not available"
+actual = "actual"  # measured temperature
+apparent = "feels like"
+now = "now"
+uv = "UV index {value}: {label}"
+sunny = "Sunny"  # clear sky by day
+unknown = "Unknown"
+
+[weather.conditions]  # WMO weather interpretation codes
+"0" = "Clear"
+"1" = "Mainly clear"
+"2" = "Partly cloudy"
+"3" = "Overcast"
+"45" = "Fog"
+"48" = "Rime fog"
+"51" = "Light drizzle"
+"53" = "Drizzle"
+"55" = "Heavy drizzle"
+"56" = "Freezing drizzle"
+"57" = "Freezing drizzle"
+"61" = "Light rain"
+"63" = "Rain"
+"65" = "Heavy rain"
+"66" = "Freezing rain"
+"67" = "Freezing rain"
+"71" = "Light snowfall"
+"73" = "Snowfall"
+"75" = "Heavy snowfall"
+"77" = "Snow grains"
+"80" = "Light rain showers"
+"81" = "Rain showers"
+"82" = "Violent rain showers"
+"85" = "Light snow showers"
+"86" = "Snow showers"
+"95" = "Thunderstorm"
+"96" = "Thunderstorm with hail"
+"99" = "Thunderstorm with hail"
+
+[weather.uv_levels]  # WHO UV index categories
+low = "low"
+moderate = "moderate"
+high = "high"
+very-high = "very high"
+extreme = "extreme"
+
+[status]  # tooltips of the service bubbles
+ok = "reachable"
+warning = "last check failed"
+failing = "{failures} checks in a row failed"
