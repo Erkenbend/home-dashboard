@@ -53,6 +53,10 @@ when leaving the house or planning the week. The dashboard is extensible: new wi
 - Optional (config toggle), small, below the calendar: upcoming birthdays, anniversaries and similar
   events of a separate calendar (own iCal address), by default the next 14 days, one line each
   ("Sa, 14.11.  Anna Geburtstag"), soonest first, today's highlighted.
+- The calendar is synced from the address book. Each line shows an icon for the kind (birthday,
+  anniversary, other), the person, the contact the event is stored with (e.g. a child's birthday
+  stored with a parent: "Mia (Anna Muster)") and, if the year is known, the age ("wird 4") or the
+  years ("11 Jahre"). Configured contacts (e.g. one collecting birthdays) are not shown.
 - As high as its entries, at most a third of the calendar column; when not all fit, the latest give way.
 
 ### FR-3 General display

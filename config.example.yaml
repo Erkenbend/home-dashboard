@@ -53,10 +53,13 @@ calendar:
 birthdays:                  # small list below the calendar: birthdays, anniversaries, ... of a separate calendar
   enabled: true             # shown only if enabled and ical_url is set
   ical_url: null            # iCal address of that calendar (keep secret!)
-  title: "Geburtstage"
+  title: "Geburtstage & mehr"
   days: 14                  # upper limit, the display shows as many as fit
   refresh_seconds: 300      # how often the tablet updates the widget
   fetch_seconds: 3600       # how often the Pi downloads the iCal feed at most (min. 60)
+  # Events stored with another contact (a child's birthday with a parent) show that contact in
+  # parentheses; not for these, e.g. a contact that only collects birthdays:
+  ignore_contacts: []       # e.g. ["Geburtstagsliste"]
 
 weather:                    # Open-Meteo, no API key; location: home.lat / home.lon
   enabled: true

@@ -262,33 +262,43 @@ def states(html: str) -> dict[str, str]:
 
 
 class _BirthdaysParser(HTMLParser):
+    FIELDS = {
+        "occasion-day": "day",
+        "occasion-time": "time",
+        "occasion-name": "name",
+        "occasion-contact": "contact",
+        "occasion-years": "years",
+    }
+
     def __init__(self) -> None:
         super().__init__()
         self.occasions: list[dict] = []
-        self._field: str | None = None
+        self._fields: list[str | None] = []  # one per open span
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        classes = (dict(attrs).get("class") or "").split()
+        attributes = dict(attrs)
+        classes = (attributes.get("class") or "").split()
         if tag == "li" and "occasion" in classes:
-            self.occasions.append({"day": "", "title": "", "today": "today" in classes})
-        elif self.occasions and "occasion-day" in classes:
-            self._field = "day"
-        elif self.occasions and "occasion-title" in classes:
-            self._field = "title"
+            occasion = {field: "" for field in self.FIELDS.values()}
+            occasion |= {"kind": attributes.get("data-kind"), "today": "today" in classes}
+            self.occasions.append(occasion)
+        elif tag == "span" and self.occasions:
+            self._fields.append(next((self.FIELDS[c] for c in classes if c in self.FIELDS), None))
 
     def handle_endtag(self, tag: str) -> None:
-        if tag == "li":
-            self._field = None
+        if tag == "span" and self._fields:
+            self._fields.pop()
 
     def handle_data(self, data: str) -> None:
-        if self._field is not None:
+        for field in filter(None, self._fields):
             occasion = self.occasions[-1]
-            occasion[self._field] = " ".join((occasion[self._field] + " " + data).split())
+            occasion[field] = " ".join((occasion[field] + " " + data).split())
 
 
 def birthdays(html: str) -> list[dict]:
-    """[{day: "Heute" | "Morgen" | "Sa, 14.11.", title, today: bool}, ...] in the shown order;
-    the title includes the start time of timed events ("18:00 Hochzeitsfeier")."""
+    """[{day: "Heute" | "Morgen" | "Sa, 14.11.", kind: birthday | anniversary | other, name,
+    contact: "(Max Muster)" or "", years: "wird 4" or "", time: "18:00" or "", today: bool}, ...]
+    in the shown order"""
     parser = _BirthdaysParser()
     parser.feed(html)
     return parser.occasions

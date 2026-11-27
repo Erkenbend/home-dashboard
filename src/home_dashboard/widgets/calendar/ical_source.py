@@ -47,6 +47,7 @@ class IcalCalendarSource:
             # 5545 defaults (a date lasts one day, a date-time is a point in time)
             end=self._normalize(component.decoded("DTEND")),
             recurring=uid in series_uids,
+            description=str(component.get("DESCRIPTION", "")).strip(),
         )
 
     def _normalize(self, value: datetime | date) -> datetime | date:

@@ -16,6 +16,7 @@ from home_dashboard.config import AppConfig, BirthdaysConfig, CalendarConfig
 from tests.conftest import BERLIN, FIXTURES
 from tests.html import birthdays
 from tests.test_calendar import ICAL_URL, ICS
+from tests.test_calendar import feed as feed_of
 
 BIRTHDAYS_URL = "https://calendar.example/private-birthdays456/basic.ics"
 BIRTHDAYS_ICS = (FIXTURES / "calendar" / "birthdays.ics").read_bytes()
@@ -40,30 +41,89 @@ def monday_morning(clock: FixedClock) -> FixedClock:
 
 @pytest.fixture
 def client(make_client: Callable[..., TestClient], feed, monday_morning) -> TestClient:
-    return make_client(birthdays_config())
+    return make_client(birthdays_config(ignore_contacts=["geburtstagsliste"]))
 
 
-def shown(client: TestClient) -> list[tuple[str, str]]:
+def shown(client: TestClient) -> list[dict]:
     response = client.get("/widgets/birthdays")
     assert response.status_code == 200
-    return [(occasion["day"], occasion["title"]) for occasion in birthdays(response.text)]
+    return birthdays(response.text)
+
+
+def names(client: TestClient) -> list[tuple[str, str]]:
+    return [(occasion["day"], occasion["name"]) for occasion in shown(client)]
 
 
 def test_shows_the_next_two_weeks_soonest_first(client: TestClient) -> None:
-    assert shown(client) == [
-        ("Heute", "Oma Geburtstag"),
-        ("Morgen", "Alice Geburtstag"),
-        ("Sa, 14.11.", "Anna Geburtstag"),
-        ("Sa, 14.11.", "Bob Geburtstag"),
-        ("Sa, 21.11.", "Hochzeitstag"),  # all-day before timed
-        ("Sa, 21.11.", "18:00 Feier Hochzeitstag"),
-    ]  # Onkel Paul (26.11.) is outside the window, Opa (29.09.) long past
+    assert names(client) == [
+        ("Heute", "Oma Erna"),
+        ("Morgen", "Mia"),
+        ("Fr, 13.11.", "Namenstag"),
+        ("Sa, 14.11.", "Finn (Sohn Tom)"),
+        ("Sa, 14.11.", "Lea Beispiel"),
+        ("So, 15.11.", "Opa"),
+        ("Sa, 21.11.", "Max Muster"),  # all-day before timed
+        ("Sa, 21.11.", "Grillfest"),
+    ]  # Onkel Paul (26.11.) is outside the window, Opa Kurt (29.09.) long past
+
+
+def test_contacts_birthdays_special_events_and_anniversaries(client: TestClient) -> None:
+    occasions = {o["name"]: (o["kind"], o["contact"], o["years"]) for o in shown(client)}
+
+    assert occasions == {
+        "Oma Erna": ("birthday", "", "wird 70"),  # "Heute hat Oma Erna Geburtstag!"
+        "Mia": ("birthday", "(Max Muster)", "wird 4"),  # a special event of the contact Max
+        "Namenstag": ("other", "(Lea Beispiel)", ""),  # "Jahr: unbekannt"
+        "Finn (Sohn Tom)": ("birthday", "", "wird 5"),  # contact ignored by the config
+        "Lea Beispiel": ("birthday", "", ""),
+        "Opa": ("birthday", "", ""),  # entered by hand: "Opa Geburtstag", no description
+        "Max Muster": ("anniversary", "", "14 Jahre"),
+        "Grillfest": ("other", "", ""),
+    }
+
+
+def test_timed_events_show_their_start(client: TestClient) -> None:
+    times = {o["name"]: o["time"] for o in shown(client) if o["time"]}
+
+    assert times == {"Grillfest": "18:00"}
+
+
+@pytest.mark.parametrize(
+    ("summary", "description", "expected"),
+    [
+        ("Geburtstag Max", "", ("birthday", "Max")),
+        ("Geburtstag: Max", "", ("birthday", "Max")),
+        ("Max Geburtstag", "", ("birthday", "Max")),
+        ("Hochzeitstag Alice & Bob", "", ("anniversary", "Alice & Bob")),
+        ("Alice & Bob: Jahrestag", "", ("anniversary", "Alice & Bob")),
+        ("Kita-Fest", "", ("other", "Kita-Fest")),
+        # the description wins: the summary does not say who "(Lea)" is
+        ("Geburtstag Mia (Lea)", "Besonderes Ereignis: Geburtstag Mia (aus Lea)\\nJahr: 2020",
+         ("birthday", "Mia (Lea)")),
+    ],
+)  # fmt: skip
+def test_kind_and_name_from_summary_or_description(
+    make_client: Callable[..., TestClient],
+    respx_mock: respx.Router,
+    monday_morning,
+    summary: str,
+    description: str,
+    expected: tuple[str, str],
+) -> None:
+    lines = [f"SUMMARY:{summary}", "DTSTART;VALUE=DATE:20261109"]
+    lines += [f"DESCRIPTION:{description}"] if description else []
+    respx_mock.get(BIRTHDAYS_URL).mock(
+        return_value=httpx.Response(200, content=feed_of("\n".join(lines)))
+    )
+
+    [occasion] = shown(make_client(birthdays_config()))
+
+    name = " ".join(filter(None, [occasion["name"], occasion["contact"]]))
+    assert (occasion["kind"], name) == expected
 
 
 def test_todays_occasions_are_highlighted(client: TestClient) -> None:
-    today = [o["title"] for o in birthdays(client.get("/widgets/birthdays").text) if o["today"]]
-
-    assert today == ["Oma Geburtstag"]
+    assert [o["name"] for o in shown(client) if o["today"]] == ["Oma Erna"]
 
 
 def test_number_of_days_is_configurable(
@@ -71,14 +131,22 @@ def test_number_of_days_is_configurable(
 ) -> None:
     client = make_client(birthdays_config(days=3))
 
-    assert [title for _, title in shown(client)] == ["Oma Geburtstag", "Alice Geburtstag"]
+    assert [name for _, name in names(client)] == ["Oma Erna", "Mia"]
 
 
 def test_window_moves_with_the_date(client: TestClient, clock: FixedClock) -> None:
     clock.instant = datetime(2026, 11, 21, 7, 0, tzinfo=BERLIN)
 
-    assert shown(client)[:2] == [("Heute", "Hochzeitstag"), ("Heute", "18:00 Feier Hochzeitstag")]
-    assert ("Do, 26.11.", "Onkel Paul Geburtstag") in shown(client)
+    assert names(client)[:2] == [("Heute", "Max Muster"), ("Heute", "Grillfest")]
+    assert ("Do, 26.11.", "Onkel Paul") in names(client)
+
+
+def test_default_title_covers_more_than_birthdays(
+    make_client: Callable[..., TestClient], feed, monday_morning
+) -> None:
+    html = make_client(birthdays_config()).get("/widgets/birthdays").text
+
+    assert '<h2 class="widget-title">Geburtstage &amp; mehr</h2>' in html
 
 
 def test_title_is_configurable(
@@ -112,7 +180,7 @@ def test_dashboard_shows_birthdays_below_the_calendar_from_their_own_feed(
     assert page.index('id="calendar"') < page.index('id="birthdays"')
     assert 'hx-get="/widgets/birthdays" hx-trigger="every 300s"' in page
     assert "Fußballturnier" in page  # calendar
-    assert "Alice Geburtstag" in page  # birthdays
+    assert "Mia" in page  # birthdays
 
 
 @pytest.mark.parametrize(
@@ -152,7 +220,7 @@ def test_keeps_last_occasions_when_download_fails(
 
     html = client.get("/widgets/birthdays").text
 
-    assert "Alice Geburtstag" in html
+    assert "Oma Erna" in html
     assert "Stand: 10:00" in html
 
 

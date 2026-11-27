@@ -17,6 +17,7 @@ class Event:
     """Exclusive end, same type as start."""
     recurring: bool = False
     """Occurrence of a series (incl. moved single occurrences)."""
+    description: str = ""
 
     @property
     def all_day(self) -> bool:

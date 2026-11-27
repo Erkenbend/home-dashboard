@@ -94,13 +94,20 @@ class BirthdaysConfig(_Strict):
 
     enabled: bool = True
     ical_url: str | None = None
-    title: str = Field(default="Geburtstage", min_length=1, description="heading of the widget")
+    title: str = Field(
+        default="Geburtstage & mehr", min_length=1, description="heading of the widget"
+    )
     days: int = Field(
         default=14, ge=1, le=366, description="upper limit, the display shows as many as fit"
     )
     refresh_seconds: int = Field(default=300, ge=5, description="how often the tablet updates")
     fetch_seconds: int = Field(
         default=3600, ge=60, description="how often the Pi downloads the iCal feed at most"
+    )
+    ignore_contacts: list[str] = Field(
+        default=[],
+        description="contacts not shown next to their events, e.g. a contact collecting the "
+        "birthdays of people without an own contact",
     )
 
 

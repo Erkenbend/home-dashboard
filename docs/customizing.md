@@ -30,7 +30,13 @@ Copy [`config.example.yaml`](../config.example.yaml) to `config.yaml` (gitignore
   - `lines` (optional): only these lines. `departures.products` selects trams, buses, trains.
 - **`birthdays`** (optional): a second iCal feed (`birthdays.ical_url`), e.g. a calendar of yearly
   birthdays and anniversaries, listed small below the calendar for the next `birthdays.days`
-  (14). `birthdays.enabled: false` hides it, `birthdays.title` names it.
+  (14). `birthdays.enabled: false` hides it, `birthdays.title` names it. Each event gets an icon
+  (birthday, anniversary, other), the person, the contact it is stored with in parentheses (a
+  child's birthday stored with a parent; `birthdays.ignore_contacts` hides e.g. a contact that only
+  collects birthdays) and "wird 4" / "11 Jahre" if the year is known. This is read from the events'
+  descriptions as a contacts sync writes them ("Heute hat … Geburtstag!", "Besonderes Ereignis: …
+  (aus …)", "Jahr: …"), with the title as fallback; for another format adapt the `RULES` in
+  [`widgets/birthdays/parsing.py`](../src/home_dashboard/widgets/birthdays/parsing.py).
 - **`calendar.people`**: a name, a colour and title keywords per person. An event titled
   "Alice: Zahnarzt" is shown as "Zahnarzt (Alice)" in Alice's colour. Events matching
   `calendar.everyone.match`, or no person at all, get the "Alle" colour.
@@ -146,6 +152,7 @@ There is no i18n layer; the German texts sit where they are used:
 - [`widgets/calendar/service.py`](../src/home_dashboard/widgets/calendar/service.py) ("ganztägig", "Tag 1/3")
 - [`widgets/weather/service.py`](../src/home_dashboard/widgets/weather/service.py) (weather descriptions, UV categories, "jetzt", "16 Uhr")
 - [`widgets/status/service.py`](../src/home_dashboard/widgets/status/service.py) (the bubbles' tooltips)
+- [`widgets/birthdays/`](../src/home_dashboard/widgets/birthdays/) ("wird 4", "11 Jahre"; the parsing rules match German event texts)
 - [`cli.py`](../src/home_dashboard/cli.py) (`check-config` and `find-stop` output)
 
 The tests assert on the rendered German texts, so `uv run pytest` shows what to update alongside.

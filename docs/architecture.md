@@ -70,6 +70,7 @@ src/home_dashboard/
       service.py    day grouping, person/colour matching
       templates/
     birthdays/
+      parsing.py    rules: kind, person, contact, year from an event's description or title
       service.py    upcoming events of a second feed (via calendar's CalendarSource), one line each
     weather/
       source.py     WeatherSource protocol + Forecast model (WMO weather codes)

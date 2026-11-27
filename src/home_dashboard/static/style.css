@@ -572,7 +572,20 @@ body {
   color: #a0a8b0;
 }
 
-.occasion-title {
+/* Icon, name (contact muted), the years right-aligned */
+.occasion-icon {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0.125rem 0.5rem 0 0;
+}
+
+.occasion[data-kind="birthday"] .occasion-icon { color: #e48aa8; }
+.occasion[data-kind="anniversary"] .occasion-icon { color: #e07a5f; }
+.occasion[data-kind="other"] .occasion-icon { color: #c9b458; }
+
+.occasion-text {
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
   min-width: 0;
@@ -581,12 +594,21 @@ body {
   color: #c8d0d8;
 }
 
-.occasion-time {
+.occasion-time,
+.occasion-contact {
+  color: #707880;
+}
+
+.occasion-years {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-left: 0.75rem;
   color: #a0a8b0;
 }
 
 .occasion.today .occasion-day,
-.occasion.today .occasion-title {
+.occasion.today .occasion-name,
+.occasion.today .occasion-years {
   font-weight: bold;
   color: #f2d33c;
 }

@@ -1,5 +1,6 @@
 """Birthdays widget logic: upcoming events of a separate calendar (birthdays, anniversaries, ...),
-one line each, soonest first. The events come through the calendar widget's CalendarSource."""
+one line each, soonest first. The events come through the calendar widget's CalendarSource, what
+they are about is read by parsing.py."""
 
 from __future__ import annotations
 
@@ -12,6 +13,7 @@ from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import BirthdaysConfig
 from home_dashboard.formatting import format_day_label, format_time
+from home_dashboard.widgets.birthdays.parsing import Kind, parse
 from home_dashboard.widgets.calendar.source import CalendarSource, Event
 
 log = logging.getLogger(__name__)
@@ -22,7 +24,13 @@ class Occasion:
     day: date
     label: str
     """'Heute', 'Morgen', 'Sa, 05.12.'"""
-    title: str
+    kind: Kind
+    name: str
+    """Who or what it is about ("Mia", "Max Muster", the title of an unknown event)."""
+    contact: str | None
+    """Contact it is stored with (a child's birthday: the parent), None for the contact's own."""
+    years: str
+    """'wird 3' (birthday), '13 Jahre' (anniversary and others), empty without a known year."""
     time: str
     """Start time of timed events, empty for all-day ones (the usual case)."""
     is_today: bool
@@ -72,20 +80,31 @@ class BirthdaysService:
         view.fetched_at = cached.fetched_at
         view.stale = cached.stale
         occasions = [self._occasion(event, today) for event in cached.value]
-        view.occasions = sorted(occasions, key=lambda o: (o.day, o.time, o.title.casefold()))
+        view.occasions = sorted(occasions, key=lambda o: (o.day, o.time, o.name.casefold()))
         return view
 
     def _midnight(self, day: date) -> datetime:
         return datetime.combine(day, time.min, tzinfo=self._tz)
 
-    @staticmethod
-    def _occasion(event: Event, today: date) -> Occasion:
+    def _occasion(self, event: Event, today: date) -> Occasion:
         start = event.start if event.all_day else event.start.date()
         day = max(start, today)  # an event that started before today (several days) counts today
+        parsed = parse(event, self._config.ignore_contacts)
         return Occasion(
             day=day,
             label=format_day_label(day, today),
-            title=event.title,
+            kind=parsed.kind,
+            name=parsed.name,
+            contact=parsed.contact,
+            years=self._years(parsed.kind, start.year - parsed.year if parsed.year else 0),
             time="" if event.all_day else format_time(event.start),
             is_today=day == today,
         )
+
+    @staticmethod
+    def _years(kind: Kind, years: int) -> str:
+        if years <= 0:  # unknown year, or the year it happened
+            return ""
+        if kind is Kind.BIRTHDAY:
+            return f"wird {years}"
+        return f"{years} Jahr" if years == 1 else f"{years} Jahre"

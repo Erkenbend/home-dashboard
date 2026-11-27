@@ -188,11 +188,18 @@ def test_birthdays_take_at_most_a_third_below_the_calendar(open_dashboard, viewp
     assert_fits(page)
 
 
+TWO_BIRTHDAYS = feed(
+    "SUMMARY:Geburtstag Mia\nDTSTART;VALUE=DATE:20261110",
+    "SUMMARY:Geburtstag Max\nDTSTART;VALUE=DATE:20261112",
+)
+
+
+@pytest.mark.parametrize("dashboard_birthdays", [TWO_BIRTHDAYS])
 def test_few_birthdays_take_only_the_space_they_need(open_dashboard):
     page = open_dashboard(LARGE)
     heights = page.evaluate(BIRTHDAYS)
 
-    assert all(page.evaluate(VISIBLE_ROWS)["birthdays"]), "all six fit"
+    assert page.evaluate(VISIBLE_ROWS)["birthdays"] == [True, True]
     assert heights["birthdays"] < heights["column"] / 4
 
 

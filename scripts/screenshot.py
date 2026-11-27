@@ -98,9 +98,9 @@ def _timed(
     return Event(uid, title, _at(day, *start), _at(day, *end), recurring)
 
 
-def _all_day(uid: str, title: str, day: int, days: int = 1) -> Event:
+def _all_day(uid: str, title: str, day: int, days: int = 1, description: str = "") -> Event:
     first: date = TODAY + timedelta(days=day)
-    return Event(uid, title, first, first + timedelta(days=days))
+    return Event(uid, title, first, first + timedelta(days=days), description=description)
 
 
 class FakeCalendar:
@@ -134,13 +134,28 @@ class FakeCalendar:
 
 
 class FakeBirthdays:
-    """Birthdays and an anniversary of the coming two weeks (a CalendarSource as well)."""
+    """Birthdays and an anniversary of the coming two weeks, as synced from the contacts (a
+    CalendarSource as well)."""
 
     EVENTS = [
-        _all_day("granny", "Oma (70)", 0),
-        _all_day("anna", "Tante Anna", 4),
-        _all_day("wedding", "Hochzeitstag Alice & Bob", 9),
-        _all_day("max", "Max (Bobs Freund)", 12),
+        _all_day(
+            "granny", "Geburtstag Oma", 0, description="Heute hat Oma Geburtstag!\nJahr: 1956"
+        ),
+        _all_day(
+            "mia",
+            "Geburtstag Mia (Anna Muster)",
+            4,
+            description="Besonderes Ereignis: Geburtstag Mia (aus Anna Muster)\nJahr: 2022",
+        ),
+        _all_day(
+            "wedding",
+            "Anniversary (Anna Muster)",
+            9,
+            description="Besonderes Ereignis: Anniversary (aus Anna Muster)\nJahr: 2015",
+        ),
+        _all_day(
+            "max", "Geburtstag Max", 12, description="Heute hat Max Geburtstag!\nJahr: unbekannt"
+        ),
     ]
 
     def events(self, start: datetime, end: datetime) -> list[Event]:
