@@ -194,11 +194,12 @@ body {
   margin-right: 0;
 }
 
-/* A column of widgets (weather + departures), as wide as the calendar */
+/* A column of widgets (weather + departures): 45 % of the width, the calendar on the right 55 %
+ * (fewer event titles wrap) */
 .column {
-  -webkit-box-flex: 1;
-  -webkit-flex: 1 1 0;
-  flex: 1 1 0;
+  -webkit-box-flex: 9;
+  -webkit-flex: 9 1 0;
+  flex: 9 1 0;
   margin-right: 1.5rem;
   min-width: 0;
   min-height: 0;
@@ -216,6 +217,22 @@ body {
 
 .column .widget {
   margin-right: 0;
+}
+
+.widget-calendar {
+  -webkit-box-flex: 11;
+  -webkit-flex: 11 1 0;
+  flex: 11 1 0;
+}
+
+/* Narrow displays: halves, the departures' destinations and the weather tiles need the width */
+@media (max-width: 999px) {
+  .column,
+  .widget-calendar {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 0;
+    flex: 1 1 0;
+  }
 }
 
 /* The weather on top gets one third of the column, its content at the top, the departures below
@@ -260,7 +277,8 @@ body {
   }
 
   /* Weather + departures and the calendar share the height equally */
-  .column {
+  .column,
+  .widget-calendar {
     -webkit-box-flex: 1;
     -webkit-flex: 1 1 0;
     flex: 1 1 0;

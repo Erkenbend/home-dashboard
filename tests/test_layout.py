@@ -84,20 +84,21 @@ def test_widgets_fit_the_display_without_overlapping_or_scrolling(open_dashboard
 
 
 @pytest.mark.parametrize("viewport", [LARGE, (1280, 800)], ids=lambda size: f"{size[0]}x{size[1]}")
-def test_calendar_takes_the_right_half_and_departures_two_thirds_of_the_left(
+def test_calendar_takes_55_percent_and_departures_two_thirds_of_the_left_column(
     open_dashboard, viewport
 ):
     """Smaller displays: the weather needs more than a third for its two rows of tiles, the
-    departures give up rows instead (see test_widgets_fit_the_display_without_overlapping...)."""
+    departures give up rows instead (see test_widgets_fit_the_display_without_overlapping...).
+    Narrow displays (below 1000 px) split the width in halves, so the departures stay readable."""
     boxes = {
         widget["id"]: widget["box"]
         for widget in open_dashboard(viewport).evaluate(LAYOUT)["widgets"]
     }
     departures, weather, calendar = boxes["departures"], boxes["weather"], boxes["calendar"]
 
-    assert departures["right"] - departures["left"] == pytest.approx(
-        calendar["right"] - calendar["left"], abs=1
-    )
+    left = departures["right"] - departures["left"]
+    right = calendar["right"] - calendar["left"]
+    assert right / (left + right) == pytest.approx(0.55, abs=0.005)
     # the gap between weather and departures is taken from both
     column = calendar["bottom"] - weather["top"]
     third = column / 3
