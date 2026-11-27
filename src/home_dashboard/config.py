@@ -72,7 +72,9 @@ class PersonConfig(_Strict):
 class EveryoneConfig(_Strict):
     """Events for everyone: titles with one of these keywords, or without any person keyword."""
 
-    label: str = "Alle"
+    label: str | None = Field(
+        default=None, min_length=1, description="legend label, default from the UI language"
+    )
     color: Color = "#c9b458"
     match: list[str] = []
 
@@ -94,8 +96,8 @@ class BirthdaysConfig(_Strict):
 
     enabled: bool = True
     ical_url: str | None = None
-    title: str = Field(
-        default="Geburtstage & mehr", min_length=1, description="heading of the widget"
+    title: str | None = Field(
+        default=None, min_length=1, description="heading, default from the UI language"
     )
     days: int = Field(
         default=14, ge=1, le=366, description="upper limit, the display shows as many as fit"

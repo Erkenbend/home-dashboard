@@ -3,7 +3,7 @@
 {%- set fit_priority = {"ok": 2, "warning": 1, "failing": 0} %}
 <ul class="status-services">
   {% for service in status.services %}
-  <li class="service service-{{ service.state }}" data-service="{{ service.name }}" data-fit-priority="{{ fit_priority[service.state] }}" title="{{ service.name }}: {{ service.description }}">
+  <li class="service service-{{ service.state }}" data-service="{{ service.name }}" data-fit-priority="{{ fit_priority[service.state] }}" title="{{ service.name }}: {{ t('status.' ~ service.state, failures=service.failures) }}">
     <span class="service-bubble"></span>
     <span class="service-name">{{ service.name }}</span>
   </li>

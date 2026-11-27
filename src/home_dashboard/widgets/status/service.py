@@ -28,14 +28,6 @@ class ServiceStatus:
     failures: int
     """Failed checks in a row"""
 
-    @property
-    def description(self) -> str:
-        if self.failures == 0:
-            return "erreichbar"
-        if self.failures == 1:
-            return "letzte Prüfung fehlgeschlagen"
-        return f"{self.failures} Prüfungen in Folge fehlgeschlagen"
-
 
 @dataclass(frozen=True)
 class StatusView:

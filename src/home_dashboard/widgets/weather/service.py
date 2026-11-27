@@ -11,44 +11,46 @@ from datetime import datetime, timedelta
 from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import WeatherConfig
+from home_dashboard.i18n import Translator
 from home_dashboard.widgets.weather.source import HourForecast, WeatherSource
 
 log = logging.getLogger(__name__)
 
 LATER_HOURS = (1, 2)
 
-# WMO weather interpretation codes -> (German description, icon of widgets/weather_icons.html)
-_CONDITIONS: dict[int, tuple[str, str]] = {
-    0: ("Klar", "clear"),
-    1: ("Leicht bewölkt", "partly"),
-    2: ("Teils bewölkt", "partly"),
-    3: ("Bedeckt", "cloudy"),
-    45: ("Nebel", "fog"),
-    48: ("Reifnebel", "fog"),
-    51: ("Leichter Nieselregen", "drizzle"),
-    53: ("Nieselregen", "drizzle"),
-    55: ("Starker Nieselregen", "drizzle"),
-    56: ("Gefrierender Nieselregen", "sleet"),
-    57: ("Gefrierender Nieselregen", "sleet"),
-    61: ("Leichter Regen", "rain"),
-    63: ("Regen", "rain"),
-    65: ("Starker Regen", "rain"),
-    66: ("Gefrierender Regen", "sleet"),
-    67: ("Gefrierender Regen", "sleet"),
-    71: ("Leichter Schneefall", "snow"),
-    73: ("Schneefall", "snow"),
-    75: ("Starker Schneefall", "snow"),
-    77: ("Schneegriesel", "snow"),
-    80: ("Leichte Regenschauer", "rain"),
-    81: ("Regenschauer", "rain"),
-    82: ("Heftige Regenschauer", "rain"),
-    85: ("Leichte Schneeschauer", "snow"),
-    86: ("Schneeschauer", "snow"),
-    95: ("Gewitter", "thunder"),
-    96: ("Gewitter mit Hagel", "thunder"),
-    99: ("Gewitter mit Hagel", "thunder"),
+# WMO weather interpretation codes -> icon of widgets/weather_icons.html (texts: the catalog,
+# weather.conditions)
+WMO_ICONS: dict[int, str] = {
+    0: "clear",
+    1: "partly",
+    2: "partly",
+    3: "cloudy",
+    45: "fog",
+    48: "fog",
+    51: "drizzle",
+    53: "drizzle",
+    55: "drizzle",
+    56: "sleet",
+    57: "sleet",
+    61: "rain",
+    63: "rain",
+    65: "rain",
+    66: "sleet",
+    67: "sleet",
+    71: "snow",
+    73: "snow",
+    75: "snow",
+    77: "snow",
+    80: "rain",
+    81: "rain",
+    82: "rain",
+    85: "snow",
+    86: "snow",
+    95: "thunder",
+    96: "thunder",
+    99: "thunder",
 }
-_UNKNOWN = ("Unbekannt", "cloudy")
+_UNKNOWN_ICON = "cloudy"
 _DAY_NIGHT_ICONS = {"clear", "partly"}  # sun by day, moon by night
 
 
@@ -60,12 +62,16 @@ class Condition:
     thunder"""
 
 
-def condition(code: int, is_day: bool = True) -> Condition:
-    label, icon = _CONDITIONS.get(code, _UNKNOWN)
+def condition(code: int, is_day: bool, translator: Translator) -> Condition:
+    icon = WMO_ICONS.get(code, _UNKNOWN_ICON)
     if icon in _DAY_NIGHT_ICONS:
         icon = f"{icon}-{'day' if is_day else 'night'}"
     if code == 0 and is_day:
-        label = "Sonnig"
+        label = translator.t("weather.sunny")
+    elif code in WMO_ICONS:
+        label = translator.t(f"weather.conditions.{code}")
+    else:
+        label = translator.t("weather.unknown")
     return Condition(label, icon)
 
 
@@ -74,13 +80,14 @@ def degrees(celsius: float) -> int:
     return math.floor(celsius + 0.5)
 
 
-# WHO UV index categories: (lowest whole value, level for the colour code, German label)
-_UV_LEVELS = (
-    (11, "extreme", "extrem"),
-    (8, "very-high", "sehr hoch"),
-    (6, "high", "hoch"),
-    (3, "moderate", "mäßig"),
-    (0, "low", "niedrig"),
+# WHO UV index categories: (lowest whole value, level for the colour code and the catalog,
+# weather.uv_levels)
+UV_LEVELS = (
+    (11, "extreme"),
+    (8, "very-high"),
+    (6, "high"),
+    (3, "moderate"),
+    (0, "low"),
 )
 
 
@@ -93,10 +100,10 @@ class UvIndex:
     label: str
 
 
-def uv_index(value: float) -> UvIndex:
+def uv_index(value: float, translator: Translator) -> UvIndex:
     whole = max(0, math.floor(value + 0.5))
-    _, level, label = next(category for category in _UV_LEVELS if whole >= category[0])
-    return UvIndex(whole, level, label)
+    _, level = next(category for category in UV_LEVELS if whole >= category[0])
+    return UvIndex(whole, level, translator.t(f"weather.uv_levels.{level}"))
 
 
 @dataclass(frozen=True)
@@ -134,11 +141,13 @@ class WeatherService:
         source: WeatherSource,
         clock: Clock,
         cache: TtlCache,
+        translator: Translator,
     ) -> None:
         self._config = config
         self._source = source
         self._clock = clock
         self._cache = cache
+        self._t = translator
 
     def view(self) -> WeatherView:
         view = WeatherView()
@@ -158,19 +167,24 @@ class WeatherService:
         view.apparent_temperature = degrees(forecast.current.apparent_temperature)
         view.temperature = degrees(forecast.current.temperature)
         current = forecast.current
-        view.slots = [Slot("jetzt", condition(current.code, current.is_day), _uv(current.uv_index))]
+        view.slots = [
+            Slot(
+                self._t.t("weather.now"),
+                condition(current.code, current.is_day, self._t),
+                self._uv(current.uv_index),
+            )
+        ]
         for hours_ahead in LATER_HOURS:
             hour = nearest_hour(forecast.hours, now + timedelta(hours=hours_ahead))
             if hour is not None:
                 view.slots.append(
                     Slot(
-                        f"{hour.time.hour} Uhr",
-                        condition(hour.code, hour.is_day),
-                        _uv(hour.uv_index),
+                        self._t.hour(hour.time.hour),
+                        condition(hour.code, hour.is_day, self._t),
+                        self._uv(hour.uv_index),
                     )
                 )
         return view
 
-
-def _uv(value: float | None) -> UvIndex | None:
-    return None if value is None else uv_index(value)
+    def _uv(self, value: float | None) -> UvIndex | None:
+        return None if value is None else uv_index(value, self._t)

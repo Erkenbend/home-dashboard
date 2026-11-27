@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ t('page.lang') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +7,7 @@
   {% if config.display.page_reload_hours > 0 %}
   <meta http-equiv="refresh" content="{{ (config.display.page_reload_hours * 3600) | round | int }}">
   {% endif %}
-  <title>Dashboard</title>
+  <title>{{ t('page.title') }}</title>
   {# Versioned URLs: a changed file gets a new URL, so the kiosk browser cannot keep a stale copy #}
   <link rel="stylesheet" href="{{ static_url('style.css') }}">
   <script src="{{ static_url('htmx.min.js') }}"></script>

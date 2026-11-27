@@ -1,13 +1,13 @@
-<h2 class="widget-title">Abfahrten</h2>
+<h2 class="widget-title">{{ t('departures.title') }}</h2>
 {% for board in boards %}
 <div class="stop" data-stop="{{ board.name }}">
   <h3 class="stop-name">
     {{ board.name }}
     {%- if board.direction %} <span class="stop-direction">→ {{ board.direction }}</span>{% endif %}
-    <span class="stop-walk">{{ board.walk_minutes }} min Fußweg</span>
+    <span class="stop-walk">{{ t('departures.walk', minutes=board.walk_minutes) }}</span>
   </h3>
   {% if board.unavailable %}
-  <p class="notice">Keine Daten verfügbar</p>
+  <p class="notice">{{ t('departures.unavailable') }}</p>
   {% else %}
   {#- With a configured stop direction, the destination of each departure is redundant #}
   <table class="departures{% if board.direction %} without-direction{% endif %}">
@@ -22,18 +22,18 @@
         <span class="departure-time">{{ row.when | time }}</span>{% if row.delay > 0 %} <span class="delay">(+{{ row.delay }})</span>{% endif %}
       </td>
       {% if row.cancelled %}
-      <td class="status" colspan="2">fällt aus</td>
+      <td class="status" colspan="2">{{ t('departures.cancelled') }}</td>
       {% else %}
-      <td class="minutes">in {{ row.minutes }} min</td>
-      <td class="leave">{% if row.leave_in <= 0 %}jetzt los!{% else %}los in {{ row.leave_in }} min{% endif %}</td>
+      <td class="minutes">{{ t('departures.in_minutes', minutes=row.minutes) }}</td>
+      <td class="leave">{% if row.leave_in <= 0 %}{{ t('departures.leave_now') }}{% else %}{{ t('departures.leave_in', minutes=row.leave_in) }}{% endif %}</td>
       {% endif %}
     </tr>
     {% else %}
-    <tr><td class="notice">Keine erreichbaren Abfahrten</td></tr>
+    <tr><td class="notice">{{ t('departures.none_reachable') }}</td></tr>
     {% endfor %}
   </table>
   {% if board.stale %}
-  <p class="notice stale">Stand: {{ board.fetched_at | time }}</p>
+  <p class="notice stale">{{ t('common.stale', time=board.fetched_at | time) }}</p>
   {% endif %}
   {% endif %}
 </div>

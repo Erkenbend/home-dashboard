@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import CalendarConfig
-from home_dashboard.formatting import format_day_label, format_time
+from home_dashboard.i18n import Translator
 from home_dashboard.widgets.calendar.source import CalendarSource, Event
 
 log = logging.getLogger(__name__)
@@ -78,12 +78,12 @@ _SEPARATORS = re.compile(r"[\s:,;/&+|\-–—]*")
 
 
 class _PersonMatcher:
-    def __init__(self, config: CalendarConfig) -> None:
+    def __init__(self, config: CalendarConfig, everyone_label: str) -> None:
         self._people = [
             (Tag(person.name, person.color), [_keyword_pattern(k) for k in person.match])
             for person in config.people
         ]
-        self._everyone_tag = Tag(config.everyone.label, config.everyone.color)
+        self._everyone_tag = Tag(config.everyone.label or everyone_label, config.everyone.color)
         self._everyone = [_keyword_pattern(k) for k in config.everyone.match]
         # Longest first, so "A -" wins over "A"
         self._prefixes = sorted(
@@ -124,13 +124,15 @@ class CalendarService:
         clock: Clock,
         cache: TtlCache,
         timezone: str,
+        translator: Translator,
     ) -> None:
         self._config = config
         self._source = source
         self._clock = clock
         self._cache = cache
         self._tz = ZoneInfo(timezone)
-        self._matcher = _PersonMatcher(config)
+        self._t = translator
+        self._matcher = _PersonMatcher(config, translator.t("calendar.everyone"))
 
     def view(self) -> CalendarView:
         now = self._clock.now().astimezone(self._tz)
@@ -160,7 +162,7 @@ class CalendarService:
                 if self._occurs_on(event, day)
             ]
             if rows or day == today:
-                view.days.append(Day(day, format_day_label(day, today), day == today, rows))
+                view.days.append(Day(day, self._t.day_label(day, today), day == today, rows))
         return view
 
     def _midnight(self, day: date) -> datetime:
@@ -192,19 +194,26 @@ class CalendarService:
         )
 
     def _time_label(self, event: Event, day: date) -> TimeLabel:
+        t = self._t
         if event.all_day:
             total = (event.end - event.start).days
             if total > 1:
-                return TimeLabel(f"Tag {(day - event.start).days + 1}/{total}")
-            return TimeLabel("ganztägig")
+                number = (day - event.start).days + 1
+                return TimeLabel(t.t("calendar.day_of", day=number, total=total))
+            return TimeLabel(t.t("calendar.all_day"))
+        start, end = t.time(event.start), t.time(event.end)
         starts_today = event.start.date() == day
         ends_today = event.end <= self._midnight(day + timedelta(days=1))
         if starts_today and ends_today:
             if event.start == event.end:
-                return TimeLabel(start=format_time(event.start))
-            return TimeLabel(start=format_time(event.start), after=f"–{format_time(event.end)}")
+                return TimeLabel(start=start)
+            return self._emphasize_start("calendar.range", start, end=end)
         if starts_today:
-            return TimeLabel("ab ", format_time(event.start))
+            return self._emphasize_start("calendar.from", start)
         if ends_today:
-            return TimeLabel(f"bis {format_time(event.end)}")
-        return TimeLabel("ganztägig")
+            return TimeLabel(t.t("calendar.until", end=end))
+        return TimeLabel(t.t("calendar.all_day"))
+
+    def _emphasize_start(self, key: str, start: str, **values: object) -> TimeLabel:
+        before, after = self._t.around(key, "start", **values)
+        return TimeLabel(before, start, after)

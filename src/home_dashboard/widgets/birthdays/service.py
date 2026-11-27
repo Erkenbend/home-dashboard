@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 from home_dashboard.cache import TtlCache, fetch_interval
 from home_dashboard.clock import Clock
 from home_dashboard.config import BirthdaysConfig
-from home_dashboard.formatting import format_day_label, format_time
+from home_dashboard.i18n import Translator
 from home_dashboard.widgets.birthdays.parsing import Kind, parse
 from home_dashboard.widgets.calendar.source import CalendarSource, Event
 
@@ -53,19 +53,21 @@ class BirthdaysService:
         clock: Clock,
         cache: TtlCache,
         timezone: str,
+        translator: Translator,
     ) -> None:
         self._config = config
         self._source = source
         self._clock = clock
         self._cache = cache
         self._tz = ZoneInfo(timezone)
+        self._t = translator
 
     def view(self) -> BirthdaysView:
         today = self._clock.now().astimezone(self._tz).date()
         window_start = self._midnight(today)
         window_end = self._midnight(today + timedelta(days=self._config.days))
 
-        view = BirthdaysView(title=self._config.title)
+        view = BirthdaysView(title=self._config.title or self._t.t("birthdays.title"))
         try:
             cached = self._cache.get(
                 ("birthdays", today),
@@ -92,19 +94,19 @@ class BirthdaysService:
         parsed = parse(event, self._config.ignore_contacts)
         return Occasion(
             day=day,
-            label=format_day_label(day, today),
+            label=self._t.day_label(day, today),
             kind=parsed.kind,
             name=parsed.name,
             contact=parsed.contact,
             years=self._years(parsed.kind, start.year - parsed.year if parsed.year else 0),
-            time="" if event.all_day else format_time(event.start),
+            time="" if event.all_day else self._t.time(event.start),
             is_today=day == today,
         )
 
-    @staticmethod
-    def _years(kind: Kind, years: int) -> str:
+    def _years(self, kind: Kind, years: int) -> str:
         if years <= 0:  # unknown year, or the year it happened
             return ""
         if kind is Kind.BIRTHDAY:
-            return f"wird {years}"
-        return f"{years} Jahr" if years == 1 else f"{years} Jahre"
+            return self._t.t("birthdays.turns", years=years)
+        key = "birthdays.years_one" if years == 1 else "birthdays.years_other"
+        return self._t.t(key, years=years)

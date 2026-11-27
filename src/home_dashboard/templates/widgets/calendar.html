@@ -1,6 +1,6 @@
-<h2 class="widget-title">Termine</h2>
+<h2 class="widget-title">{{ t('calendar.title') }}</h2>
 {% if calendar.unavailable %}
-<p class="notice">Kalender nicht verfügbar</p>
+<p class="notice">{{ t('calendar.unavailable') }}</p>
 {% else %}
 {#- When space is short, past events of today go first (earliest first), then events from the end of the window.
     The first upcoming event always stays. #}
@@ -18,11 +18,11 @@
       <span class="event-time">{{ row.time.before }}{% if row.time.start %}<span class="event-start">{{ row.time.start }}</span>{% endif %}{{ row.time.after }}</span>
       <span class="event-text"><span class="event-title">{{ row.title }}</span>{% if row.names %} <span class="event-names">({{ row.names }})</span>{% endif %}</span>
       {% if row.recurring %}
-      <svg class="recurring-icon" viewBox="0 0 24 24" width="18" height="18" aria-label="Serientermin"><title>Serientermin</title><path fill="currentColor" d="M12 4V1L8 5l4 4V6a6 6 0 0 1 6 6c0 1-.25 1.97-.7 2.8l1.46 1.46A7.96 7.96 0 0 0 20 12a8 8 0 0 0-8-8zm0 14a6 6 0 0 1-6-6c0-1 .25-1.97.7-2.8L5.24 7.74A7.96 7.96 0 0 0 4 12a8 8 0 0 0 8 8v3l4-4-4-4v3z"/></svg>
+      <svg class="recurring-icon" viewBox="0 0 24 24" width="18" height="18" aria-label="{{ t('calendar.recurring') }}"><title>{{ t('calendar.recurring') }}</title><path fill="currentColor" d="M12 4V1L8 5l4 4V6a6 6 0 0 1 6 6c0 1-.25 1.97-.7 2.8l1.46 1.46A7.96 7.96 0 0 0 20 12a8 8 0 0 0-8-8zm0 14a6 6 0 0 1-6-6c0-1 .25-1.97.7-2.8L5.24 7.74A7.96 7.96 0 0 0 4 12a8 8 0 0 0 8 8v3l4-4-4-4v3z"/></svg>
       {% endif %}
     </li>
     {% else %}
-    <li class="notice"{% if fit.upcoming > 0 %} data-fit-priority="{{ fit.upcoming }}"{% endif %}>Keine Termine</li>{% set fit.upcoming = fit.upcoming + 1 %}
+    <li class="notice"{% if fit.upcoming > 0 %} data-fit-priority="{{ fit.upcoming }}"{% endif %}>{{ t('calendar.no_events') }}</li>{% set fit.upcoming = fit.upcoming + 1 %}
     {% endfor %}
   </ul>
 </div>
@@ -31,6 +31,6 @@
   {% for tag in calendar.legend %}<span class="legend-item"><span class="marker" style="background-color: {{ tag.color }}"></span>{{ tag.name }}</span>{% endfor %}
 </p>
 {% if calendar.stale %}
-<p class="notice stale">Stand: {{ calendar.fetched_at | time }}</p>
+<p class="notice stale">{{ t('common.stale', time=calendar.fetched_at | time) }}</p>
 {% endif %}
 {% endif %}

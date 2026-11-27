@@ -1,0 +1,111 @@
+# German UI texts: the reference catalog (see docs/customizing.md, "Language").
+# {placeholders} are filled in by the dashboard; keep them, translate everything else.
+
+[page]
+lang = "de"  # <html lang>
+title = "Dashboard"
+offline = "Keine Verbindung seit {time}"
+source_code = "Quellcode auf GitHub"
+
+[dates]
+weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
+weekdays_short = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+months = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember",
+]
+today = "Heute"
+tomorrow = "Morgen"
+# Fields: {weekday}, {weekday_short}, {day}, {month} (number), {month_name}, {year};
+# {day:02} pads with a zero
+long_date = "{weekday}, {day}. {month_name} {year}"
+short_date = "{weekday_short}, {day:02}.{month:02}."
+hour = "{hour} Uhr"
+
+[common]
+stale = "Stand: {time}"  # last successful update, shown while a source is down
+
+[departures]
+title = "Abfahrten"
+walk = "{minutes} min Fußweg"
+unavailable = "Keine Daten verfügbar"
+none_reachable = "Keine erreichbaren Abfahrten"
+in_minutes = "in {minutes} min"
+leave_in = "los in {minutes} min"
+leave_now = "jetzt los!"
+cancelled = "fällt aus"
+
+[calendar]
+title = "Termine"
+unavailable = "Kalender nicht verfügbar"
+no_events = "Keine Termine"
+everyone = "Alle"  # default of calendar.everyone.label
+recurring = "Serientermin"
+all_day = "ganztägig"
+day_of = "Tag {day}/{total}"  # day of an event over several days
+range = "{start}–{end}"
+from = "ab {start}"  # starts that day, ends later
+until = "bis {end}"  # started earlier, ends that day
+
+[birthdays]
+title = "Geburtstage & mehr"  # default of birthdays.title
+unavailable = "Nicht verfügbar"
+none = "Keine in den nächsten {days} Tagen"
+birthday = "Geburtstag"
+anniversary = "Jahrestag"
+other = "Ereignis"
+turns = "wird {years}"  # birthday with a known year
+years_one = "{years} Jahr"  # anniversaries and other events
+years_other = "{years} Jahre"
+
+[weather]
+title = "Wetter"
+unavailable = "Wetter nicht verfügbar"
+actual = "echt"  # measured temperature
+apparent = "gefühlt"  # "feels like"
+now = "jetzt"
+uv = "UV-Index {value}: {label}"
+sunny = "Sonnig"  # clear sky by day
+unknown = "Unbekannt"
+
+[weather.conditions]  # WMO weather interpretation codes
+"0" = "Klar"
+"1" = "Leicht bewölkt"
+"2" = "Teils bewölkt"
+"3" = "Bedeckt"
+"45" = "Nebel"
+"48" = "Reifnebel"
+"51" = "Leichter Nieselregen"
+"53" = "Nieselregen"
+"55" = "Starker Nieselregen"
+"56" = "Gefrierender Nieselregen"
+"57" = "Gefrierender Nieselregen"
+"61" = "Leichter Regen"
+"63" = "Regen"
+"65" = "Starker Regen"
+"66" = "Gefrierender Regen"
+"67" = "Gefrierender Regen"
+"71" = "Leichter Schneefall"
+"73" = "Schneefall"
+"75" = "Starker Schneefall"
+"77" = "Schneegriesel"
+"80" = "Leichte Regenschauer"
+"81" = "Regenschauer"
+"82" = "Heftige Regenschauer"
+"85" = "Leichte Schneeschauer"
+"86" = "Schneeschauer"
+"95" = "Gewitter"
+"96" = "Gewitter mit Hagel"
+"99" = "Gewitter mit Hagel"
+
+[weather.uv_levels]  # WHO UV index categories
+low = "niedrig"
+moderate = "mäßig"
+high = "hoch"
+very-high = "sehr hoch"
+extreme = "extrem"
+
+[status]  # tooltips of the service bubbles
+ok = "erreichbar"
+warning = "letzte Prüfung fehlgeschlagen"
+failing = "{failures} Prüfungen in Folge fehlgeschlagen"

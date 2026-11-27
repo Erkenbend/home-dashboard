@@ -11,11 +11,13 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from markupsafe import Markup, escape
 
-from home_dashboard import REPOSITORY_URL, formatting
+from home_dashboard import REPOSITORY_URL
 from home_dashboard.cache import TtlCache
 from home_dashboard.clock import Clock, SystemClock
 from home_dashboard.config import AppConfig, config_path_from_env, load_config
+from home_dashboard.i18n import Translator, language_from_env, load_translator
 from home_dashboard.widgets.birthdays.service import BirthdaysService
 from home_dashboard.widgets.calendar.ical_source import IcalCalendarSource
 from home_dashboard.widgets.calendar.service import CalendarService
@@ -54,6 +56,16 @@ def static_url_builder(directory: Path) -> Callable[[str], str]:
     return static_url
 
 
+def _template_translate(translator: Translator) -> Callable[..., Markup]:
+    """`t(key, **values)` for templates: the text is escaped, values too unless marked safe, so a
+    text can wrap markup (`t("page.offline", time="<span …></span>" | safe)`)."""
+
+    def translate(key: str, /, **values: object) -> Markup:
+        return Markup(escape(translator.text(key))).format(**values)
+
+    return translate
+
+
 def create_http_client() -> httpx.Client:
     return httpx.Client(timeout=HTTP_TIMEOUT, headers={"User-Agent": USER_AGENT})
 
@@ -66,8 +78,10 @@ def create_app(
     birthdays_source: CalendarSource | None = None,
     weather_source: WeatherSource | None = None,
     health_check: HealthCheck | None = None,
+    translator: Translator | None = None,
 ) -> FastAPI:
     clock = clock or SystemClock(config.timezone)
+    translator = translator or load_translator()
     cache = TtlCache(clock)
     http = create_http_client()
     departures = DeparturesService(
@@ -79,7 +93,7 @@ def create_app(
     if calendar_source is None and config.calendar.ical_url:
         calendar_source = IcalCalendarSource(http, config.calendar.ical_url, config.timezone)
     calendar = (
-        CalendarService(config.calendar, calendar_source, clock, cache, config.timezone)
+        CalendarService(config.calendar, calendar_source, clock, cache, config.timezone, translator)
         if calendar_source is not None
         else None
     )
@@ -91,6 +105,7 @@ def create_app(
             clock,
             cache,
             config.timezone,
+            translator,
         )
     weather = None
     if location := config.weather_location:
@@ -99,6 +114,7 @@ def create_app(
             weather_source or OpenMeteoSource(http, *location, config.timezone),
             clock,
             cache,
+            translator,
         )
     status = None
     if config.status.services:
@@ -112,8 +128,9 @@ def create_app(
     app.mount("/static", StaticFiles(directory=PACKAGE_DIR / "static"), name="static")
 
     templates = Jinja2Templates(directory=PACKAGE_DIR / "templates")
-    templates.env.filters["time"] = formatting.format_time
-    templates.env.filters["long_date"] = formatting.format_long_date
+    templates.env.globals["t"] = _template_translate(translator)
+    templates.env.filters["time"] = translator.time
+    templates.env.filters["long_date"] = translator.long_date
     templates.env.globals["config"] = config
     templates.env.globals["repository_url"] = REPOSITORY_URL
     templates.env.globals["static_url"] = static_url_builder(PACKAGE_DIR / "static")
@@ -186,4 +203,6 @@ def create_app(
 
 def create_app_from_env() -> FastAPI:
     """Entry point for uvicorn (`--factory`): reads the config path from the environment."""
-    return create_app(load_config(config_path_from_env()))
+    return create_app(
+        load_config(config_path_from_env()), translator=load_translator(language_from_env())
+    )
