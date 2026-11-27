@@ -6,6 +6,8 @@ import itertools
 
 import pytest
 
+from tests.test_departures import FRANCKEPLATZ, RANNISCHER_PLATZ
+
 # Common landscape tablets (CSS pixels) plus portrait
 SMALL = (800, 480)
 LARGE = (1920, 1080)
@@ -36,6 +38,9 @@ LAYOUT = """() => {
     // configured stop directions must not be cut off by the stop name's ellipsis
     cutStopDirections: [...document.querySelectorAll('.stop-direction')].filter(visible)
       .filter((direction) => box(direction).right > box(direction.parentElement).right + 1).length,
+    // the walk time is only a hint and may be cut off on small displays
+    cutWalkTimes: [...document.querySelectorAll('.stop-walk')].filter(visible)
+      .filter((walk) => box(walk).right > box(walk.parentElement).right + 1).length,
     pageScrolls: root.scrollWidth > innerWidth || root.scrollHeight > innerHeight,
   };
 }"""
@@ -81,6 +86,24 @@ def assert_fits(page) -> None:
 @pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
 def test_widgets_fit_the_display_without_overlapping_or_scrolling(open_dashboard, viewport):
     assert_fits(open_dashboard(viewport))
+
+
+BOTH_WITH_DIRECTION = [
+    RANNISCHER_PLATZ.model_copy(update={"direction": "Markt"}),
+    FRANCKEPLATZ.model_copy(update={"direction": "Hauptbahnhof"}),
+]
+
+
+@pytest.mark.parametrize("dashboard_stops", [BOTH_WITH_DIRECTION])
+@pytest.mark.parametrize(
+    "viewport", [LARGE, (1280, 800), (1024, 600)], ids=lambda size: f"{size[0]}x{size[1]}"
+)
+def test_stop_name_direction_and_walk_time_fit_on_one_line(open_dashboard, viewport):
+    page = open_dashboard(viewport)
+    layout = page.evaluate(LAYOUT)
+
+    assert layout["cutWalkTimes"] == 0, "walk time must not be cut off"
+    assert_fits(page)
 
 
 @pytest.mark.parametrize("viewport", [LARGE, (1280, 800)], ids=lambda size: f"{size[0]}x{size[1]}")

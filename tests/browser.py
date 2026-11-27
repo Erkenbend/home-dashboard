@@ -20,6 +20,7 @@ from home_dashboard.config import (
     HomeConfig,
     ServiceConfig,
     StatusConfig,
+    StopConfig,
 )
 from tests.hafas_fake import HafasFake
 from tests.open_meteo_fake import OpenMeteoFake
@@ -92,6 +93,13 @@ def dashboard_services() -> dict[str, int]:
 
 
 @pytest.fixture
+def dashboard_stops() -> list[StopConfig]:
+    """Departure stops. Override with `@pytest.mark.parametrize("dashboard_stops", [...])`."""
+    # One stop with a configured direction, one showing the destination of each tram
+    return [RANNISCHER_PLATZ.model_copy(update={"direction": "Markt"}), FRANCKEPLATZ]
+
+
+@pytest.fixture
 def status_config(respx_mock: respx.Router, dashboard_services: dict[str, int]) -> StatusConfig:
     health = ServicesFake(respx_mock)
     services = []
@@ -132,13 +140,13 @@ def open_dashboard(
     busy_hafas: HafasFake,
     open_meteo: OpenMeteoFake,
     status_config: StatusConfig,
+    dashboard_stops: list[StopConfig],
     network: Network,
 ) -> Iterator[Callable]:
     config = AppConfig(
         home=HomeConfig(lat=51.48, lon=11.97),
         departures=DeparturesConfig(
-            # One stop with a configured direction, one showing the destination of each tram
-            stops=[RANNISCHER_PLATZ.model_copy(update={"direction": "Markt"}), FRANCKEPLATZ],
+            stops=dashboard_stops,
             max_per_stop=8,
         ),
         calendar=CalendarConfig(ical_url=ICAL_URL, people=[ALICE, BOB], everyone=EVERYONE, days=14),
