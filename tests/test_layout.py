@@ -497,7 +497,7 @@ SEPARATORS = """() => {
 
 
 @pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
-def test_fine_lines_separate_the_widgets(open_dashboard, viewport):
+def test_fine_lines_separate_the_widgets_and_join_each_other(open_dashboard, viewport):
     page = open_dashboard(viewport)
     separators = page.evaluate(SEPARATORS)
     lines, widgets = separators["lines"], separators["widgets"]
@@ -520,12 +520,14 @@ def test_fine_lines_separate_the_widgets(open_dashboard, viewport):
         ]
         assert len(found) == 1, (first, second, lines)
         assert found[0]["from"] <= span[0] + 1 and found[0]["to"] >= span[1] - 1, found[0]
+        return found[0]
 
-    separated(weather, departures, side_by_side=False)
-    separated(calendar, birthdays, side_by_side=False)
+    outdoors = separated(weather, departures, side_by_side=False)
+    birthdays_line = separated(calendar, birthdays, side_by_side=False)
+    between = separated(departures, calendar, side_by_side=landscape)
     if landscape:
-        separated(departures, calendar, side_by_side=True)
-    else:
-        separated(departures, calendar, side_by_side=False)
+        # like in the weather widget: the horizontal lines run into the vertical one
+        assert outdoors["to"] == pytest.approx(between["at"], abs=1)
+        assert birthdays_line["from"] == pytest.approx(between["at"], abs=1)
     assert len(lines) == 3, "no line at the edges of the display"
     assert_fits(page)
