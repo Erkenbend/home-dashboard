@@ -463,3 +463,69 @@ def test_the_years_follow_the_name_and_are_never_cut_off(open_dashboard, viewpor
     assert short["years"]["right"] < short["row"]["right"] - 5 * short["rem"], "not at the edge"
     assert long["years"]["right"] <= long["row"]["right"] + 1, "the long name gives way"
     assert long["years"]["left"] >= long["text"]["right"]
+
+
+SEPARATORS = """() => {
+  const box = (el) => {
+    const b = el.getBoundingClientRect();
+    return {left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+  };
+  // Every drawn border of the columns and widgets, as a line
+  const lines = [];
+  for (const el of document.querySelectorAll('.column, .widget')) {
+    const style = getComputedStyle(el);
+    const b = box(el);
+    const width = (side) => style[`border${side}Style`] !== 'none'
+      ? parseFloat(style[`border${side}Width`]) : 0;
+    if (width('Left')) lines.push({vertical: true, at: b.left, from: b.top, to: b.bottom});
+    if (width('Top')) lines.push({vertical: false, at: b.top, from: b.left, to: b.right});
+    if (width('Bottom')) lines.push({vertical: false, at: b.bottom, from: b.left, to: b.right});
+  }
+  // Where the widgets' content begins and ends (inside their padding)
+  const content = (id) => {
+    const widget = document.getElementById(id);
+    const visible = [...widget.children].filter((child) => child.offsetParent !== null);
+    return {
+      ...box(widget),
+      top: box(visible[0]).top,
+      bottom: Math.max(...visible.map((child) => box(child).bottom)),
+    };
+  };
+  return {lines, widgets: Object.fromEntries(
+    ['weather', 'departures', 'calendar', 'birthdays'].map((id) => [id, content(id)]))};
+}"""
+
+
+@pytest.mark.parametrize("viewport", VIEWPORTS, ids=lambda size: f"{size[0]}x{size[1]}")
+def test_fine_lines_separate_the_widgets(open_dashboard, viewport):
+    page = open_dashboard(viewport)
+    separators = page.evaluate(SEPARATORS)
+    lines, widgets = separators["lines"], separators["widgets"]
+    weather, departures = widgets["weather"], widgets["departures"]
+    calendar, birthdays = widgets["calendar"], widgets["birthdays"]
+    landscape = viewport[0] > viewport[1]
+
+    def separated(first, second, side_by_side):
+        """Exactly one line in the gap between two widgets, as long as they are"""
+        if side_by_side:
+            gap = (first["right"], second["left"])
+            span = (min(first["top"], second["top"]), max(first["bottom"], second["bottom"]))
+        else:
+            gap = (first["bottom"], second["top"])
+            span = (max(first["left"], second["left"]), min(first["right"], second["right"]))
+        found = [
+            line
+            for line in lines
+            if line["vertical"] == side_by_side and gap[0] <= line["at"] <= gap[1]
+        ]
+        assert len(found) == 1, (first, second, lines)
+        assert found[0]["from"] <= span[0] + 1 and found[0]["to"] >= span[1] - 1, found[0]
+
+    separated(weather, departures, side_by_side=False)
+    separated(calendar, birthdays, side_by_side=False)
+    if landscape:
+        separated(departures, calendar, side_by_side=True)
+    else:
+        separated(departures, calendar, side_by_side=False)
+    assert len(lines) == 3, "no line at the edges of the display"
+    assert_fits(page)
